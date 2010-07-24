@@ -25,29 +25,31 @@ start program
 rule
 
 program:
-	/* nothing */             { puts "" }
-	| statementList           { puts val.first.join(";\n"); }
+	/* nothing */             { Program.new }
+	| statementList           { Program.new val.first; }
 	;
 
 statementList:
-	statement semicolonOrNewline                    { [val.first] }
+	statement semicolonOrNewline                    { [ Statement.new val.first ] }
 	| statementList statement semicolonOrNewline    { val.pop; val.first.push val.last }
 	;
 
 statement:
 	/* factDefinitionStatement */
 	FACTS IDENTIFIER COLON optNEWLINE factList
-	{ factList = val.pop; factList = factList.length>0 ? '{ '+factList.join(', ')+' }' : '∅'; val.reject{|s|s==''}.join(' ')+' '+factList }
+	/*{ factList = val.pop; factList = factList.length>0 ? '{ '+factList.join(', ')+' }' : '∅'; val.reject{|s|s==''}.join(' ')+' '+factList }*/
+	{ Assignment.new val[1], val.last }
 	| /* ruleDefinitionStatement */
 	RULES IDENTIFIER COLON optNEWLINE BRACE_OPEN optNEWLINE ruleList optNEWLINE BRACE_CLOSE
-	{ ruleList = val[6].collect{|s|"\t"+s+",\n"}; val[0..3].reject{|s|s==''}.join(' ')+" {\n"+ruleList.join('')+'}' }
+	/*{ ruleList = val[6].collect{|s|"\t"+s+",\n"}; val[0..3].reject{|s|s==''}.join(' ')+" {\n"+ruleList.join('')+'}' }*/
+	{ Assignment.new val[1], val[6] }
 	| /* chaseStatement */
-	CHASE identifierList                      { val.first+' '+val.last.join(', ') }
+	CHASE identifierList                      { ChaseStatement.new *val.last }
 	;
 
 factList:
 	EMPTY_SET                                 { [] }
-	| BRACE_OPEN predicateList BRACE_CLOSE    { val.first + ' ' + val[1] + val[2].join(', ') + val[3] }
+	| BRACE_OPEN predicateList BRACE_CLOSE    { val[1] }
 	;
 
 predicateList:
@@ -61,28 +63,28 @@ identifierList:
 	;
 
 ruleList:
-	rule                                      { val }
+	rule                                      { [ Rule.new val.first ] }
 	| ruleList commaOrNewline rule            { val.first.push val.last }
 	;
 
 rule:
 	/* existentialRule */
-	THERE_EXISTS optCOLON predicateExpression    { val[0]='∃'+val.first.join(''); val.join(' ') }
+	THERE_EXISTS optCOLON predicateExpression    { ExistentialRule.new val.first, val.last }
 	| /* truthStatement */
-	FOR_ALL COLON truthStatementBody             { val[0]='∀'+val.first.join(''); val.join(' ') }
+	FOR_ALL COLON truthStatementBody             { TruthStatement.new val.first, val.last } 
 	;
 
 truthStatementBody:
-	predicateExpression                       { val.first }
+	predicateExpression                       { PredicateExpression.new val.first }
 	| /* predicateImplication */
-	predicateExpression IMPLIES expression    { val.join(' ') }
+	predicateExpression IMPLIES expression    { PredicateImplication.new val.first, val.last }
 	;
 
 predicateExpression:
 	predicate                                              { val.first }
-	| optNOT PAREN_OPEN predicateExpression PAREN_CLOSE    { val.join('') }
-	| predicateExpression AND predicateExpression          { '('+val.join(' ')+')' }
-	| predicateExpression OR predicateExpression           { val.join(' ') }
+	| optNOT PAREN_OPEN predicateExpression PAREN_CLOSE    { val[2].not if val[0]; val[2] }
+	| predicateExpression AND predicateExpression          { PredicateExpressionAND.new val.first, val.last }
+	| predicateExpression OR predicateExpression           { PredicateExpressionOR.new val.first, val.last }
 	;
 
 expression:
@@ -91,34 +93,34 @@ expression:
 	;
 
 terminalExpression:
-	IDENTIFIER                                                  { val.first }
-	| optNOT PAREN_OPEN terminalExpression PAREN_CLOSE          { val.pop+val.join(' ') }
+	IDENTIFIER                                                  { TerminalExpression.new val.first }
+	| optNOT PAREN_OPEN terminalExpression PAREN_CLOSE          { val[2].not if val[0]; val[2] }
 	| /* terminalEquality */
-	terminalExpression EQ terminalExpression                    { val.join(' ') }
+	terminalExpression EQ terminalExpression                    { TerminalExpressionEquality.new val.first, val.last }
 	| /* terminalInequality */
-	terminalExpression inequalityOperator terminalExpression    { val.join(' ') }
-	| terminalExpression MULTIPLY terminalExpression            { '('+val.join('')+')' }
-	| terminalExpression DIVIDE terminalExpression              { '('+val.join('')+')' }
-	| terminalExpression PLUS terminalExpression                { val.join(' ') }
-	| terminalExpression MINUS terminalExpression               { val.join(' ') }
+	terminalExpression inequalityOperator terminalExpression    { TerminalExpressionInequality.new *val  }
+	| terminalExpression MULTIPLY terminalExpression            { TerminalExpressionMultiply.new val.first, val.last }
+	| terminalExpression DIVIDE terminalExpression              { TerminalExpressionDivide.new val.first, val.last }
+	| terminalExpression PLUS terminalExpression                { TerminalExpresionPlus.new val.first, val.last }
+	| terminalExpression MINUS terminalExpression               { TerminalExpresionMinus.new val.first, val.last }
 	;
 
 inequalityOperator:
-	LT                        { val.first }
-	| GT                      { val.first }
-	| LTE                     { val.first }
-	| GTE                     { val.first }
-	| NE                      { val.first }
+	LT                        { @@constants[:LT] }
+	| GT                      { @@constants[:GT] }
+	| LTE                     { @@constants[:LTE] }
+	| GTE                     { @@constants[:GTE] }
+	| NE                      { @@constants[:NE] }
 	;
 
 predicate:
-	PREDICATE                 { val.first[:symbol]+val.first[:terminals].join('') }
-	| NOT PREDICATE           { val.join('') }
+	PREDICATE                 { Predicate.new val.first[:symbol], val.first[:terminals] }
+	| NOT predicate           { val[1].not; val[1] }
 	;
 
-optNOT:     /* nothing */ { '' } | NOT     { val.first } ;
-optCOLON:   /* nothing */ { '' } | COLON   { val.first } ;
-optNEWLINE: /* nothing */ { '' } | NEWLINE { val.first } ;
+optNOT:     /* nothing */ { false } | NOT     { true } ;
+optCOLON:   /* nothing */ { false } | COLON   { true } ;
+optNEWLINE: /* nothing */ { false } | NEWLINE { true } ;
 
 commaOrNewline:
 	NEWLINE                   { val.first }
@@ -136,6 +138,17 @@ end
 	require 'first-order-logic.rex.rb'
 
 ---- inner
+
+	const = 0
+	@@operators = {
+		:NOT => const++,
+		:LT => const++,
+		:GT => const++,
+		:LTE => const++,
+		:GTE => const++,
+		:NE => const++
+	}
+
 	def parse_file file
 		load_file file
 		do_parse
