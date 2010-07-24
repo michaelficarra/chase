@@ -7,7 +7,7 @@ rule
 	facts                       {[:FACTS, text]}
 	rules                       {[:RULES, text]}
 	chase                       {[:CHASE, text]}
-	([A-Z]+)([a-z]+)            {
+	[A-Z]+[a-z]+                {
 	                                match = text.match(/^([A-Z]+)([a-z]+)$/);
 	                                [:PREDICATE, {
 	                                    :symbol => match[1],
