@@ -1,0 +1,9 @@
+facts f: ∅
+rules r: {
+	∃xy Rxy
+	∀x: Rxx
+	∀xy: Rxy ∧ Ryx → x=y
+	∀xyz: Rxy ∧ Ryz → Rxz
+	∀xy: Rxy ∨ Ryx
+}
+chase f, r
