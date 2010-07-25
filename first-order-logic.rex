@@ -32,6 +32,6 @@ rule
 	=                           {[:EQ, text]}
 	\+                          {[:PLUS, text]}
 	\-                          {[:MINUS, text]}
-	\*                          {[:MULTIPLY, text]}
-	\/                          {[:DIVIDE, text]}
+	[\*·]                       {[:MULTIPLY, text]}
+	[\/÷]                       {[:DIVIDE, text]}
 end
