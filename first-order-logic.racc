@@ -66,14 +66,22 @@ ruleList:
 	;
 
 rule:
-	/* existentialQuantifier */
+	existentialQuantifier                     { val.first }
+	| universalQuantifier                     { val.first }
+	;
+
+existentialQuantifier:
 	THERE_EXISTS optCOLON predicateExpression    { ExistentialQuantifier.new val.first, val.last }
-	| /* universalQuantifier */
-	FOR_ALL COLON universalQuantifierBody        { UniversalQuantifier.new val.first, val.last }
+	;
+
+universalQuantifier:
+	FOR_ALL optCOLON universalQuantifierBody     { UniversalQuantifier.new val.first, val.last }
 	;
 
 universalQuantifierBody:
-	predicateExpression                          { val.first }
+	universalQuantifier                          { val.first }
+	existentialQuantifier                        { val.first }
+	| predicateExpression                        { val.first }
 	| /* predicateImplication */
 	predicateExpression IMPLIES expression       { PredicateImplication.new val.first, val.last }
 	;
