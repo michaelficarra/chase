@@ -1,4 +1,3 @@
-#/* vim: set filetype=ruby : */
 class FirstOrderLogic
 rule
 	[\r\n]+                     {[:NEWLINE, text]}
@@ -17,6 +16,21 @@ rule
 	∃[a-z]+                     {[:THERE_EXISTS, text.match(/∃([a-z]+)/)[1].split('')]}
 	∀[a-z]+                     {[:FOR_ALL, text.match(/∀([a-z]+)/)[1].split('')]}
 	[a-z][a-zA-Z0-9_-]*         {[:IDENTIFIER, text]}
+	\{\s*\}|∅                   {[:EMPTY_SET, text]}
+	->|→|⇒|⊃                    {[:IMPLIES, text]}
+	\|\||∨                      {[:OR, text]}
+	&&|∧                        {[:AND, text]}
+	==?                         {[:EQ, text]}
+	¬=|≠                        {[:NE, text]}
+	>=|≤                        {[:LTE, text]}
+	<=|≥                        {[:GTE, text]}
+	<                           {[:LT, text]}
+	>                           {[:GT, text]}
+	\+                          {[:PLUS, text]}
+	\-                          {[:MINUS, text]}
+	[\*·]                       {[:MULTIPLY, text]}
+	[\/÷]                       {[:DIVIDE, text]}
+	¬                           {[:NOT, text]}
 	\(                          {[:PAREN_OPEN, text]}
 	\)                          {[:PAREN_CLOSE, text]}
 	\{                          {[:BRACE_OPEN, text]}
@@ -24,14 +38,4 @@ rule
 	,                           {[:COMMA, text]}
 	:                           {[:COLON, text]}
 	;                           {[:SEMICOLON, text]}
-	→|⇒|⊃                       {[:IMPLIES, text]}
-	∨                           {[:OR, text]}
-	∧                           {[:AND, text]}
-	¬                           {[:NOT, text]}
-	∅                           {[:EMPTY_SET, text]}
-	=                           {[:EQ, text]}
-	\+                          {[:PLUS, text]}
-	\-                          {[:MINUS, text]}
-	[\*·]                       {[:MULTIPLY, text]}
-	[\/÷]                       {[:DIVIDE, text]}
 end

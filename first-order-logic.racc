@@ -1,4 +1,4 @@
-#/* vim: set filetype=racc : */
+/* vim: set filetype=racc : */
 
 class FirstOrderLogic
 
