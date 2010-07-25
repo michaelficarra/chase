@@ -66,13 +66,13 @@ ruleList:
 	;
 
 rule:
-	/* existentialRule */
-	THERE_EXISTS optCOLON predicateExpression    { ExistentialRule.new val.first, val.last }
-	| /* truthStatement */
-	FOR_ALL COLON truthStatementBody             { TruthStatement.new val.first, val.last }
+	/* existentialQuantifier */
+	THERE_EXISTS optCOLON predicateExpression    { ExistentialQuantifier.new val.first, val.last }
+	| /* universalQuantifier */
+	FOR_ALL COLON universalQuantifierBody        { UniversalQuantifier.new val.first, val.last }
 	;
 
-truthStatementBody:
+universalQuantifierBody:
 	predicateExpression                          { val.first }
 	| /* predicateImplication */
 	predicateExpression IMPLIES expression       { PredicateImplication.new val.first, val.last }
