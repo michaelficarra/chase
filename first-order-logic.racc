@@ -47,7 +47,7 @@ statement:
 	;
 
 assignmentOperator:
-	COLON optEQ                                  { val.first }
+	COLON optEQ                                  { val.select{|_| _ } }
 	| EQ                                         { val.first }
 	;
 
@@ -82,7 +82,7 @@ rule:
 	;
 
 existentialQuantifier:
-	THERE_EXISTS optCOLON predicate              { ExistentialQuantifier.new val.first, val.last }
+	THERE_EXISTS optCOLON predicateList          { ExistentialQuantifier.new val.first, val.last }
 	;
 
 universalQuantifier:
