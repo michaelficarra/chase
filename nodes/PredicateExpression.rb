@@ -11,6 +11,7 @@ class PredicateExpression
 		operators = FirstOrderLogic.operators
 		case @operator
 			when operators[:AND]: parenthesize = true; op = '∧'
+			when operators[:XOR]: parenthesize = true; op = '⊕'
 			when operators[:OR]: op = '∨'
 		end
 		ret = @lhs.to_s + ' ' + op + ' ' + @rhs.to_s

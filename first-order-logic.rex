@@ -13,6 +13,8 @@ rule
 	                                    :terminals => match[2].split('')
 	                                }]
 	                            }
+	⊤                           {[:TAUTOLOGY, text]}
+	⊥                           {[:CONTRADICTION, text]}
 	∃[a-z]+                     {[:THERE_EXISTS, text.match(/∃([a-z]+)/)[1].split('')]}
 	∀[a-z]+                     {[:FOR_ALL, text.match(/∀([a-z]+)/)[1].split('')]}
 	[a-z][a-zA-Z0-9_-]*         {[:IDENTIFIER, text]}
@@ -20,7 +22,8 @@ rule
 	->|→|⇒|⊃                    {[:IMPLIES, text]}
 	\|\||∨                      {[:OR, text]}
 	&&|∧                        {[:AND, text]}
-	==?                         {[:EQ, text]}
+	⊕                           {[:XOR, text]}
+	=                           {[:EQ, text]}
 	¬=|≠                        {[:NE, text]}
 	>=|≤                        {[:LTE, text]}
 	<=|≥                        {[:GTE, text]}

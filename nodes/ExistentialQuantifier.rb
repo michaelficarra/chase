@@ -1,9 +1,9 @@
 class ExistentialQuantifier
-	def initialize(terminals,expression)
+	def initialize(terminals,predicate)
 		@terminals = terminals
-		@expression = expression
+		@predicate = predicate
 	end
 	def to_s
-		'∃' + @terminals.join('') + ' ' + @expression.to_s
+		'∃' + @terminals.join('') + ' ' + @predicate.to_s
 	end
 end

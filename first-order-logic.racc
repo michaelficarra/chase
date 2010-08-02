@@ -11,8 +11,9 @@ preclow
 
 token FACTS RULES CHASE
 token LT GT GTE LTE NE EQ
-token PLUS MINUS MULTIPLY DIVIDE OR AND NOT
+token PLUS MINUS MULTIPLY DIVIDE OR XOR AND NOT
 token BRACE_OPEN BRACE_CLOSE PAREN_OPEN PAREN_CLOSE
+token TAUTOLOGY CONTRADICTION
 token FOR_ALL THERE_EXISTS EMPTY_SET
 token COLON COMMA SEMICOLON IMPLIES
 token PREDICATE IDENTIFIER
@@ -25,8 +26,8 @@ start program
 rule
 
 program:
-	/* nothing */             { Program.new }
-	| statementList           { Program.new *val.first; }
+	/* nothing */                                   { Program.new }
+	| statementList                                 { Program.new *val.first; }
 	;
 
 statementList:
@@ -36,42 +37,52 @@ statementList:
 
 statement:
 	/* factDefinitionStatement */
-	FACTS IDENTIFIER COLON optNEWLINE factList
+	FACTS IDENTIFIER assignmentOperator optNEWLINE factList
 	{ FactDefinitionStatement.new( val[1], FactList.new(*val.last) ) }
 	| /* ruleDefinitionStatement */
-	RULES IDENTIFIER COLON optNEWLINE BRACE_OPEN optNEWLINE ruleList optNEWLINE BRACE_CLOSE
+	RULES IDENTIFIER assignmentOperator optNEWLINE BRACE_OPEN optNEWLINE ruleList optNEWLINE BRACE_CLOSE
 	{ RuleDefinitionStatement.new( val[1], RuleList.new(*val[6]) ) }
 	| /* chaseStatement */
-	CHASE identifierList                      { ChaseStatement.new *val.last }
+	CHASE identifierList                         { ChaseStatement.new *val.last }
+	;
+
+assignmentOperator:
+	COLON optEQ                                  { val.first }
+	| EQ                                         { val.first }
 	;
 
 factList:
-	EMPTY_SET                                 { [] }
-	| BRACE_OPEN predicateList BRACE_CLOSE    { val[1] }
+	EMPTY_SET                                    { [] }
+	| BRACE_OPEN predicateList BRACE_CLOSE       { val[1] }
 	;
 
 predicateList:
-	predicate                                 { val }
-	| predicateList predicate                 { val.first.push val.last }
+	predicate                                    { val }
+	| predicateList predicate                    { val.first.push val.last }
+	;
+
+predicate:
+	PREDICATE                                    { Predicate.new val.first[:symbol], val.first[:terminals] }
+	| NOT predicate                              { val.last.not; val.last }
 	;
 
 identifierList:
-	IDENTIFIER                                { val }
-	| identifierList COMMA IDENTIFIER         { val.first.push val.last }
+	IDENTIFIER                                   { val }
+	| identifierList COMMA IDENTIFIER            { val.first.push val.last }
 	;
 
 ruleList:
-	rule                                      { val }
-	| ruleList commaOrNewline rule            { val.first.push val.last }
+	rule                                         { val }
+	| ruleList commaOrNewline rule               { val.first.push val.last }
 	;
 
 rule:
-	existentialQuantifier                     { val.first }
-	| universalQuantifier                     { val.first }
+	existentialQuantifier                        { val.first }
+	| universalQuantifier                        { val.first }
 	;
 
 existentialQuantifier:
-	THERE_EXISTS optCOLON predicateExpression    { ExistentialQuantifier.new val.first, val.last }
+	THERE_EXISTS optCOLON predicate              { ExistentialQuantifier.new val.first, val.last }
 	;
 
 universalQuantifier:
@@ -81,41 +92,55 @@ universalQuantifier:
 universalQuantifierBody:
 	universalQuantifier                          { val.first }
 	existentialQuantifier                        { val.first }
-	| predicateExpression                        { val.first }
-	| /* predicateImplication */
-	predicateExpression IMPLIES expression       { PredicateImplication.new val.first, val.last }
+	| predicateExpression predicateImplication   { if val.last then PredicateImplication.new val.first, val.last else val.first end }
+	;
+
+predicateImplication:
+	/* nothing */                                { false }
+	| IMPLIES expression                         { val.last }
 	;
 
 expression:
-	predicateExpression                                            { val.first }
-	| terminalExpression                                           { val.first }
+	predicateExpression                          { val.first }
+	| terminalExpression                         { val.first }
+	| expressionValue                            { val.first }
+	;
+
+expressionValue:
+	PAREN_OPEN expression PAREN_CLOSE            { val[1] }
+	| TAUTOLOGY                                  { Tautology.new }
+	| CONTRADICTION                              { Contradiction.new }
+	| NOT expressionValue                        { val.last.not; val.last }
 	;
 
 predicateExpression:
-	predicate                                                      { val.first }
-	| optNOT PAREN_OPEN predicateExpression PAREN_CLOSE            { val[2].not if val[0]; val[2] }
-	| predicateExpression predicateOperator predicateExpression    { PredicateExpression.new val[1], val.first, val.last }
+	predicateExpressionValue                     { val.first }
+	| predicateExpressionValue predicateOperator predicateExpressionValue
+	{ PredicateExpression.new val[1], val.first, val.last }
 	;
 
-predicate:
-	PREDICATE                 { Predicate.new val.first[:symbol], val.first[:terminals] }
-	| NOT predicate           { val[1].not; val[1] }
-	;
-
-terminalExpression:
-	terminal                                                       { val.first }
-	| optNOT PAREN_OPEN terminalExpression PAREN_CLOSE             { val[2].not if val[0]; val[2] }
-	| terminalExpression terminalOperator terminalExpression       { TerminalExpression.new val[1], val.first, val.last }
-	;
-
-terminal:
-	IDENTIFIER                { Terminal.new val.first }
-	| NOT terminal            { val[1].not; val[1] }
+predicateExpressionValue:
+	PREDICATE                                                      { Predicate.new val.first[:symbol], val.first[:terminals] }
+	| PAREN_OPEN predicateExpression PAREN_CLOSE                   { val[1] }
+	| NOT predicateExpressionValue                                 { val.last.not; val.last }
 	;
 
 predicateOperator:
     AND                       { @@operators[:AND] }
+	| XOR                     { @@operators[:XOR] }
 	| OR                      { @@operators[:OR] }
+	;
+
+terminalExpression:
+	terminalExpressionValue                      { val.first }
+	| terminalExpressionValue terminalOperator terminalExpressionValue
+	{ TerminalExpression.new val[1], val.first, val.last }
+	;
+
+terminalExpressionValue:
+	IDENTIFIER                                                     { Terminal.new val.first }
+	| PAREN_OPEN terminalExpression PAREN_CLOSE                    { val[1] }
+	| NOT terminalExpressionValue                                  { val.last.not; val.last }
 	;
 
 terminalOperator:
@@ -124,25 +149,26 @@ terminalOperator:
 	| LTE                     { @@operators[:LTE] }
 	| GTE                     { @@operators[:GTE] }
 	| NE                      { @@operators[:NE] }
-	| EQ                      { @@operators[:EQ] }
+	| EQ optEQ                { @@operators[:EQ] }
 	| MULTIPLY                { @@operators[:MULTIPLY] }
 	| DIVIDE                  { @@operators[:DIVIDE] }
 	| PLUS                    { @@operators[:PLUS] }
 	| MINUS                   { @@operators[:MINUS] }
 	;
 
-optNOT:     /* nothing */ { false } | NOT     { true } ;
-optCOLON:   /* nothing */ { false } | COLON   { true } ;
-optNEWLINE: /* nothing */ { false } | NEWLINE { true } ;
+optEQ:      /* nothing */ { false } | EQ      { val.first } ;
+optCOLON:   /* nothing */ { false } | COLON   { val.first } ;
+optCOMMA:   /* nothing */ { false } | COMMA   { val.first } ;
+optNEWLINE: /* nothing */ { false } | NEWLINE { val.first } ;
 
 commaOrNewline:
-	NEWLINE                   { val.first }
-	| COMMA optNEWLINE        { val.first }
+	NEWLINE optCOMMA optNEWLINE          { val.select{|_| _ } }
+	| COMMA optNEWLINE                   { val.select{|_| _ } }
 	;
 
 semicolonOrNewline:
-	NEWLINE                   { '' }
-	| SEMICOLON optNEWLINE    { val.first }
+	NEWLINE                   { val.first }
+	| SEMICOLON optNEWLINE    { val.select{|_| _ } }
 	;
 
 end
@@ -156,6 +182,7 @@ end
 	def self.operators; @@operators; end
 	@@operators = {
 		:AND => const=const.next,
+		:XOR => const=const.next,
 		:OR => const=const.next,
 		:LT => const=const.next,
 		:GT => const=const.next,
