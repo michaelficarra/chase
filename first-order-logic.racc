@@ -16,7 +16,7 @@ token BRACE_OPEN BRACE_CLOSE PAREN_OPEN PAREN_CLOSE
 token TAUTOLOGY CONTRADICTION
 token FOR_ALL THERE_EXISTS THERE_EXISTS_ONE EMPTY_SET
 token COLON COMMA SEMICOLON IMPLIES
-token PREDICATE IDENTIFIER
+token PREDICATE IDENTIFIER INTEGER
 token NEWLINE
 
 options no_result_var
@@ -91,10 +91,10 @@ universalQuantifier:
 	;
 
 quantifierBody:
-	universalQuantifier                          { val.first }
+	predicateExpression predicateImplication
+	{ val.last ? PredicateImplication.new(val.first,val.last) : val.first }
+	| universalQuantifier                        { val.first }
 	| existentialQuantifier                      { val.first }
-	| predicateExpression predicateImplication
-	{ if val.last then PredicateImplication.new val.first, val.last else val.first end }
 	;
 
 predicateImplication:
@@ -116,8 +116,9 @@ predicateExpression:
 	;
 
 predicateExpressionValue:
-	predicate                                                      { val.first }
-	| PAREN_OPEN predicateExpression PAREN_CLOSE                   { val[1] }
+	PREDICATE                                       { Predicate.new val.first[:symbol], val.first[:terminals] }
+	| PAREN_OPEN predicateExpression PAREN_CLOSE    { val[1].parenthesize? ? val[1] : ParentheticalExpression.new(val[1]) }
+	| NOT predicateExpressionValue                  { val.last.not; val.last }
 	;
 
 predicateOperator:
@@ -127,15 +128,23 @@ predicateOperator:
 	;
 
 terminalExpression:
-	terminalExpressionValue                      { val.first }
-	| terminalExpressionValue terminalOperator terminalExpressionValue
+	terminalExpressionValue                         { val.first }
+	| terminalExpression terminalOperator terminalExpressionValue
 	{ TerminalExpression.new val[1], val.first, val.last }
 	;
 
 terminalExpressionValue:
-	IDENTIFIER                                                     { Terminal.new val.first }
-	| PAREN_OPEN terminalExpression PAREN_CLOSE                    { val[1] }
-	| NOT terminalExpressionValue                                  { val.last.not; val.last }
+	IDENTIFIER                                      { Terminal.new val.first }
+	| INTEGER                                       { val.first }
+	| PAREN_OPEN terminalExpression PAREN_CLOSE     { val[1].parenthesize? ? val[1] : ParentheticalExpression.new(val[1]) }
+	| NOT terminalExpressionValue                   { val.last.not; val.last }
+	| unaryTerminalOperator terminalExpressionValue
+	{ ParentheticalExpression.new TerminalUnaryExpression.new(val.first,val.last) }
+	;
+
+unaryTerminalOperator:
+	PLUS                      { @@operators[:PLUS] }
+	| MINUS                   { @@operators[:MINUS] }
 	;
 
 terminalOperator:

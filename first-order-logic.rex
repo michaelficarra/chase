@@ -19,6 +19,7 @@ rule
 	                                symbol = (text =~ /!/ ? :THERE_EXISTS_ONE : :THERE_EXISTS);
 	                                [symbol, text.match(/([a-z]+)/)[1].split('')]
 	                            }
+	\d+                         {[:INTEGER, text.to_i]}
 	∀[a-z]+                     {[:FOR_ALL, text.match(/∀([a-z]+)/)[1].split('')]}
 	[a-z][a-zA-Z0-9_-]*         {[:IDENTIFIER, text]}
 	\{\s*\}|∅                   {[:EMPTY_SET, text]}
@@ -34,10 +35,10 @@ rule
 	>                           {[:GT, text]}
 	\+                          {[:PLUS, text]}
 	\-                          {[:MINUS, text]}
+	¬                           {[:NOT, text]}
 	[\*·]                       {[:MULTIPLY, text]}
 	[\/÷]                       {[:DIVIDE, text]}
 	\^                          {[:EXP, text]}
-	¬                           {[:NOT, text]}
 	\(                          {[:PAREN_OPEN, text]}
 	\)                          {[:PAREN_CLOSE, text]}
 	\{                          {[:BRACE_OPEN, text]}

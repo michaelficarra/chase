@@ -1,3 +1,4 @@
+require 'nodes/ParentheticalExpression.rb'
 class TerminalExpression
 	def initialize(operator,lhs,rhs)
 		@operator = operator
@@ -5,24 +6,31 @@ class TerminalExpression
 		@rhs = rhs
 		@notted = false
 	end
-	def to_s
-		parenthesize = @notted
-		op = '◇'
+	def parenthesize?
+		return true if @notted
+		operators = FirstOrderLogic.operators
+		@operator == operators[:MULTIPLY] || @operator == operators[:DIVIDE]
+	end
+	def operator
 		operators = FirstOrderLogic.operators
 		case @operator
-			when operators[:LT]: op = '<'
-			when operators[:GT]: op = '>'
-			when operators[:LTE]: op = '≤'
-			when operators[:GTE]: op = '≥'
-			when operators[:NE]: op = '≠'
-			when operators[:EQ]: op = '='
-			when operators[:MULTIPLY]: parenthesize = true; op = '*'
-			when operators[:DIVIDE]: parenthesize = true; op = '/'
-			when operators[:PLUS]: op = '+'
-			when operators[:MINUS]: op = '-'
+			when operators[:LT]: '<'
+			when operators[:GT]: '>'
+			when operators[:LTE]: '≤'
+			when operators[:GTE]: '≥'
+			when operators[:NE]: '≠'
+			when operators[:EQ]: '='
+			when operators[:EXP]: '^'
+			when operators[:MULTIPLY]: '*'
+			when operators[:DIVIDE]: '/'
+			when operators[:PLUS]: '+'
+			when operators[:MINUS]: '-'
+			else '◇'
 		end
-		ret = @lhs.to_s + ' ' + op + ' ' + @rhs.to_s
-		ret = '('+ret+')' if parenthesize
+	end
+	def to_s
+		ret = @lhs.to_s + ' ' + self.operator + ' ' + @rhs.to_s
+		ret = ParentheticalExpression.new(ret).to_s if self.parenthesize?
 		ret = '¬'+ret if @notted
 		ret
 	end
