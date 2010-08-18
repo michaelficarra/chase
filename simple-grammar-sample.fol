@@ -1,9 +1,10 @@
 facts f: ∅
 rules r: {
 	∃xy Rxy
-	∀x: Rxx
+	∀x: Rx
 	∀xy: Rxy ∧ Ryx → x=y
-	∀xyz: Rxy ∧ Ryz → Rxz
-	∀xy: Rxy ∨ Ryx
+	∀xyz Rxy ∧ Ryz → Rxz
+	∃!z: ∀x: ∀y: (Rxy ∨ Ryx) ∧ Rz
+	∀x ∃y Rxy ∧ Rxy ∨ Rxy ∨ Rxy → Rxy
 }
 chase f, r

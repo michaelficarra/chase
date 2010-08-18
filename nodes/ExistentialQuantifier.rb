@@ -1,9 +1,10 @@
 class ExistentialQuantifier
-	def initialize(terminals,predicate)
+	def initialize(terminals,body,options={})
 		@terminals = terminals
-		@predicate = predicate
+		@body = body
+		@one = options.include? :one
 	end
 	def to_s
-		'∃' + @terminals.join('') + ' ' + @predicate.join(' ')
+		'∃' + (@one ? '!' : '') + @terminals.join('') + ': ' + @body.to_s
 	end
 end

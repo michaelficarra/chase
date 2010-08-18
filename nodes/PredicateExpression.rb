@@ -10,9 +10,9 @@ class PredicateExpression
 		op = '◇'
 		operators = FirstOrderLogic.operators
 		case @operator
-			when operators[:AND]: parenthesize = true; op = '∧'
+			when operators[:AND]: parenthesize = false; op = '∧'
 			when operators[:XOR]: parenthesize = true; op = '⊕'
-			when operators[:OR]: op = '∨'
+			when operators[:OR]: parenthesize = true; op = '∨'
 		end
 		ret = @lhs.to_s + ' ' + op + ' ' + @rhs.to_s
 		ret = '('+ret+')' if parenthesize

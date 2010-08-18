@@ -11,10 +11,10 @@ preclow
 
 token FACTS RULES CHASE
 token LT GT GTE LTE NE EQ
-token PLUS MINUS MULTIPLY DIVIDE OR XOR AND NOT
+token PLUS MINUS EXP MULTIPLY DIVIDE OR XOR AND NOT
 token BRACE_OPEN BRACE_CLOSE PAREN_OPEN PAREN_CLOSE
 token TAUTOLOGY CONTRADICTION
-token FOR_ALL THERE_EXISTS EMPTY_SET
+token FOR_ALL THERE_EXISTS THERE_EXISTS_ONE EMPTY_SET
 token COLON COMMA SEMICOLON IMPLIES
 token PREDICATE IDENTIFIER
 token NEWLINE
@@ -57,7 +57,7 @@ factList:
 	;
 
 predicateList:
-	predicate                                    { val }
+	predicate                                    { PredicateList.new val }
 	| predicateList predicate                    { val.first.push val.last }
 	;
 
@@ -82,17 +82,19 @@ rule:
 	;
 
 existentialQuantifier:
-	THERE_EXISTS optCOLON predicateList          { ExistentialQuantifier.new val.first, val.last }
+	THERE_EXISTS_ONE optCOLON quantifierBody     { ExistentialQuantifier.new val.first, val.last, :one=>true }
+	| THERE_EXISTS optCOLON quantifierBody       { ExistentialQuantifier.new val.first, val.last }
 	;
 
 universalQuantifier:
-	FOR_ALL optCOLON universalQuantifierBody     { UniversalQuantifier.new val.first, val.last }
+	FOR_ALL optCOLON quantifierBody              { UniversalQuantifier.new val.first, val.last }
 	;
 
-universalQuantifierBody:
+quantifierBody:
 	universalQuantifier                          { val.first }
-	existentialQuantifier                        { val.first }
-	| predicateExpression predicateImplication   { if val.last then PredicateImplication.new val.first, val.last else val.first end }
+	| existentialQuantifier                      { val.first }
+	| predicateExpression predicateImplication
+	{ if val.last then PredicateImplication.new val.first, val.last else val.first end }
 	;
 
 predicateImplication:
@@ -103,26 +105,19 @@ predicateImplication:
 expression:
 	predicateExpression                          { val.first }
 	| terminalExpression                         { val.first }
-	| expressionValue                            { val.first }
-	;
-
-expressionValue:
-	PAREN_OPEN expression PAREN_CLOSE            { val[1] }
 	| TAUTOLOGY                                  { Tautology.new }
 	| CONTRADICTION                              { Contradiction.new }
-	| NOT expressionValue                        { val.last.not; val.last }
 	;
 
 predicateExpression:
 	predicateExpressionValue                     { val.first }
-	| predicateExpressionValue predicateOperator predicateExpressionValue
+	| predicateExpression predicateOperator predicateExpressionValue
 	{ PredicateExpression.new val[1], val.first, val.last }
 	;
 
 predicateExpressionValue:
-	PREDICATE                                                      { Predicate.new val.first[:symbol], val.first[:terminals] }
+	predicate                                                      { val.first }
 	| PAREN_OPEN predicateExpression PAREN_CLOSE                   { val[1] }
-	| NOT predicateExpressionValue                                 { val.last.not; val.last }
 	;
 
 predicateOperator:
@@ -150,6 +145,7 @@ terminalOperator:
 	| GTE                     { @@operators[:GTE] }
 	| NE                      { @@operators[:NE] }
 	| EQ optEQ                { @@operators[:EQ] }
+	| EXP                     { @@operators[:EXP] }
 	| MULTIPLY                { @@operators[:MULTIPLY] }
 	| DIVIDE                  { @@operators[:DIVIDE] }
 	| PLUS                    { @@operators[:PLUS] }
@@ -190,6 +186,7 @@ end
 		:GTE => const=const.next,
 		:NE => const=const.next,
 		:EQ => const=const.next,
+		:EXP => const=const.next,
 		:MULTIPLY => const=const.next,
 		:DIVIDE => const=const.next,
 		:PLUS => const=const.next,
