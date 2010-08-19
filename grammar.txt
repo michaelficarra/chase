@@ -1,0 +1,118 @@
+program:
+	/* nothing */
+	| statementList
+
+statementList:
+	statement semicolonOrNewline
+	| statementList statement semicolonOrNewline
+
+statement:
+	/* factDefinitionStatement */ FACTS IDENTIFIER assignmentOperator optNEWLINE factList
+	| /* ruleDefinitionStatement */ RULES IDENTIFIER assignmentOperator optNEWLINE BRACE_OPEN optNEWLINE ruleList optNEWLINE BRACE_CLOSE
+	| /* chaseStatement */ CHASE identifierList
+
+assignmentOperator:
+	COLON optEQ
+	| EQ
+
+factList:
+	EMPTY_SET
+	| BRACE_OPEN predicateList BRACE_CLOSE
+
+predicateList:
+	predicate
+	| predicateList predicate
+
+predicate:
+	PREDICATE
+	| NOT predicate
+
+identifierList:
+	IDENTIFIER
+	| identifierList COMMA IDENTIFIER
+
+ruleList:
+	rule
+	| ruleList commaOrNewline rule
+
+rule:
+	existentialQuantifier
+	| universalQuantifier
+
+existentialQuantifier:
+	THERE_EXISTS_ONE optCOLON quantifierBody
+	| THERE_EXISTS optCOLON quantifierBody
+
+universalQuantifier:
+	FOR_ALL optCOLON quantifierBody
+
+quantifierBody:
+	predicateExpression predicateImplication
+	| universalQuantifier
+	| existentialQuantifier
+
+predicateImplication:
+	/* nothing */
+	| IMPLIES expression
+
+expression:
+	predicateExpression
+	| terminalExpression
+	| TAUTOLOGY
+	| CONTRADICTION
+
+predicateExpression:
+	predicateExpressionValue
+	| predicateExpression predicateOperator predicateExpressionValue
+
+predicateExpressionValue:
+	PREDICATE
+	| PAREN_OPEN predicateExpression PAREN_CLOSE
+	| NOT predicateExpressionValue
+
+predicateOperator:
+    AND
+	| XOR
+	| OR
+
+terminalExpression:
+	terminalExpressionValue
+	| terminalExpression terminalOperator terminalExpressionValue
+
+terminalExpressionValue:
+	IDENTIFIER
+	| INTEGER
+	| PAREN_OPEN terminalExpression PAREN_CLOSE
+	| NOT terminalExpressionValue
+	| unaryTerminalOperator terminalExpressionValue
+
+unaryTerminalOperator:
+	PLUS
+	| MINUS
+
+terminalOperator:
+	LT
+	| GT
+	| LTE
+	| GTE
+	| NE
+	| EQ optEQ
+	| EXP
+	| MULTIPLY
+	| DIVIDE
+	| PLUS
+	| MINUS
+
+optEQ:      /* nothing */
+optCOLON:   /* nothing */
+optCOMMA:   /* nothing */
+optNEWLINE: /* nothing */
+
+commaOrNewline:
+	NEWLINE optCOMMA optNEWLINE
+	| COMMA optNEWLINE
+
+semicolonOrNewline:
+	NEWLINE
+	| SEMICOLON optNEWLINE
+
