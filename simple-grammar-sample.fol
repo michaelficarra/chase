@@ -1,6 +1,6 @@
 ThereExists xy R[xy]
 ForAll x: R[x]
-ForAll xy: R[x,y] and R[yy] -> *[x,3]=^[y2]
+ForAll xy: R[x,y] and R[yy] -> =[*[x,3],^[y22]]
 ForAll xyz Rxy & Ryz -> Rxz
 TherExistsOne z: ForAll x: ForAll y: (R[xy] OR R[yx]) AND R[z]
 ForAll x ThereExists y R[xy] & !R[xy] | R[xy] | R[xy] => R[xy]

@@ -20,7 +20,7 @@ namespace 'ruby' do
 
 	desc 'Test the generated parser against the sample program'
 	task :test do
-		sh 'ruby *.tab.rb *.fol'
+		sh 'ruby *.tab.rb *unicode*.fol*'
 	end
 
 end
@@ -35,7 +35,7 @@ namespace 'haskell' do
 
 	desc 'Generate parser with happy'
 	task :parser do
-		abort "not yet implemented"
+		puts "parser not yet implemented"
 	end
 
 	desc 'Clean up generated files and files output during debugging'

@@ -1,6 +1,6 @@
-∃xy Rxy
-∀x: Rx
-∀xy: Rxy ∧ Ryx → x*x=-y^2
-∀xyz Rxy ∧ Ryz → Rxz
-∃!z: ∀x: ∀y: (Rxy ∨ Ryx) ∧ Rz
-∀x ∃y Rxy ∧ ¬Rxy ∨ Rxy ∨ Rxy → Rxy
+∃xy R[xy]
+∀x: R[x]
+∀xy: R[x,y] ∧ R[yy] → =[*[x,3],^[y22]]
+∀ xyz R[xy] ∧ R[yz] → R[xz]
+∃!z: ∀x: ∀y: ¬(R[xy] ∨ R[yx]) ∧ R[z]
+∀x ∃y R[xy] ∧ ¬R[xy] ∨ R[xy] ∨ R[xy] → R[xy]

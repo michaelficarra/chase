@@ -33,7 +33,7 @@ $z = [Zz]
 
 tokens :-
 
-	\n+                               { \s -> ("NEWLINE",s) }
+	[\r\n]+                           { \s -> ("NEWLINE",s) }
 	[\ \t]+                           ; -- ignore whitespace
 	"--".*                            ; -- ignore comments
 	$t$h$e$r$e$e$x$i$s$t$s$o$n$e      { \s -> ("THERE_EXISTS_ONE",s) }
@@ -51,14 +51,13 @@ tokens :-
 	"]"                               { \s -> ("BRACKET_CLOSE",s) }
 	"{"                               { \s -> ("BRACE_OPEN",s) }
 	"}"                               { \s -> ("BRACE_CLOSE",s) }
-	"="                               { \s -> ("EQ",s) }
 	":"                               { \s -> ("COLON",s) }
 	","                               { \s -> ("COMMA",s) }
 	[a-z]                             { \s -> ("TERMINAL",s) }
 	[0-9]+                            { \s -> ("INTEGER",s) }
 	-- should be .+ but alex lexes it first for some reason
 	-- .+                                { \s -> ("IDENTIFIER",s) }
-	[A-Z\~\`\@\#\$\%\^\*\-\_\+\/\?\<\>]+            { \s -> ("IDENTIFIER",s) }
+	[A-Z\~`@#\$\%\^\*\-_=\+\/\?\<>]+          { \s -> ("IDENTIFIER",s) }
 
 {
 main = do
