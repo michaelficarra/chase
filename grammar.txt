@@ -103,10 +103,10 @@ terminalOperator:
 	| PLUS
 	| MINUS
 
-optEQ:      /* nothing */
-optCOLON:   /* nothing */
-optCOMMA:   /* nothing */
-optNEWLINE: /* nothing */
+optEQ:      /* nothing */ | EQ
+optCOLON:   /* nothing */ | COLON
+optCOMMA:   /* nothing */ | COMMA
+optNEWLINE: /* nothing */ | NEWLINE
 
 commaOrNewline:
 	NEWLINE optCOMMA optNEWLINE
