@@ -20,7 +20,7 @@ rule
 	\]             {[:BRACKET_CLOSE, text]}
 	:              {[:COLON, text]}
 	,              {[:COMMA, text]}
-	[a-z]          {[:TERMINAL, text]}
+	[a-z]+         {[:FREE_VARIABLE, text]}
 	\d+            {[:INTEGER, text.to_i]}
-	[^\[]+         {[:IDENTIFIER, text]}
+	[^\[a-z]+      {[:IDENTIFIER, text]}
 end

@@ -10,11 +10,11 @@ prechigh
 preclow
 
 token OR XOR AND NOT
-token BRACKET_OPEN BRACKET_CLOSE PAREN_OPEN PAREN_CLOSE
+token BRACKET_OPEN BRACKET_CLOSE BRACE_OPEN BRACE_CLOSE PAREN_OPEN PAREN_CLOSE
 token TAUTOLOGY CONTRADICTION
 token FOR_ALL THERE_EXISTS THERE_EXISTS_ONE
 token COLON COMMA IMPLIES
-token TERMINAL INTEGER IDENTIFIER
+token FREE_VARIABLE INTEGER IDENTIFIER
 token NEWLINE
 
 options no_result_var
@@ -35,24 +35,32 @@ formulaList:
 
 formula:
 	predicate                                           { val.last }
-	| PAREN_OPEN formula PAREN_CLOSE                    { '('+val[1]+')' } #{ ParentheticalExpresson.new val[1] }
 	| TAUTOLOGY                                         { '⊤' } #{ Tautology.new }
 	| CONTRADICTION                                     { '⊥' } #{ Contradiction.new }
-	| formula predicateOperator formula                 { '('+val.join(' ')+')' } #{ Expression.new val[1], val.first, val.last }
-	| formula IMPLIES formula                           { val.first + ' → ' + val.last } #{ Implication.new val.first val.last }
-	| NOT formula                                       { '¬'+val.last } #{ val.last.not!; val.last }
-	| FOR_ALL terminalList optCOLON formula             { '∀'+val[1].join('')+': '+val.last } #{ UniversalQuantifier.new val[1], val.last }
-	| THERE_EXISTS_ONE terminalList optCOLON formula    { '∃!'+val[1].join('')+': '+val.last } #{ ExistentialQuantifier.new val[1], val.last, :one=>true }
-	| THERE_EXISTS terminalList optCOLON formula        { '∃'+val[1].join('')+': '+val.last } #{ ExistentialQuantifier.new val[1], val.last }
+	| formula2 predicateOperator formula2               { '('+val.join(' ')+')' } #{ Expression.new val[1], val.first, val.last }
+	| formula2 IMPLIES formula2                         { val.first + ' → ' + val.last } #{ Implication.new val.first val.last }
+	| NOT formula2                                      { '¬'+val.last } #{ val.last.not!; val.last }
+	| FOR_ALL index quantifierBody                      { '∀'+val[1]+': '+val.last } #{ UniversalQuantifier.new val[1], val.last }
+	| THERE_EXISTS_ONE index quantifierBody             { '∃!'+val[1]+': '+val.last } #{ ExistentialQuantifier.new val[1], val.last, :one=>true }
+	| THERE_EXISTS index quantifierBody                 { '∃'+val[1]+': '+val.last } #{ ExistentialQuantifier.new val[1], val.last }
 	;
 
+formula2:
+	formula                                             { val.last }
+	| PAREN_OPEN formula PAREN_CLOSE                    { '('+val[1]+')' } #{ ParentheticalExpresson.new val[1] }
+	;
+
+quantifierBody:
+	optCOLON formula2                                   { val.last }
+	| BRACE_OPEN formula BRACE_CLOSE                    { val[1] }
+
 predicate:
-	IDENTIFIER BRACKET_OPEN index BRACKET_CLOSE         { val.first+'['+val[2].join(',')+']' } #{ Predicate.new val.first, val[2] }
+	IDENTIFIER index                                    { val.first+val.last } #{ Predicate.new val.first, val[2] }
 	;
 
 index:
-	terminalList              { val.last }
-	| argList                 { val.last }
+	BRACKET_OPEN argList BRACKET_CLOSE                  { '['+val[1].join(',')+']' }
+	| argListValue                                      { val.last }
 	;
 
 argList:
@@ -62,13 +70,8 @@ argList:
 
 argListValue:
 	predicate                 { val.last }
-	| TERMINAL                { val.last }
+	| FREE_VARIABLE           { val.last }
 	| INTEGER                 { val.last.to_i }
-	;
-
-terminalList:
-	TERMINAL                  { val }
-	| terminalList TERMINAL   { val.first.push val.last }
 	;
 
 predicateOperator:
@@ -78,7 +81,7 @@ predicateOperator:
 	;
 
 optCOLON:   /* nothing */ { false } | COLON   { val.first } ;
-optCOMMA:   /* nothing */ { false } | COMMA   { val.first } ;
+#optCOMMA:   /* nothing */ { false } | COMMA   { val.first } ;
 optNEWLINE: /* nothing */ { false } | NEWLINE { val.first } ;
 
 end
@@ -105,5 +108,6 @@ end
 	if __FILE__ == $0
 		puts File.read(ARGV[0])
 		program = FirstOrderLogic.new.parse_file(ARGV[0])
+		puts '---------------------'
 		puts program.to_s
 	end

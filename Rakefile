@@ -20,7 +20,7 @@ namespace 'ruby' do
 
 	desc 'Test the generated parser against the sample program'
 	task :test do
-		sh 'ruby *.tab.rb *unicode*.fol*'
+		sh 'ruby -Ku *.tab.rb *unicode*.fol*'
 	end
 
 end

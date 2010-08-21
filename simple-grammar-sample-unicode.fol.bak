@@ -1,6 +1,6 @@
-∃ab Z[cd]
+∃[a,b] Z[c,d]
 ∀e: B[f]
-∀gh: C[i,j] ∧ D[kk] → =[*[l,3],^[m,22]]
-∀ nop E[qr] ∧ F[st] → G[uv]
-∃!w: ∀x: ∀y: ¬(H[za] ∨ I[bc]) ∧ J[d]
-∀e ∃f K[gh] ∧ ¬L[ij] ∨ M[kl] ∨ N[mn] → O[op]
+∀[g,h]: C[i,j] ∧ D[k,k] → =[*[l,3],^[m,22]]
+∀[n,o,p] E[q,r] ∧ F[s,t] → Gu
+∃!w: ∀x: ∀y: ¬(H[z,a] ∨ I[b,c]) ∧ Jd
+∀e ∃f K[g,h] ∧ ¬L[i,j] ∨ M[k,l] ∨ N[m,n] → O[o,p]
