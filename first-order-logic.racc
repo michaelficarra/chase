@@ -34,25 +34,30 @@ formulaList:
 	;
 
 formula:
-	predicate                                           { val.last }
-	| TAUTOLOGY                                         { '⊤' } #{ Tautology.new }
-	| CONTRADICTION                                     { '⊥' } #{ Contradiction.new }
-	| formula2 predicateOperator formula2               { '('+val.join(' ')+')' } #{ Expression.new val[1], val.first, val.last }
-	| formula2 IMPLIES formula2                         { val.first + ' → ' + val.last } #{ Implication.new val.first val.last }
-	| NOT formula2                                      { '¬'+val.last } #{ val.last.not!; val.last }
+	expr
+	| expr IMPLIES expr                                 { val.first + ' → ' + val.last } #{ Implication.new val.first val.last }
 	| FOR_ALL index quantifierBody                      { '∀'+val[1]+': '+val.last } #{ UniversalQuantifier.new val[1], val.last }
-	| THERE_EXISTS_ONE index quantifierBody             { '∃!'+val[1]+': '+val.last } #{ ExistentialQuantifier.new val[1], val.last, :one=>true }
+	| THERE_EXISTS_ONE index  quantifierBody            { '∃!'+val[1]+': '+val.last } #{ ExistentialQuantifier.new val[1], val.last, :one=>true }
 	| THERE_EXISTS index quantifierBody                 { '∃'+val[1]+': '+val.last } #{ ExistentialQuantifier.new val[1], val.last }
 	;
 
-formula2:
-	formula                                             { val.last }
+expr:
+	exprValue                                           { val.last }
+	| expr infixOperator exprValue                      { '('+val.join(' ')+')' } #{ Expression.new val[1], val.first, val.last }
+	;
+
+exprValue:
+	predicate                                           { val.last }
 	| PAREN_OPEN formula PAREN_CLOSE                    { '('+val[1]+')' } #{ ParentheticalExpresson.new val[1] }
+	| TAUTOLOGY                                         { '⊤' } #{ Tautology.new }
+	| CONTRADICTION                                     { '⊥' } #{ Contradiction.new }
+	| NOT exprValue                                     { '¬'+val.last } #{ val.last.not!; val.last }
 	;
 
 quantifierBody:
-	optCOLON formula2                                   { val.last }
+	optCOLON formula                                    { val.last }
 	| BRACE_OPEN formula BRACE_CLOSE                    { val[1] }
+	;
 
 predicate:
 	IDENTIFIER index                                    { val.first+val.last } #{ Predicate.new val.first, val[2] }
@@ -74,10 +79,10 @@ argListValue:
 	| INTEGER                 { val.last.to_i }
 	;
 
-predicateOperator:
+infixOperator:
     AND                       { '∧' } #{ @@operators[:AND] }
-	| XOR                     { '⊕' } #{ @@operators[:XOR] }
 	| OR                      { '∨' } #{ @@operators[:OR] }
+	| XOR                     { '⊕' } #{ @@operators[:XOR] }
 	;
 
 optCOLON:   /* nothing */ { false } | COLON   { val.first } ;

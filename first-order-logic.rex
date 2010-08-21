@@ -2,7 +2,7 @@ class FirstOrderLogic
 rule
 	[\r\n]+                     {[:NEWLINE, text]}
 	\s+                         { next_token } # ignore whitespace
-	(?:--\s+|\#).*              { next_token } # ignore comments
+	(?:--\s+|\#)[^\r\n]*        { next_token } # ignore comments
 	\/\*(?:[^\*]|\*[^\/])*\*\/  { next_token } # ignore comments
 	∃!             {[:THERE_EXISTS_ONE, text]}
 	∃              {[:THERE_EXISTS, text]}
