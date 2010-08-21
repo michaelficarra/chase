@@ -4,19 +4,17 @@ class FirstOrderLogic
 
 prechigh
 	nonassoc NOT
-	left MULTIPLY DIVIDE
-	left ADD SUBTRACT
-	right EQ
+	left AND
+	left OR
+	right IMPLIES
 preclow
 
-token FACTS RULES CHASE
-token LT GT GTE LTE NE EQ
-token PLUS MINUS EXP MULTIPLY DIVIDE OR XOR AND NOT
-token BRACE_OPEN BRACE_CLOSE PAREN_OPEN PAREN_CLOSE
+token OR XOR AND NOT
+token BRACKET_OPEN BRACKET_CLOSE PAREN_OPEN PAREN_CLOSE
 token TAUTOLOGY CONTRADICTION
-token FOR_ALL THERE_EXISTS THERE_EXISTS_ONE EMPTY_SET
-token COLON COMMA SEMICOLON IMPLIES
-token PREDICATE IDENTIFIER INTEGER
+token FOR_ALL THERE_EXISTS THERE_EXISTS_ONE
+token COLON COMMA IMPLIES
+token TERMINAL INTEGER IDENTIFIER
 token NEWLINE
 
 options no_result_var
@@ -26,155 +24,62 @@ start program
 rule
 
 program:
-	/* nothing */                                   { Program.new }
-	| statementList                                 { Program.new *val.first; }
+	/* nothing */                                { "" }
+	| formulaList optNEWLINE                     { val.first.join("\n") } #{ Program.new *val.first; }
 	;
 
-statementList:
-	statement semicolonOrNewline                    { val.pop; val }
-	| statementList statement semicolonOrNewline    { val.pop; val.first.push val.last }
+formulaList:
+	formula                                      { val }
+	| formulaList NEWLINE formula                { val.first.push val.last }
 	;
 
-statement:
-	/* factDefinitionStatement */
-	FACTS IDENTIFIER assignmentOperator optNEWLINE factList
-	{ FactDefinitionStatement.new( val[1], FactList.new(*val.last) ) }
-	| /* ruleDefinitionStatement */
-	RULES IDENTIFIER assignmentOperator optNEWLINE BRACE_OPEN optNEWLINE ruleList optNEWLINE BRACE_CLOSE
-	{ RuleDefinitionStatement.new( val[1], RuleList.new(*val[6]) ) }
-	| /* chaseStatement */
-	CHASE identifierList                         { ChaseStatement.new *val.last }
-	;
-
-assignmentOperator:
-	COLON optEQ                                  { val.select{|_| _ } }
-	| EQ                                         { val.first }
-	;
-
-factList:
-	EMPTY_SET                                    { [] }
-	| BRACE_OPEN predicateList BRACE_CLOSE       { val[1] }
-	;
-
-predicateList:
-	predicate                                    { PredicateList.new val }
-	| predicateList predicate                    { val.first.push val.last }
+formula:
+	predicate                                           { val.last }
+	| PAREN_OPEN formula PAREN_CLOSE                    { '('+val[1]+')' } #{ ParentheticalExpresson.new val[1] }
+	| TAUTOLOGY                                         { '⊤' } #{ Tautology.new }
+	| CONTRADICTION                                     { '⊥' } #{ Contradiction.new }
+	| formula predicateOperator formula                 { '('+val.join(' ')+')' } #{ Expression.new val[1], val.first, val.last }
+	| formula IMPLIES formula                           { val.first + ' → ' + val.last } #{ Implication.new val.first val.last }
+	| NOT formula                                       { '¬'+val.last } #{ val.last.not!; val.last }
+	| FOR_ALL terminalList optCOLON formula             { '∀'+val[1].join('')+': '+val.last } #{ UniversalQuantifier.new val[1], val.last }
+	| THERE_EXISTS_ONE terminalList optCOLON formula    { '∃!'+val[1].join('')+': '+val.last } #{ ExistentialQuantifier.new val[1], val.last, :one=>true }
+	| THERE_EXISTS terminalList optCOLON formula        { '∃'+val[1].join('')+': '+val.last } #{ ExistentialQuantifier.new val[1], val.last }
 	;
 
 predicate:
-	PREDICATE                                    { Predicate.new val.first[:symbol], val.first[:terminals] }
-	| NOT predicate                              { val.last.not; val.last }
+	IDENTIFIER BRACKET_OPEN index BRACKET_CLOSE         { val.first+'['+val[2].join(',')+']' } #{ Predicate.new val.first, val[2] }
 	;
 
-identifierList:
-	IDENTIFIER                                   { val }
-	| identifierList COMMA IDENTIFIER            { val.first.push val.last }
+index:
+	terminalList              { val.last }
+	| argList                 { val.last }
 	;
 
-ruleList:
-	rule                                         { val }
-	| ruleList commaOrNewline rule               { val.first.push val.last }
+argList:
+	argListValue                   { val }
+	| argList COMMA argListValue   { val.first.push val.last }
 	;
 
-rule:
-	existentialQuantifier                        { val.first }
-	| universalQuantifier                        { val.first }
+argListValue:
+	predicate                 { val.last }
+	| TERMINAL                { val.last }
+	| INTEGER                 { val.last.to_i }
 	;
 
-existentialQuantifier:
-	THERE_EXISTS_ONE optCOLON quantifierBody     { ExistentialQuantifier.new val.first, val.last, :one=>true }
-	| THERE_EXISTS optCOLON quantifierBody       { ExistentialQuantifier.new val.first, val.last }
-	;
-
-universalQuantifier:
-	FOR_ALL optCOLON quantifierBody              { UniversalQuantifier.new val.first, val.last }
-	;
-
-quantifierBody:
-	predicateExpression predicateImplication
-	{ val.last ? PredicateImplication.new(val.first,val.last) : val.first }
-	| universalQuantifier                        { val.first }
-	| existentialQuantifier                      { val.first }
-	;
-
-predicateImplication:
-	/* nothing */                                { false }
-	| IMPLIES expression                         { val.last }
-	;
-
-expression:
-	predicateExpression                          { val.first }
-	| terminalExpression                         { val.first }
-	| TAUTOLOGY                                  { Tautology.new }
-	| CONTRADICTION                              { Contradiction.new }
-	;
-
-predicateExpression:
-	predicateExpressionValue                     { val.first }
-	| predicateExpression predicateOperator predicateExpressionValue
-	{ PredicateExpression.new val[1], val.first, val.last }
-	;
-
-predicateExpressionValue:
-	PREDICATE                                       { Predicate.new val.first[:symbol], val.first[:terminals] }
-	| PAREN_OPEN predicateExpression PAREN_CLOSE    { val[1].parenthesize? ? val[1] : ParentheticalExpression.new(val[1]) }
-	| NOT predicateExpressionValue                  { val.last.not; val.last }
+terminalList:
+	TERMINAL                  { val }
+	| terminalList TERMINAL   { val.first.push val.last }
 	;
 
 predicateOperator:
-    AND                       { @@operators[:AND] }
-	| XOR                     { @@operators[:XOR] }
-	| OR                      { @@operators[:OR] }
+    AND                       { '∧' } #{ @@operators[:AND] }
+	| XOR                     { '⊕' } #{ @@operators[:XOR] }
+	| OR                      { '∨' } #{ @@operators[:OR] }
 	;
 
-terminalExpression:
-	terminalExpressionValue                         { val.first }
-	| terminalExpression terminalOperator terminalExpressionValue
-	{ TerminalExpression.new val[1], val.first, val.last }
-	;
-
-terminalExpressionValue:
-	IDENTIFIER                                      { Terminal.new val.first }
-	| INTEGER                                       { val.first }
-	| PAREN_OPEN terminalExpression PAREN_CLOSE     { val[1].parenthesize? ? val[1] : ParentheticalExpression.new(val[1]) }
-	| NOT terminalExpressionValue                   { val.last.not; val.last }
-	| unaryTerminalOperator terminalExpressionValue
-	{ ParentheticalExpression.new TerminalUnaryExpression.new(val.first,val.last) }
-	;
-
-unaryTerminalOperator:
-	PLUS                      { @@operators[:PLUS] }
-	| MINUS                   { @@operators[:MINUS] }
-	;
-
-terminalOperator:
-	LT                        { @@operators[:LT] }
-	| GT                      { @@operators[:GT] }
-	| LTE                     { @@operators[:LTE] }
-	| GTE                     { @@operators[:GTE] }
-	| NE                      { @@operators[:NE] }
-	| EQ optEQ                { @@operators[:EQ] }
-	| EXP                     { @@operators[:EXP] }
-	| MULTIPLY                { @@operators[:MULTIPLY] }
-	| DIVIDE                  { @@operators[:DIVIDE] }
-	| PLUS                    { @@operators[:PLUS] }
-	| MINUS                   { @@operators[:MINUS] }
-	;
-
-optEQ:      /* nothing */ { false } | EQ      { val.first } ;
 optCOLON:   /* nothing */ { false } | COLON   { val.first } ;
 optCOMMA:   /* nothing */ { false } | COMMA   { val.first } ;
 optNEWLINE: /* nothing */ { false } | NEWLINE { val.first } ;
-
-commaOrNewline:
-	NEWLINE optCOMMA optNEWLINE          { val.select{|_| _ } }
-	| COMMA optNEWLINE                   { val.select{|_| _ } }
-	;
-
-semicolonOrNewline:
-	NEWLINE                   { val.first }
-	| SEMICOLON optNEWLINE    { val.select{|_| _ } }
-	;
 
 end
 
@@ -189,17 +94,6 @@ end
 		:AND => const=const.next,
 		:XOR => const=const.next,
 		:OR => const=const.next,
-		:LT => const=const.next,
-		:GT => const=const.next,
-		:LTE => const=const.next,
-		:GTE => const=const.next,
-		:NE => const=const.next,
-		:EQ => const=const.next,
-		:EXP => const=const.next,
-		:MULTIPLY => const=const.next,
-		:DIVIDE => const=const.next,
-		:PLUS => const=const.next,
-		:MINUS => const=const.next
 	}
 
 	def parse_file file
@@ -209,6 +103,7 @@ end
 
 ---- footer
 	if __FILE__ == $0
+		puts File.read(ARGV[0])
 		program = FirstOrderLogic.new.parse_file(ARGV[0])
 		puts program.to_s
 	end
