@@ -9,7 +9,7 @@ prechigh
 	right IMPLIES
 preclow
 
-token OR XOR AND NOT
+token OR AND NOT
 token BRACKET_OPEN BRACKET_CLOSE BRACE_OPEN BRACE_CLOSE PAREN_OPEN PAREN_CLOSE
 token TAUTOLOGY CONTRADICTION
 token FOR_ALL THERE_EXISTS THERE_EXISTS_ONE
@@ -24,53 +24,60 @@ start program
 rule
 
 program:
-	/* nothing */                                { "" }
-	| formulaList optNEWLINE                     { val.first.join("\n") } #{ Program.new *val.first; }
+	/* nothing */                         { "" }
+	| formulaList optNEWLINE              { val.first.join("\n") } #{ Program.new *val.first; }
 	;
 
 formulaList:
-	formula                                      { val }
-	| formulaList NEWLINE formula                { val.first.push val.last }
+	formula                               { val }
+	| formulaList NEWLINE formula         { val.first.push val.last }
 	;
 
 formula:
 	expr
-	| expr IMPLIES expr                                 { val.first + ' → ' + val.last } #{ Implication.new val.first val.last }
-	| FOR_ALL index quantifierBody                      { '∀'+val[1]+': '+val.last } #{ UniversalQuantifier.new val[1], val.last }
-	| THERE_EXISTS_ONE index  quantifierBody            { '∃!'+val[1]+': '+val.last } #{ ExistentialQuantifier.new val[1], val.last, :one=>true }
-	| THERE_EXISTS index quantifierBody                 { '∃'+val[1]+': '+val.last } #{ ExistentialQuantifier.new val[1], val.last }
+	| expr IMPLIES expr                         { val.first + ' → ' + val.last } #{ Implication.new val.first val.last }
+	| FOR_ALL index quantifierBody              { '∀'+val[1]+': '+val.last } #{ UniversalQuantifier.new val[1], val.last }
+	| THERE_EXISTS_ONE index  quantifierBody    { '∃!'+val[1]+': '+val.last } #{ ExistentialQuantifier.new val[1], val.last, :one=>true }
+	| THERE_EXISTS index quantifierBody         { '∃'+val[1]+': '+val.last } #{ ExistentialQuantifier.new val[1], val.last }
 	;
 
-expr:
-	exprValue                                           { val.last }
-	| expr infixOperator exprValue                      { '('+val.join(' ')+')' } #{ Expression.new val[1], val.first, val.last }
+expr: exprOR                              { val.last }
+	;
+
+exprOR:
+	exprAND                               { val.last }
+	| exprOR OR exprOR                    { val.join(' ') } #{ Expression.new val[1], val.first, val.last }
+	;
+
+exprAND:
+	exprValue                             { val.last }
+	| exprAND AND exprAND                 { '('+val.join(' ')+')' } #{ Expression.new val[1], val.first, val.last }
 	;
 
 exprValue:
-	predicate                                           { val.last }
-	| PAREN_OPEN formula PAREN_CLOSE                    { '('+val[1]+')' } #{ ParentheticalExpresson.new val[1] }
-	| TAUTOLOGY                                         { '⊤' } #{ Tautology.new }
-	| CONTRADICTION                                     { '⊥' } #{ Contradiction.new }
-	| NOT exprValue                                     { '¬'+val.last } #{ val.last.not!; val.last }
+	predicate                             { val.last }
+	| PAREN_OPEN formula PAREN_CLOSE      { '('+val[1]+')' } #{ ParentheticalExpresson.new val[1] }
+	| TAUTOLOGY                           { '⊤' } #{ Tautology.new }
+	| CONTRADICTION                       { '⊥' } #{ Contradiction.new }
+	| NOT exprValue                       { '¬'+val.last } #{ val.last.not!; val.last }
 	;
 
 quantifierBody:
-	optCOLON formula                                    { val.last }
-	| BRACE_OPEN formula BRACE_CLOSE                    { val[1] }
+	optCOLON formula                      { val.last }
+	| BRACE_OPEN formula BRACE_CLOSE      { val[1] }
 	;
 
-predicate:
-	IDENTIFIER index                                    { val.first+val.last } #{ Predicate.new val.first, val[2] }
+predicate: IDENTIFIER index               { val.first+val.last } #{ Predicate.new val.first, val[2] }
 	;
 
 index:
-	BRACKET_OPEN argList BRACKET_CLOSE                  { '['+val[1].join(',')+']' }
-	| argListValue                                      { val.last }
+	BRACKET_OPEN argList BRACKET_CLOSE    { '['+val[1].join(',')+']' }
+	| argListValue                        { val.last }
 	;
 
 argList:
-	argListValue                   { val }
-	| argList COMMA argListValue   { val.first.push val.last }
+	argListValue                          { val }
+	| argList COMMA argListValue          { val.first.push val.last }
 	;
 
 argListValue:
@@ -79,14 +86,7 @@ argListValue:
 	| INTEGER                 { val.last.to_i }
 	;
 
-infixOperator:
-    AND                       { '∧' } #{ @@operators[:AND] }
-	| OR                      { '∨' } #{ @@operators[:OR] }
-	| XOR                     { '⊕' } #{ @@operators[:XOR] }
-	;
-
 optCOLON:   /* nothing */ { false } | COLON   { val.first } ;
-#optCOMMA:   /* nothing */ { false } | COMMA   { val.first } ;
 optNEWLINE: /* nothing */ { false } | NEWLINE { val.first } ;
 
 end

@@ -13,14 +13,15 @@ rule
 	¬                           {[:NOT, text]}
 	\||∨                        {[:OR, text]}
 	&|∧                         {[:AND, text]}
-	⊕                           {[:XOR, text]}
 	\(                          {[:PAREN_OPEN, text]}
 	\)                          {[:PAREN_CLOSE, text]}
 	\[                          {[:BRACKET_OPEN, text]}
 	\]                          {[:BRACKET_CLOSE, text]}
+	\{                          {[:BRACE_OPEN, text]}
+	\}                          {[:BRACE_CLOSE, text]}
 	:                           {[:COLON, text]}
 	,                           {[:COMMA, text]}
 	[a-z]+                      {[:FREE_VARIABLE, text]}
-	\d+                         {[:INTEGER, text.to_i]}
+	[0-9]+                      {[:INTEGER, text.to_i]}
 	[^\[a-z#{32.chr}\t]+        {[:IDENTIFIER, text]}
 end

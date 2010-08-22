@@ -47,7 +47,6 @@ tokens :-
 	$n$o$t|"!"                      { \s -> ("NOT",s) }
 	$o$r|"|"                        { \s -> ("OR",s) }
 	$a$n$d|"&"                      { \s -> ("AND",s) }
-	$x$o$r                          { \s -> ("XOR",s) }
 	"("                             { \s -> ("PAREN_OPEN",s) }
 	")"                             { \s -> ("PAREN_CLOSE",s) }
 	"["                             { \s -> ("BRACKET_OPEN",s) }
