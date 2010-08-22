@@ -36,9 +36,9 @@ formulaList
 formula
 	: expr
 	| expr IMPLIES expr                         { val.first + ' → ' + val.last } #{ Implication.new val.first val.last }
-	| FOR_ALL index quantifierBody              { '∀'+val[1]+': '+val.last } #{ UniversalQuantifier.new val[1], val.last }
-	| THERE_EXISTS_ONE index  quantifierBody    { '∃!'+val[1]+': '+val.last } #{ ExistentialQuantifier.new val[1], val.last, :one=>true }
-	| THERE_EXISTS index quantifierBody         { '∃'+val[1]+': '+val.last } #{ ExistentialQuantifier.new val[1], val.last }
+	| FOR_ALL index quantifierBody              { '∀'+val[1]+val.last } #{ UniversalQuantifier.new val[1], val.last }
+	| THERE_EXISTS_ONE index quantifierBody     { '∃!'+val[1]+val.last } #{ ExistentialQuantifier.new val[1], val.last, :one=>true }
+	| THERE_EXISTS index quantifierBody         { '∃'+val[1]+val.last } #{ ExistentialQuantifier.new val[1], val.last }
 	;
 
 expr: exprOR ;
@@ -56,21 +56,21 @@ exprAND
 exprValue
 	: predicate
 	| PAREN_OPEN formula PAREN_CLOSE        { '('+val[1]+')' } #{ ParentheticalExpresson.new val[1] }
-	| TAUTOLOGY                             { '⊤' } #{ Tautology.new }
-	| CONTRADICTION                         { '⊥' } #{ Contradiction.new }
+	| TAUTOLOGY                             { val.last } #{ Tautology.new }
+	| CONTRADICTION                         { val.last } #{ Contradiction.new }
 	| NOT exprValue                         { '¬'+val.last } #{ val.last.not!; val.last }
 	;
 
 quantifierBody
-	: optCOLON formula                      { val.last }
-	| BRACE_OPEN formula BRACE_CLOSE        { val[1] }
+	: optCOLON formula                      { ': '+val.last }
+	| BRACE_OPEN formula BRACE_CLOSE        { '{ '+val[1]+' }' }
 	;
 
 predicate: IDENTIFIER index                 { val.first+val.last } #{ Predicate.new val.first, val[2] } ;
 
 index
-	: BRACKET_OPEN argList BRACKET_CLOSE    { '['+val[1].join(',')+']' }
-	| argListValue                          { val.last }
+	: BRACKET_OPEN argList BRACKET_CLOSE    { val[1].length > 1 ? '['+val[1].join(',')+']' : val[1][0] }
+	| argListValue
 	;
 
 argList
