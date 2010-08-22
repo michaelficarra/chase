@@ -1,6 +1,6 @@
-TherExists[a,b] Z[c,d]
+ThereExists[a,b] Z[c,d]
 ForAll e: B[f]
-ForAll[g,h]: C[i,j] ∧ D[k,k] -> =[*[l,3],^[m,22]]
-ForAll [n,o,p] ThereExists[q,r] ∧ F[s,t] -> Gu
-TherExistsOne w: ForAll x: ForAll y: !(H[z,a] ∨ I[b,c]) ∧ Jd
-ForAll e ThereExists f K[g,h] ∧ !L[i,j] ∨ M[k,l] ∨ N[m,n] -> O[o,p]
+ForAll[g,h]: C[i,j] & D[k,k] -> =[*[l,3],^[m,22]]
+ForAll [n,o,p] ThereExists[q,r] & F[s,t] -> Gu
+TherExistsOne w: ForAll x: ForAll y: !(H[z,a] | I[b,c]) & Jd
+ForAll e ThereExists f K[g,h] & !L[i,j] | M[k,l] | N[m,n] -> O[o,p]
