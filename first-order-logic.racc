@@ -23,67 +23,65 @@ start program
 
 rule
 
-program:
-	/* nothing */                         { "" }
-	| formulaList optNEWLINE              { val.first.join("\n") } #{ Program.new *val.first; }
+program
+	: /* nothing */                         { "" }
+	| formulaList optNEWLINE                { val.first.join("\n") } #{ Program.new *val.first; }
 	;
 
-formulaList:
-	formula                               { val }
-	| formulaList NEWLINE formula         { val.first.push val.last }
+formulaList
+	: formula                               { val }
+	| formulaList NEWLINE formula           { val.first.push val.last }
 	;
 
-formula:
-	expr
+formula
+	: expr
 	| expr IMPLIES expr                         { val.first + ' → ' + val.last } #{ Implication.new val.first val.last }
 	| FOR_ALL index quantifierBody              { '∀'+val[1]+': '+val.last } #{ UniversalQuantifier.new val[1], val.last }
 	| THERE_EXISTS_ONE index  quantifierBody    { '∃!'+val[1]+': '+val.last } #{ ExistentialQuantifier.new val[1], val.last, :one=>true }
 	| THERE_EXISTS index quantifierBody         { '∃'+val[1]+': '+val.last } #{ ExistentialQuantifier.new val[1], val.last }
 	;
 
-expr: exprOR                              { val.last }
+expr: exprOR ;
+
+exprOR
+	: exprAND
+	| exprOR OR exprOR                      { val.join(' ') } #{ Expression.new val[1], val.first, val.last }
 	;
 
-exprOR:
-	exprAND                               { val.last }
-	| exprOR OR exprOR                    { val.join(' ') } #{ Expression.new val[1], val.first, val.last }
+exprAND
+	: exprValue
+	| exprAND AND exprAND                   { '('+val.join(' ')+')' } #{ Expression.new val[1], val.first, val.last }
 	;
 
-exprAND:
-	exprValue                             { val.last }
-	| exprAND AND exprAND                 { '('+val.join(' ')+')' } #{ Expression.new val[1], val.first, val.last }
+exprValue
+	: predicate
+	| PAREN_OPEN formula PAREN_CLOSE        { '('+val[1]+')' } #{ ParentheticalExpresson.new val[1] }
+	| TAUTOLOGY                             { '⊤' } #{ Tautology.new }
+	| CONTRADICTION                         { '⊥' } #{ Contradiction.new }
+	| NOT exprValue                         { '¬'+val.last } #{ val.last.not!; val.last }
 	;
 
-exprValue:
-	predicate                             { val.last }
-	| PAREN_OPEN formula PAREN_CLOSE      { '('+val[1]+')' } #{ ParentheticalExpresson.new val[1] }
-	| TAUTOLOGY                           { '⊤' } #{ Tautology.new }
-	| CONTRADICTION                       { '⊥' } #{ Contradiction.new }
-	| NOT exprValue                       { '¬'+val.last } #{ val.last.not!; val.last }
+quantifierBody
+	: optCOLON formula                      { val.last }
+	| BRACE_OPEN formula BRACE_CLOSE        { val[1] }
 	;
 
-quantifierBody:
-	optCOLON formula                      { val.last }
-	| BRACE_OPEN formula BRACE_CLOSE      { val[1] }
+predicate: IDENTIFIER index                 { val.first+val.last } #{ Predicate.new val.first, val[2] } ;
+
+index
+	: BRACKET_OPEN argList BRACKET_CLOSE    { '['+val[1].join(',')+']' }
+	| argListValue                          { val.last }
 	;
 
-predicate: IDENTIFIER index               { val.first+val.last } #{ Predicate.new val.first, val[2] }
+argList
+	: argListValue                          { val }
+	| argList COMMA argListValue            { val.first.push val.last }
 	;
 
-index:
-	BRACKET_OPEN argList BRACKET_CLOSE    { '['+val[1].join(',')+']' }
-	| argListValue                        { val.last }
-	;
-
-argList:
-	argListValue                          { val }
-	| argList COMMA argListValue          { val.first.push val.last }
-	;
-
-argListValue:
-	predicate                 { val.last }
-	| FREE_VARIABLE           { val.last }
-	| INTEGER                 { val.last.to_i }
+argListValue
+	: predicate
+	| FREE_VARIABLE
+	| INTEGER
 	;
 
 optCOLON:   /* nothing */ { false } | COLON   { val.first } ;
