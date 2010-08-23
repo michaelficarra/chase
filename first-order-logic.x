@@ -1,5 +1,5 @@
 {
-	module Main (alexScanTokens, printTokens) where
+	module Lexer (alexScanTokens, printTokens) where
 }
 
 %wrapper "basic"

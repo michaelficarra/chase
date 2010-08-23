@@ -1,5 +1,5 @@
 {
-module Parser (eval,main) where
+module Main (eval,main) where
 }
 
 %name generate
@@ -32,7 +32,7 @@ module Parser (eval,main) where
 %%
 
 program
-	:                                       { Nothing }
+	:                                       { Main.Nothing }
 	| formulaList optNEWLINE                { $1 }
 
 formulaList
@@ -43,8 +43,8 @@ formula
 	: expr                                      { Expression $1 }
 	| expr IMPLIES expr                         { Implication $1 $3 }
 	| FOR_ALL index quantifierBody              { UniversalQuantifier $2 $3 }
-	| THERE_EXISTS_ONE index quantifierBody     { ExistentialQuantifier true $2 $3 }
-	| THERE_EXISTS index quantifierBody         { ExistentialQuantifier false $2 $3 }
+	| THERE_EXISTS_ONE index quantifierBody     { ExistentialQuantifier True $2 $3 }
+	| THERE_EXISTS index quantifierBody         { ExistentialQuantifier False $2 $3 }
 
 expr: exprOR { ExpressionOR $1 }
 
@@ -57,8 +57,8 @@ exprAND
 	| exprAND AND exprValue                 { ExpressionAND $1 $3 }
 
 exprValue
-	: predicate                             { $1 }
-	| PAREN_OPEN formula PAREN_CLOSE        { ParentheticalExpresson (Formula $2) }
+	: predicate                             { PredicateEV $1 }
+	| PAREN_OPEN formula PAREN_CLOSE        { ParentheticalExpression (Formula $2) }
 	| TAUTOLOGY                             { $1 }
 	| CONTRADICTION                         { $1 }
 	| NOT exprValue                         { Not $2 }
@@ -78,12 +78,12 @@ argList
 	| argList COMMA arg                     { $1 ++ [(Arg $3)] }
 
 arg
-	: predicate                             { $1 }
+	: predicate                             { PredicateArg $1 }
 	| FREE_VARIABLE                         { FreeVariable $1 }
 	| INTEGER                               { Integer $1 }
 
-optCOLON:   { false } | COLON   { $1 }
-optNEWLINE: { false } | NEWLINE { $1 }
+optCOLON:   { Main.Nothing } | COLON   { $1 }
+optNEWLINE: { Main.Nothing } | NEWLINE { $1 }
 
 {
 eval = do
@@ -106,29 +106,31 @@ data Formula
 	deriving Show
 
 data Expression
-	= ExpressionOR
+	= ExpressionOR ExpressionOR
 	deriving Show
 
 data ExpressionOR
 	= ExpressionAND ExpressionAND
-	| ExpressionOR ExpressionOR ExpressionOR
 	deriving Show
 
 data ExpressionAND
 	= ExpressionValue ExpressionValue
-	| ExpressionAND ExpressionAND ExpressionAND
 	deriving Show
 
 data ExpressionValue
-	= Predicate String Index
+	= PredicateEV Predicate
 	| ParentheticalExpression Formula
 	| Tautology
 	| Contradiction
 	| Not ExpressionValue
 	deriving Show
 
-type Tautology = TokenTautology
-type Contradiction = TokenContradiction
+type Tautology = String
+type Contradiction = String
+
+data Predicate
+	= Predicate String Index
+	deriving Show
 
 data QuantifierBody
 	= Formula Formula
@@ -141,7 +143,7 @@ data Index
 type ArgList = [Arg]
 
 data Arg
-	= Predicate String Index
+	= PredicateArg Predicate
 	| FreeVariable String
 	| Integer String
 	deriving Show
