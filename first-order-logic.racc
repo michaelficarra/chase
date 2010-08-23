@@ -45,12 +45,12 @@ expr: exprOR ;
 
 exprOR
 	: exprAND
-	| exprOR OR exprOR                      { val.join(' ') } #{ Expression.new val[1], val.first, val.last }
+	| exprOR OR exprAND                     { val.join(' ') } #{ Expression.new val[1], val.first, val.last }
 	;
 
 exprAND
 	: exprValue
-	| exprAND AND exprAND                   { '('+val.join(' ')+')' } #{ Expression.new val[1], val.first, val.last }
+	| exprAND AND exprValue                 { '('+val.join(' ')+')' } #{ Expression.new val[1], val.first, val.last }
 	;
 
 exprValue

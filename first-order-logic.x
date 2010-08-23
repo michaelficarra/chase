@@ -1,5 +1,5 @@
 {
-	module Main (main) where
+	module Main (alexScanTokens, printTokens) where
 }
 
 %wrapper "basic"
@@ -62,6 +62,6 @@ tokens :-
 {
 printTokens = do
 	s <- readFile "./simple-grammar-sample.fol"
-	putStr s
+	-- putStr s
 	print (alexScanTokens s)
 }

@@ -1,5 +1,5 @@
 {
-module Main where
+module Parser (eval,main) where
 }
 
 %name generate
@@ -50,11 +50,11 @@ expr: exprOR { ExpressionOR $1 }
 
 exprOR
 	: exprAND                               { ExpressionAND $1 }
-	| exprOR OR exprOR                      { ExpressionOR $1 $3 }
+	| exprOR OR exprAND                     { ExpressionOR $1 $3 }
 
 exprAND
 	: exprValue                             { ExpressionValue $1 }
-	| exprAND AND exprAND                   { ExpressionAND $1 $3 }
+	| exprAND AND exprValue                 { ExpressionAND $1 $3 }
 
 exprValue
 	: predicate                             { $1 }
@@ -93,8 +93,10 @@ eval = do
 
 data Program
 	= Nothing
-	| [Formula]
+	| FormulaList
 	deriving Show
+
+type FormulaList = [Formula]
 
 data Formula
 	= Expression
@@ -104,7 +106,7 @@ data Formula
 	deriving Show
 
 data Expression
-	= ExpressionOR ExpressionOR
+	= ExpressionOR
 	deriving Show
 
 data ExpressionOR
@@ -120,18 +122,23 @@ data ExpressionAND
 data ExpressionValue
 	= Predicate String Index
 	| ParentheticalExpression Formula
-	| TokenTautology
-	| TokenContradiction
+	| Tautology
+	| Contradiction
 	| Not ExpressionValue
 	deriving Show
+
+type Tautology = TokenTautology
+type Contradiction = TokenContradiction
 
 data QuantifierBody
 	= Formula Formula
 	deriving Show
 
 data Index
-	= [Arg]
+	= ArgList
 	deriving Show
+
+type ArgList = [Arg]
 
 data Arg
 	= Predicate String Index

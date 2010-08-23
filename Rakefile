@@ -30,7 +30,7 @@ namespace 'haskell' do
 
 	desc 'Generate lexer with alex'
 	task :lexer do
-		sh 'alex -g -d -o first-order-logic.x.hs *.x'
+		sh 'alex -g -o first-order-logic.x.hs *.x'
 	end
 
 	desc 'Generate parser with happy'
@@ -45,7 +45,7 @@ namespace 'haskell' do
 
 	desc 'Test the generated parser against the sample program'
 	task :test do
-		sh 'ghci *.hs'
+		sh 'ghci first-order-logic.x.hs first-order-logic.hs'
 	end
 
 end
