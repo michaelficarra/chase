@@ -32,56 +32,109 @@ module Main where
 %%
 
 program
-	: /* nothing */                         { Program [] }
-	| formulaList optNEWLINE                { Program $1 }
+	: /* nothing */                         { Nothing }
+	| formulaList optNEWLINE                { $1 }
 
 formulaList
-	: formula                               { [$1] }
-	| formula NEWLINE formulaList           { $1 : $3 }
+	: formula                               { [(Formula $1)] }
+	| formula NEWLINE formulaList           { (Formula $1) : $3 }
 
 formula
-	: expr                                      { $1 }
+	: expr                                      { Expression $1 }
 	| expr IMPLIES expr                         { Implication $1 $3 }
 	| FOR_ALL index quantifierBody              { UniversalQuantifier $2 $3 }
 	| THERE_EXISTS_ONE index quantifierBody     { ExistentialQuantifier true $2 $3 }
 	| THERE_EXISTS index quantifierBody         { ExistentialQuantifier false $2 $3 }
 
-expr: exprOR { $1 }
+expr: exprOR { ExpressionOR $1 }
 
 exprOR
-	: exprAND                               { $1 }
+	: exprAND                               { ExpressionAND $1 }
 	| exprOR OR exprOR                      { ExpressionOR $1 $3 }
 
 exprAND
-	: exprValue                             { $1 }
+	: exprValue                             { ExpressionValue $1 }
 	| exprAND AND exprAND                   { ExpressionAND $1 $3 }
 
 exprValue
 	: predicate                             { $1 }
-	| PAREN_OPEN formula PAREN_CLOSE        { ParentheticalExpresson $2 }
-	| TAUTOLOGY                             { Tautology }
-	| CONTRADICTION                         { Contradiction }
+	| PAREN_OPEN formula PAREN_CLOSE        { ParentheticalExpresson (Formula $2) }
+	| TAUTOLOGY                             { $1 }
+	| CONTRADICTION                         { $1 }
 	| NOT exprValue                         { Not $2 }
 
 quantifierBody
-	: optCOLON formula                      { $2 }
-	| BRACE_OPEN formula BRACE_CLOSE        { $2 }
+	: optCOLON formula                      { Formula $2 }
+	| BRACE_OPEN formula BRACE_CLOSE        { Formula $2 }
 
-predicate: IDENTIFIER index                 { Predicate $1 $2 } ;
+predicate: IDENTIFIER index                 { Predicate (Identifier $1) (Index $2) }
 
 index
 	: BRACKET_OPEN argList BRACKET_CLOSE    { $2 }
-	| argListValue                          { $1 }
+	| arg                                   { [(Arg $1)] }
 
 argList
-	: argListValue                          { [$1] }
-	| argListValue COMMA argList            { $1 : $3 }
+	: arg                                   { [(Arg $1)] }
+	| arg COMMA argList                     { (Arg $1) : $3 }
 
-argListValue
+arg
 	: predicate                             { $1 }
-	| FREE_VARIABLE                         { $1 }
-	| INTEGER                               { $1 }
+	| FREE_VARIABLE                         { FreeVariable $1 }
+	| INTEGER                               { Integer $1 }
 
-optCOLON:   /* nothing */ { false } | COLON   { $1 } ;
-optNEWLINE: /* nothing */ { false } | NEWLINE { $1 } ;
+optCOLON:   /* nothing */ { false } | COLON   { $1 }
+optNEWLINE: /* nothing */ { false } | NEWLINE { $1 }
 
+{
+
+data Program
+	= Nothing
+	| [Formula]
+	deriving Show
+
+data Formula
+	= Expression
+	| Implication Expression Expression
+	| UniversalQuantifier Index QuantifierBody
+	| ExistentialQuantifier Bool Index QuantifierBody
+	deriving Show
+
+data Expression
+	= ExpressionOR ExpressionOR
+	deriving Show
+
+data ExpressionOR
+	= ExpressionAND ExpressionAND
+	| ExpressionOR ExpressionOR ExpressionOR
+	deriving Show
+
+data ExpressionAND
+	= ExpressionValue ExpressionValue
+	| ExpressionAND ExpressionAND ExpressionAND
+	deriving Show
+
+data ExpressionValue
+	= Predicate Identifier Index
+	| ParentheticalExpression Formula
+	| TokenTautology
+	| TokenContradiction
+	| Not ExpressionValue
+	deriving Show
+
+data QuantifierBody
+	= Formula Formula
+	deriving Show
+
+data Index
+	= [Arg]
+	deriving Show
+
+data Arg
+	= Predicate Identifier Index
+	| FreeVariable String
+	| Integer String
+	deriving Show
+
+parseError :: [Token] -> a
+parseError _ = error "Parse error"
+}

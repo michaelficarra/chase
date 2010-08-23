@@ -30,12 +30,12 @@ namespace 'haskell' do
 
 	desc 'Generate lexer with alex'
 	task :lexer do
-		sh 'alex *.x'
+		sh 'alex -g -d -o first-order-logic.x.hs *.x'
 	end
 
 	desc 'Generate parser with happy'
 	task :parser do
-		puts "parser not yet implemented"
+		sh 'happy -g -c -a -d *.y'
 	end
 
 	desc 'Clean up generated files and files output during debugging'
