@@ -32,12 +32,12 @@ module Main where
 %%
 
 program
-	: /* nothing */                         { Nothing }
+	:                                       { Nothing }
 	| formulaList optNEWLINE                { $1 }
 
 formulaList
 	: formula                               { [(Formula $1)] }
-	| formula NEWLINE formulaList           { (Formula $1) : $3 }
+	| formulaList NEWLINE formula           { $1 ++ [(Formula $3)] }
 
 formula
 	: expr                                      { Expression $1 }
@@ -67,7 +67,7 @@ quantifierBody
 	: optCOLON formula                      { Formula $2 }
 	| BRACE_OPEN formula BRACE_CLOSE        { Formula $2 }
 
-predicate: IDENTIFIER index                 { Predicate (Identifier $1) (Index $2) }
+predicate: IDENTIFIER index                 { Predicate $1 (Index $2) }
 
 index
 	: BRACKET_OPEN argList BRACKET_CLOSE    { $2 }
@@ -75,17 +75,21 @@ index
 
 argList
 	: arg                                   { [(Arg $1)] }
-	| arg COMMA argList                     { (Arg $1) : $3 }
+	| argList COMMA arg                     { $1 ++ [(Arg $3)] }
 
 arg
 	: predicate                             { $1 }
 	| FREE_VARIABLE                         { FreeVariable $1 }
 	| INTEGER                               { Integer $1 }
 
-optCOLON:   /* nothing */ { false } | COLON   { $1 }
-optNEWLINE: /* nothing */ { false } | NEWLINE { $1 }
+optCOLON:   { false } | COLON   { $1 }
+optNEWLINE: { false } | NEWLINE { $1 }
 
 {
+eval = do
+	s <- readFile "./simple-grammar-sample.fol"
+	putStr s
+	print (alexScanTokens s)
 
 data Program
 	= Nothing
@@ -114,7 +118,7 @@ data ExpressionAND
 	deriving Show
 
 data ExpressionValue
-	= Predicate Identifier Index
+	= Predicate String Index
 	| ParentheticalExpression Formula
 	| TokenTautology
 	| TokenContradiction
@@ -130,9 +134,33 @@ data Index
 	deriving Show
 
 data Arg
-	= Predicate Identifier Index
+	= Predicate String Index
 	| FreeVariable String
 	| Integer String
+	deriving Show
+
+data Token
+	= TokenOR
+	| TokenAND
+	| TokenNOT
+	| TokenBracketOpen
+	| TokenBracketClose
+	| TokenBraceOpen
+	| TokenBraceClose
+	| TokenParenOpen
+	| TokenParenClose
+	| TokenTautology
+	| TokenContradiction
+	| TokenForAll
+	| TokenThereExists
+	| TokenThereExistsOne
+	| TokenColon
+	| TokenComma
+	| TokenImplies
+	| TokenFreeVariable
+	| TokenInteger
+	| TokenIdentifier
+	| TokenNewline
 	deriving Show
 
 parseError :: [Token] -> a

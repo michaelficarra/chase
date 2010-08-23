@@ -70,15 +70,15 @@ predicate: IDENTIFIER index                 { val.first+val.last } #{ Predicate.
 
 index
 	: BRACKET_OPEN argList BRACKET_CLOSE    { val[1].length > 1 ? '['+val[1].join(',')+']' : val[1][0] }
-	| argListValue
+	| arg
 	;
 
 argList
-	: argListValue                          { val }
-	| argList COMMA argListValue            { val.first.push val.last }
+	: arg                                   { val }
+	| argList COMMA arg                     { val.first.push val.last }
 	;
 
-argListValue
+arg
 	: predicate
 	| FREE_VARIABLE
 	| INTEGER

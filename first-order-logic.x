@@ -60,7 +60,7 @@ tokens :-
 	[^\[a-z\ \t]+                   { \s -> ("IDENTIFIER",s) }
 
 {
-main = do
+printTokens = do
 	s <- readFile "./simple-grammar-sample.fol"
 	putStr s
 	print (alexScanTokens s)
