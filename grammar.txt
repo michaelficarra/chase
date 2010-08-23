@@ -1,118 +1,55 @@
-program:
-	/* nothing */
-	| statementList
+program
+	: /* nothing */
+	| formulaList optNEWLINE
 
-statementList:
-	statement semicolonOrNewline
-	| statementList statement semicolonOrNewline
+formulaList
+	: formula
+	| formula NEWLINE formulaList
 
-statement:
-	/* factDefinitionStatement */ FACTS IDENTIFIER assignmentOperator optNEWLINE factList
-	| /* ruleDefinitionStatement */ RULES IDENTIFIER assignmentOperator optNEWLINE BRACE_OPEN optNEWLINE ruleList optNEWLINE BRACE_CLOSE
-	| /* chaseStatement */ CHASE identifierList
+formula
+	: expr
+	| expr IMPLIES expr
+	| FOR_ALL index quantifierBody
+	| THERE_EXISTS_ONE index quantifierBody
+	| THERE_EXISTS index quantifierBody
 
-assignmentOperator:
-	COLON optEQ
-	| EQ
+expr
+	: exprOR
 
-factList:
-	EMPTY_SET
-	| BRACE_OPEN predicateList BRACE_CLOSE
+exprOR
+	: exprAND
+	| exprOR OR exprOR
 
-predicateList:
-	predicate
-	| predicateList predicate
+exprAND
+	: exprValue
+	| exprAND AND exprAND
 
-predicate:
-	PREDICATE
-	| NOT predicate
-
-identifierList:
-	IDENTIFIER
-	| identifierList COMMA IDENTIFIER
-
-ruleList:
-	rule
-	| ruleList commaOrNewline rule
-
-rule:
-	existentialQuantifier
-	| universalQuantifier
-
-existentialQuantifier:
-	THERE_EXISTS_ONE optCOLON quantifierBody
-	| THERE_EXISTS optCOLON quantifierBody
-
-universalQuantifier:
-	FOR_ALL optCOLON quantifierBody
-
-quantifierBody:
-	predicateExpression predicateImplication
-	| universalQuantifier
-	| existentialQuantifier
-
-predicateImplication:
-	/* nothing */
-	| IMPLIES expression
-
-expression:
-	predicateExpression
-	| terminalExpression
+exprValue
+	: predicate
+	| PAREN_OPEN formula PAREN_CLOSE
 	| TAUTOLOGY
 	| CONTRADICTION
+	| NOT exprValue
 
-predicateExpression:
-	predicateExpressionValue
-	| predicateExpression predicateOperator predicateExpressionValue
+quantifierBody
+	: optCOLON formula
+	| BRACE_OPEN formula BRACE_CLOSE
 
-predicateExpressionValue:
-	PREDICATE
-	| PAREN_OPEN predicateExpression PAREN_CLOSE
-	| NOT predicateExpressionValue
+predicate
+	: IDENTIFIER index
 
-predicateOperator:
-    AND
-	| XOR
-	| OR
+index
+	: BRACKET_OPEN argList BRACKET_CLOSE
+	| arg
 
-terminalExpression:
-	terminalExpressionValue
-	| terminalExpression terminalOperator terminalExpressionValue
+argList
+	: arg
+	| arg COMMA argList
 
-terminalExpressionValue:
-	IDENTIFIER
+arg
+	: predicate
+	| FREE_VARIABLE
 	| INTEGER
-	| PAREN_OPEN terminalExpression PAREN_CLOSE
-	| NOT terminalExpressionValue
-	| unaryTerminalOperator terminalExpressionValue
 
-unaryTerminalOperator:
-	PLUS
-	| MINUS
-
-terminalOperator:
-	LT
-	| GT
-	| LTE
-	| GTE
-	| NE
-	| EQ optEQ
-	| EXP
-	| MULTIPLY
-	| DIVIDE
-	| PLUS
-	| MINUS
-
-optEQ:      /* nothing */ | EQ
 optCOLON:   /* nothing */ | COLON
-optCOMMA:   /* nothing */ | COMMA
 optNEWLINE: /* nothing */ | NEWLINE
-
-commaOrNewline:
-	NEWLINE optCOMMA optNEWLINE
-	| COMMA optNEWLINE
-
-semicolonOrNewline:
-	NEWLINE
-	| SEMICOLON optNEWLINE
-
