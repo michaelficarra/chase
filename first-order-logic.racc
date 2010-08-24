@@ -14,7 +14,7 @@ token BRACKET_OPEN BRACKET_CLOSE BRACE_OPEN BRACE_CLOSE PAREN_OPEN PAREN_CLOSE
 token TAUTOLOGY CONTRADICTION
 token FOR_ALL THERE_EXISTS THERE_EXISTS_ONE
 token COLON COMMA IMPLIES
-token FREE_VARIABLE INTEGER IDENTIFIER
+token FREE_VARIABLE INTEGER PREDICATE
 token NEWLINE
 
 options no_result_var
@@ -36,9 +36,8 @@ formulaList
 formula
 	: expr
 	| expr IMPLIES expr                         { val.first + ' → ' + val.last } #{ Implication.new val.first val.last }
-	| FOR_ALL index quantifierBody              { '∀'+val[1]+val.last } #{ UniversalQuantifier.new val[1], val.last }
-	| THERE_EXISTS_ONE index quantifierBody     { '∃!'+val[1]+val.last } #{ ExistentialQuantifier.new val[1], val.last, :one=>true }
-	| THERE_EXISTS index quantifierBody         { '∃'+val[1]+val.last } #{ ExistentialQuantifier.new val[1], val.last }
+	| FOR_ALL argList quantifierBody            { val.first+' '+val[1].join(',')+val.last } #{ UniversalQuantifier.new val[1], val.last }
+	| THERE_EXISTS argList quantifierBody       { val.first+' '+val[1].join(',')+val.last } #{ ExistentialQuantifier.new val[1], val.last }
 	;
 
 expr: exprOR ;
@@ -54,23 +53,21 @@ exprAND
 	;
 
 exprValue
-	: predicate
+	: atomic
 	| PAREN_OPEN formula PAREN_CLOSE        { '('+val[1]+')' } #{ ParentheticalExpresson.new val[1] }
+	| BRACKET_OPEN formula BRACKET_CLOSE    { '['+val[1]+']' } #{ ParentheticalExpresson.new val[1] }
 	| TAUTOLOGY                             { val.last } #{ Tautology.new }
 	| CONTRADICTION                         { val.last } #{ Contradiction.new }
-	| NOT exprValue                         { '¬'+val.last } #{ val.last.not!; val.last }
+	| NOT exprValue                         { val.first+val.last } #{ val.last.not!; val.last }
 	;
 
-quantifierBody
-	: optCOLON formula                      { ': '+val.last }
-	| BRACE_OPEN formula BRACE_CLOSE        { '{ '+val[1]+' }' }
-	;
+quantifierBody: optCOLON formula            { ': '+val.last } ;
 
-predicate: IDENTIFIER index                 { val.first+val.last } #{ Predicate.new val.first, val[2] } ;
+atomic: PREDICATE index                     { val.first+val.last } #{ Predicate.new val.first, val[2] } ;
 
 index
-	: BRACKET_OPEN argList BRACKET_CLOSE    { val[1].length > 1 ? '['+val[1].join(',')+']' : val[1][0] }
-	| arg
+	: PAREN_OPEN argList PAREN_CLOSE        { '('+val[1].join(',')+')' }
+	| BRACKET_OPEN argList BRACKET_CLOSE    { '['+val[1].join(',')+']' }
 	;
 
 argList
@@ -79,7 +76,7 @@ argList
 	;
 
 arg
-	: predicate
+	: atomic
 	| FREE_VARIABLE
 	| INTEGER
 	;
