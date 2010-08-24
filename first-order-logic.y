@@ -37,6 +37,8 @@ formula
 	| FOR_ALL argList quantifierBody            { UniversalQuantifier $2 $3 }
 	| THERE_EXISTS argList quantifierBody       { ExistentialQuantifier False $2 $3 }
 
+quantifierBody: optCOLON formula                { Formula $2 }
+
 expr: exprOR { $1 }
 
 exprOR
@@ -54,8 +56,6 @@ exprValue
 	| TAUTOLOGY                             { Tautology $1 }
 	| CONTRADICTION                         { Contradiction $1 }
 	| NOT exprValue                         { Not $2 }
-
-quantifierBody: optCOLON formula            { Formula $2 }
 
 atomic: PREDICATE index                     { Atomic $1 $2 }
 

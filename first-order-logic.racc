@@ -40,6 +40,8 @@ formula
 	| THERE_EXISTS argList quantifierBody       { val.first+' '+val[1].join(',')+val.last } #{ ExistentialQuantifier.new val[1], val.last }
 	;
 
+quantifierBody: optCOLON formula            { ': '+val.last } ;
+
 expr: exprOR ;
 
 exprOR
@@ -60,8 +62,6 @@ exprValue
 	| CONTRADICTION                         { val.last } #{ Contradiction.new }
 	| NOT exprValue                         { val.first+val.last } #{ val.last.not!; val.last }
 	;
-
-quantifierBody: optCOLON formula            { ': '+val.last } ;
 
 atomic: PREDICATE index                     { val.first+val.last } #{ Predicate.new val.first, val[2] } ;
 

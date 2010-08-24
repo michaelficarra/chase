@@ -4,52 +4,45 @@ program
 
 formulaList
 	: formula
-	| formula NEWLINE formulaList
+	| formulaList NEWLINE formula
 
 formula
 	: expr
 	| expr IMPLIES expr
-	| FOR_ALL index quantifierBody
-	| THERE_EXISTS_ONE index quantifierBody
-	| THERE_EXISTS index quantifierBody
+	| FOR_ALL argList quantifierBody
+	| THERE_EXISTS argList quantifierBody
 
-expr
-	: exprOR
+quantifierBody: optCOLON formula
+
+expr: exprOR
 
 exprOR
 	: exprAND
-	| exprOR OR exprOR
+	| exprOR OR exprAND
 
 exprAND
 	: exprValue
-	| exprAND AND exprAND
+	| exprAND AND exprValue
 
 exprValue
-	: predicate
+	: atomic
 	| PAREN_OPEN formula PAREN_CLOSE
+	| BRACKET_OPEN formula BRACKET_CLOSE
 	| TAUTOLOGY
 	| CONTRADICTION
 	| NOT exprValue
 
-quantifierBody
-	: optCOLON formula
-	| BRACE_OPEN formula BRACE_CLOSE
-
-predicate
-	: IDENTIFIER index
+atomic: PREDICATE index
 
 index
-	: BRACKET_OPEN argList BRACKET_CLOSE
-	| arg
+	: PAREN_OPEN argList PAREN_CLOSE
+	| BRACKET_OPEN argList BRACKET_CLOSE
 
 argList
 	: arg
-	| arg COMMA argList
+	| argList COMMA arg
 
-arg
-	: predicate
-	| FREE_VARIABLE
-	| INTEGER
+arg: FREE_VARIABLE
 
 optCOLON:   /* nothing */ | COLON
 optNEWLINE: /* nothing */ | NEWLINE
