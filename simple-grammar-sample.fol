@@ -1,6 +1,6 @@
 Exists a,b Z[c,d]
 ForAll e: B[f]
-ForAll g,h: C[i,j] & D[k,l] -> (ForAll m,n,o,p : P[m,n] & Q[o,p])
+ForAll g,h: C[i,j] & D[k,l] -> (ForAll m,n,o,p : P(m,n) & Q[o,p])
 ForAll q,r,s E[t,u] & F[v,w] -> G(x)
 Exists y: ForAll z: ForAll a: !(H[b,c] | I[d,e]) & Jklmn[fghi,ghij]
 ForAll h Exists i : K[j,k] & !L(l,m) | M[n,o] & N[p,q] -> O[r,s]

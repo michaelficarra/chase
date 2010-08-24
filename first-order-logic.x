@@ -1,7 +1,3 @@
-{
-	module Lexer (alexScanTokens, printTokens) where
-}
-
 %wrapper "basic"
 
 tokens :-

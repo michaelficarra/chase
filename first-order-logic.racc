@@ -10,11 +10,11 @@ prechigh
 preclow
 
 token OR AND NOT
-token BRACKET_OPEN BRACKET_CLOSE BRACE_OPEN BRACE_CLOSE PAREN_OPEN PAREN_CLOSE
+token BRACKET_OPEN BRACKET_CLOSE PAREN_OPEN PAREN_CLOSE
 token TAUTOLOGY CONTRADICTION
-token FOR_ALL THERE_EXISTS THERE_EXISTS_ONE
+token FOR_ALL THERE_EXISTS
 token COLON COMMA IMPLIES
-token FREE_VARIABLE INTEGER PREDICATE
+token FREE_VARIABLE PREDICATE
 token NEWLINE
 
 options no_result_var
@@ -75,11 +75,7 @@ argList
 	| argList COMMA arg                     { val.first.push val.last }
 	;
 
-arg
-	: atomic
-	| FREE_VARIABLE
-	| INTEGER
-	;
+arg: FREE_VARIABLE ;
 
 optCOLON:   /* nothing */ { false } | COLON   { val.first } ;
 optNEWLINE: /* nothing */ { false } | NEWLINE { val.first } ;
