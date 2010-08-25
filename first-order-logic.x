@@ -1,30 +1,51 @@
+{ module Lexer where }
 %wrapper "basic"
 
 tokens :-
 
-	[\r\n]+                         { \s -> ("NEWLINE",s) }
+	[\r\n]+                         { \s -> TokenNewline }
 	[\ \t]+                         ; -- ignore whitespace
 	"-- "[^\r\n]*                   ; -- ignore comments
 	"#"[^\r\n]*                     ; -- ignore comments
 	"/*"([^\*]|"*"[^\/])*"*/"       ; -- ignore comments
-	"Exists"                        { \s -> ("THERE_EXISTS",s) }
-	"For"[Aa]"ll"                   { \s -> ("FOR_ALL",s) }
-	[Tt]"autology"                  { \s -> ("TAUTOLOGY",s) }
-	[Cc]"ontradiction"              { \s -> ("CONTRADICTION",s) }
-	"->"                            { \s -> ("IMPLIES",s) }
-	"!"                             { \s -> ("NOT",s) }
-	"|"                             { \s -> ("OR",s) }
-	"&"                             { \s -> ("AND",s) }
-	"("                             { \s -> ("PAREN_OPEN",s) }
-	")"                             { \s -> ("PAREN_CLOSE",s) }
-	"["                             { \s -> ("BRACKET_OPEN",s) }
-	"]"                             { \s -> ("BRACKET_CLOSE",s) }
-	":"                             { \s -> ("COLON",s) }
-	","                             { \s -> ("COMMA",s) }
-	[a-z][a-z0-9_']*                { \s -> ("FREE_VARIABLE",s) }
-	[A-Z][a-z0-9_']*                { \s -> ("PREDICATE",s) }
+	"Exists"                        { \s -> TokenThereExists }
+	"For"[Aa]"ll"                   { \s -> TokenForAll }
+	[Tt]"autology"                  { \s -> TokenTautology }
+	[Cc]"ontradiction"              { \s -> TokenContradiction }
+	"->"                            { \s -> TokenImplies }
+	"!"                             { \s -> TokenNOT }
+	"|"                             { \s -> TokenOR }
+	"&"                             { \s -> TokenAND }
+	"("                             { \s -> TokenParenOpen }
+	")"                             { \s -> TokenParenClose }
+	"["                             { \s -> TokenBracketOpen }
+	"]"                             { \s -> TokenBracketClose }
+	":"                             { \s -> TokenColon }
+	","                             { \s -> TokenComma }
+	[a-z][a-z0-9_']*                { \s -> TokenFreeVariable s }
+	[A-Z][a-z0-9_']*                { \s -> TokenPredicate s }
 
 {
+data Token
+	= TokenOR
+	| TokenAND
+	| TokenNOT
+	| TokenBracketOpen
+	| TokenBracketClose
+	| TokenParenOpen
+	| TokenParenClose
+	| TokenTautology
+	| TokenContradiction
+	| TokenForAll
+	| TokenThereExists
+	| TokenColon
+	| TokenComma
+	| TokenImplies
+	| TokenFreeVariable String
+	| TokenPredicate String
+	| TokenNewline
+	deriving (Eq,Show)
+
 printTokens = do
 	s <- readFile "./simple-grammar-sample.fol"
 	putStr s
