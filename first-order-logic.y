@@ -73,17 +73,18 @@ argList
 	: arg                                   { [(Arg $1)] }
 	| argList "," arg                       { $1 ++ [(Arg $3)] }
 
-arg: FREE_VARIABLE                          { $1 }
+arg: FREE_VARIABLE                          { FreeVariable $1 }
 
 optCOLON:   { False } | ":"     { $1 }
 optNEWLINE: { False } | NEWLINE { $1 }
 
 {
 main = do
-	s <- getContents  -- readFile "./simple-grammar-sample.fol"
-	putStr s
+	s <- getContents -- readFile "./simple-grammar-sample.fol"
+	-- putStr s
 	let parseTree = generate (alexScanTokens s)
-	putStrLn ("parseTree: " ++ show(parseTree))
+	-- putStrLn ("parseTree: " ++ show(parseTree))
+	putStr []
 
 data Formula
 	= Formula Formula
@@ -95,7 +96,7 @@ data Formula
 	| ExistentialQuantifier Bool ArgList Formula
 	| Tautology Token
 	| Contradiction Token
-	| Atomic String
+	| Atomic String ArgList
 	deriving (Show, Eq)
 
 data Arg
@@ -103,7 +104,7 @@ data Arg
 	deriving (Show, Eq)
 
 data FreeVariable
-	= FreeVariable Token
+	= FreeVariable String
 	deriving (Show, Eq)
 
 type ArgList = [Arg]
