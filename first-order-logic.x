@@ -27,7 +27,8 @@ tokens :-
 
 {
 data Token
-	= TokenOR
+	= Nil
+	| TokenOR
 	| TokenAND
 	| TokenNOT
 	| TokenBracketOpen

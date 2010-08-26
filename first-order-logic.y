@@ -1,7 +1,7 @@
 {
 module Main where
-import IO
-import System.IO.Unsafe
+-- import IO
+-- import System.IO.Unsafe
 import Lexer
 }
 %name generate
@@ -75,16 +75,15 @@ argList
 
 arg: FREE_VARIABLE                          { FreeVariable $1 }
 
-optCOLON:   { False } | ":"     { $1 }
-optNEWLINE: { False } | NEWLINE { $1 }
+optCOLON:   { Nil } | ":"     { $1 }
+optNEWLINE: { Nil } | NEWLINE { $1 }
 
 {
 main = do
-	s <- getContents -- readFile "./simple-grammar-sample.fol"
+	s <- readFile "./simple-grammar-sample.fol"
 	-- putStr s
 	let parseTree = generate (alexScanTokens s)
-	-- putStrLn ("parseTree: " ++ show(parseTree))
-	putStr []
+	putStrLn ("parseTree: " ++ show(parseTree))
 
 data Formula
 	= Formula Formula

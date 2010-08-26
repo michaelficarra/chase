@@ -35,7 +35,7 @@ namespace 'haskell' do
 
 	desc 'Generate parser with happy'
 	task :parser do
-		sh 'happy -i -g -c -a -d *.y'
+		sh 'happy -i -a *.y'
 	end
 
 	desc 'Clean up generated files and files output during debugging'
