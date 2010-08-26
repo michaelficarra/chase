@@ -1,7 +1,5 @@
 {
 module Main where
--- import IO
--- import System.IO.Unsafe
 import Lexer
 }
 %name generate
@@ -41,7 +39,7 @@ formula
 	: expr                                      { $1 }
 	| expr "->" expr                            { Implication $1 $3 }
 	| FOR_ALL argList quantifierBody            { UniversalQuantifier $2 $3 }
-	| THERE_EXISTS argList quantifierBody       { ExistentialQuantifier False $2 $3 }
+	| THERE_EXISTS argList quantifierBody       { ExistentialQuantifier $2 $3 }
 
 quantifierBody: optCOLON formula                { Formula $2 }
 
@@ -81,7 +79,7 @@ optNEWLINE: { Nil } | NEWLINE { $1 }
 {
 main = do
 	s <- readFile "./simple-grammar-sample.fol"
-	-- putStr s
+	putStr s
 	let parseTree = generate (alexScanTokens s)
 	putStrLn ("parseTree: " ++ show(parseTree))
 
@@ -92,7 +90,7 @@ data Formula
 	| Not Formula
 	| Implication Formula Formula
 	| UniversalQuantifier ArgList Formula
-	| ExistentialQuantifier Bool ArgList Formula
+	| ExistentialQuantifier ArgList Formula
 	| Tautology Token
 	| Contradiction Token
 	| Atomic String ArgList
