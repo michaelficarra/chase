@@ -7,23 +7,23 @@ import Lexer
 %error { parseError }
 
 %token
-	OR                 { TokenOR }
-	AND                { TokenAND }
-	NOT                { TokenNOT }
-	"["                { TokenBracketOpen }
-	"]"                { TokenBracketClose }
-	"("                { TokenParenOpen }
-	")"                { TokenParenClose }
-	TAUTOLOGY          { TokenTautology }
-	CONTRADICTION      { TokenContradiction }
-	FOR_ALL            { TokenForAll }
-	THERE_EXISTS       { TokenThereExists }
-	":"                { TokenColon }
-	","                { TokenComma }
-	"->"               { TokenImplies }
-	FREE_VARIABLE      { TokenFreeVariable $$ }
-	PREDICATE          { TokenPredicate $$ }
-	NEWLINE            { TokenNewline }
+	OR                 { TokenOR _ }
+	AND                { TokenAND _ }
+	NOT                { TokenNOT _ }
+	"["                { TokenBracketOpen _ }
+	"]"                { TokenBracketClose _ }
+	"("                { TokenParenOpen _ }
+	")"                { TokenParenClose _ }
+	TAUTOLOGY          { TokenTautology _ }
+	CONTRADICTION      { TokenContradiction _ }
+	FOR_ALL            { TokenForAll _ }
+	THERE_EXISTS       { TokenThereExists _ }
+	":"                { TokenColon _ }
+	","                { TokenComma _ }
+	"->"               { TokenImplies _ }
+	FREE_VARIABLE      { TokenFreeVariable _ $$ }
+	PREDICATE          { TokenPredicate _ $$ }
+	NEWLINE            { TokenNewline _ }
 
 %%
 
@@ -79,7 +79,7 @@ optNEWLINE: { Nil } | NEWLINE { $1 }
 {
 main = do
 	s <- getContents
-	let parseTree = generate (alexScanTokens s)
+	let parseTree = generate (scanTokens s)
 	putStrLn ("parse tree: " ++ show(parseTree))
 
 data Formula
@@ -106,5 +106,7 @@ data FreeVariable
 type ArgList = [Arg]
 
 parseError :: [Token] -> a
-parseError _ = error "Parse error"
+parseError tokenList = let pos = tokenPosn(head(tokenList))
+	in
+	error ("parse error: unexpected " ++ showToken(head(tokenList)) ++ " at line " ++ show(getLineNum(pos)) ++ ", column " ++ show(getColumnNum(pos)))
 }

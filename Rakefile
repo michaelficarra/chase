@@ -32,7 +32,7 @@ namespace 'haskell' do
 
 	desc 'Generate lexer with alex'
 	task :lexer do
-		sh 'alex *.x'
+		sh 'alex *.x.x'
 	end
 
 	desc 'Generate parser with happy'
