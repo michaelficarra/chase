@@ -83,8 +83,7 @@ optNEWLINE: /* nothing */ { false } | NEWLINE { val.first } ;
 end
 
 ---- header
-	require 'first-order-logic.rex.rb'
-	Dir['nodes/**.rb'].each { |node| require node }
+	Dir['*.rex.rb'].each { |f| require f }
 
 ---- inner
 	const = 0
@@ -102,8 +101,9 @@ end
 
 ---- footer
 	if __FILE__ == $0
-		puts File.read(ARGV[0])
 		program = FirstOrderLogic.new.parse_file(ARGV[0])
+		puts '---------------------'
+		puts File.read(ARGV[0])
 		puts '---------------------'
 		puts program.to_s
 	end

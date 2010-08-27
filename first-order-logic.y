@@ -78,10 +78,9 @@ optNEWLINE: { Nil } | NEWLINE { $1 }
 
 {
 main = do
-	s <- getContents -- readFile "./simple-grammar-sample.fol"
-	putStr s
+	s <- getContents
 	let parseTree = generate (alexScanTokens s)
-	putStrLn ("parseTree: " ++ show(parseTree))
+	putStrLn ("parse tree: " ++ show(parseTree))
 
 data Formula
 	= Formula Formula

@@ -12,12 +12,12 @@ namespace 'ruby' do
 
 	desc 'Generate parser with racc'
 	task :parser do
-		sh 'racc -SEv --debug -e "/usr/bin/env ruby" *.racc'
+		sh 'racc -SEv -e "/usr/bin/env ruby" *.racc'
 	end
 
 	desc 'Clean up generated files and files output during debugging'
 	task :clean do
-		sh 'rm *.{output,rex.rb,tab.rb}'
+		sh 'rm -f *.{output,rex.rb,tab.rb}'
 	end
 
 	desc 'Test the generated parser against the sample program'
@@ -32,12 +32,12 @@ namespace 'haskell' do
 
 	desc 'Generate lexer with alex'
 	task :lexer do
-		sh 'alex -g -o first-order-logic.x.hs *.x'
+		sh 'alex *.x'
 	end
 
 	desc 'Generate parser with happy'
 	task :parser do
-		sh 'happy -i -a *.y'
+		sh 'happy -i *.y'
 	end
 
 	desc 'Clean up generated files and files output during debugging'
@@ -47,7 +47,7 @@ namespace 'haskell' do
 
 	desc 'Test the generated parser against the sample program'
 	task :test do
-		sh 'ghc -v -o first-order-logic first-order-logic{.x,}.hs'
+		sh 'ghc -o first-order-logic first-order-logic{.x,}.hs'
 		sh 'chmod u+x first-order-logic'
 		sh 'cat simple-grammar-sample.fol | ./first-order-logic'
 	end
