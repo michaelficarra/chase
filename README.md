@@ -10,4 +10,4 @@ Build and test haskell parser:
 
 	rake haskell
 
-When in ghci, type `printTokens` to list the tokens that the lexer found. `printParseTree` will print the parse tree when that feature is complete.
+The output is currently a string representation of the parse tree.
