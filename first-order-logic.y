@@ -17,7 +17,7 @@ import Lexer
 	TAUTOLOGY          { TokenTautology _ }
 	CONTRADICTION      { TokenContradiction _ }
 	FOR_ALL            { TokenForAll _ }
-	THERE_EXISTS       { TokenThereExists _ }
+	THERE_EXISTS       { TokenExists _ }
 	":"                { TokenColon _ }
 	","                { TokenComma _ }
 	"->"               { TokenImplies _ }

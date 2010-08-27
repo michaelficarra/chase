@@ -8,7 +8,7 @@ tokens :-
 	"-- "[^\r\n]*                   ; -- ignore comments
 	"#"[^\r\n]*                     ; -- ignore comments
 	"/*"([^\*]|"*"[^\/])*"*/"       ; -- ignore comments
-	"Exists"                        { \p s -> TokenThereExists p }
+	"Exists"                        { \p s -> TokenExists p }
 	"For"[Aa]"ll"                   { \p s -> TokenForAll p }
 	[Tt]"autology"                  { \p s -> TokenTautology p }
 	[Cc]"ontradiction"              { \p s -> TokenContradiction p }
@@ -38,7 +38,7 @@ data Token
 	| TokenTautology AlexPosn
 	| TokenContradiction AlexPosn
 	| TokenForAll AlexPosn
-	| TokenThereExists AlexPosn
+	| TokenExists AlexPosn
 	| TokenColon AlexPosn
 	| TokenComma AlexPosn
 	| TokenImplies AlexPosn
@@ -57,7 +57,7 @@ tokenPosn (TokenParenClose p) = p
 tokenPosn (TokenTautology p) = p
 tokenPosn (TokenContradiction p) = p
 tokenPosn (TokenForAll p) = p
-tokenPosn (TokenThereExists p) = p
+tokenPosn (TokenExists p) = p
 tokenPosn (TokenColon p) = p
 tokenPosn (TokenComma p) = p
 tokenPosn (TokenImplies p) = p
@@ -65,23 +65,23 @@ tokenPosn (TokenFreeVariable p _) = p
 tokenPosn (TokenPredicate p _) = p
 tokenPosn (TokenNewline p) = p
 
-showToken (TokenOR p) = "TokenOR"
-showToken (TokenAND p) = "TokenAND"
-showToken (TokenNOT p) = "TokenNOT"
-showToken (TokenBracketOpen p) = "TokenBracketOpen"
-showToken (TokenBracketClose p) = "TokenBracketClose"
-showToken (TokenParenOpen p) = "TokenParenOpen"
-showToken (TokenParenClose p) = "TokenParenClose"
-showToken (TokenTautology p) = "TokenTautology"
-showToken (TokenContradiction p) = "TokenContradiction"
-showToken (TokenForAll p) = "TokenForAll"
-showToken (TokenThereExists p) = "TokenThereExists"
-showToken (TokenColon p) = "TokenColon"
-showToken (TokenComma p) = "TokenComma"
-showToken (TokenImplies p) = "TokenImplies"
-showToken (TokenFreeVariable p s) = "TokenFreeVariable"
-showToken (TokenPredicate p s) = "TokenPredicate"
-showToken (TokenNewline p) = "TokenNewline"
+showToken (TokenOR p) = "OR"
+showToken (TokenAND p) = "AND"
+showToken (TokenNOT p) = "NOT"
+showToken (TokenBracketOpen p) = "BracketOpen"
+showToken (TokenBracketClose p) = "BracketClose"
+showToken (TokenParenOpen p) = "ParenOpen"
+showToken (TokenParenClose p) = "ParenClose"
+showToken (TokenTautology p) = "Tautology"
+showToken (TokenContradiction p) = "Contradiction"
+showToken (TokenForAll p) = "ForAll"
+showToken (TokenExists p) = "Exists"
+showToken (TokenColon p) = "Colon"
+showToken (TokenComma p) = "Comma"
+showToken (TokenImplies p) = "Implies"
+showToken (TokenFreeVariable p s) = "FreeVariable"
+showToken (TokenPredicate p s) = "Predicate"
+showToken (TokenNewline p) = "Newline"
 
 
 getLineNum :: AlexPosn -> Int
