@@ -25,7 +25,7 @@ rule
 
 program
 	: /* nothing */                         { "" }
-	| formulaList optNEWLINE                { val.first.join("\n") } #{ Program.new *val.first; }
+	| formulaList optNEWLINE                { val.first.join("\n") }
 	;
 
 formulaList
@@ -35,9 +35,9 @@ formulaList
 
 formula
 	: expr
-	| expr IMPLIES expr                         { val.first + ' → ' + val.last } #{ Implication.new val.first val.last }
-	| FOR_ALL argList quantifierBody            { val.first+' '+val[1].join(',')+val.last } #{ UniversalQuantifier.new val[1], val.last }
-	| THERE_EXISTS argList quantifierBody       { val.first+' '+val[1].join(',')+val.last } #{ ExistentialQuantifier.new val[1], val.last }
+	| expr IMPLIES expr                         { val.first + ' → ' + val.last }
+	| FOR_ALL argList quantifierBody            { val.first+' '+val[1].join(',')+val.last }
+	| THERE_EXISTS argList quantifierBody       { val.first+' '+val[1].join(',')+val.last }
 	;
 
 quantifierBody: optCOLON formula            { ': '+val.last } ;
@@ -46,24 +46,24 @@ expr: exprOR ;
 
 exprOR
 	: exprAND
-	| exprOR OR exprAND                     { val.join(' ') } #{ Expression.new val[1], val.first, val.last }
+	| exprOR OR exprAND                     { val.join(' ') }
 	;
 
 exprAND
 	: exprValue
-	| exprAND AND exprValue                 { '('+val.join(' ')+')' } #{ Expression.new val[1], val.first, val.last }
+	| exprAND AND exprValue                 { '('+val.join(' ')+')' }
 	;
 
 exprValue
 	: atomic
-	| PAREN_OPEN formula PAREN_CLOSE        { '('+val[1]+')' } #{ ParentheticalExpresson.new val[1] }
-	| BRACKET_OPEN formula BRACKET_CLOSE    { '['+val[1]+']' } #{ ParentheticalExpresson.new val[1] }
-	| TAUTOLOGY                             { val.last } #{ Tautology.new }
-	| CONTRADICTION                         { val.last } #{ Contradiction.new }
-	| NOT exprValue                         { val.first+val.last } #{ val.last.not!; val.last }
+	| PAREN_OPEN formula PAREN_CLOSE        { '('+val[1]+')' }
+	| BRACKET_OPEN formula BRACKET_CLOSE    { '['+val[1]+']' }
+	| TAUTOLOGY                             { val.last }
+	| CONTRADICTION                         { val.last }
+	| NOT exprValue                         { val.first+val.last }
 	;
 
-atomic: PREDICATE index                     { val.first+val.last } #{ Predicate.new val.first, val[2] } ;
+atomic: PREDICATE index                     { val.first+val.last }
 
 index
 	: PAREN_OPEN argList PAREN_CLOSE        { '('+val[1].join(',')+')' }

@@ -46,9 +46,4 @@ data Token
 	| TokenPredicate String
 	| TokenNewline
 	deriving (Eq,Show)
-
-printTokens = do
-	s <- readFile "./simple-grammar-sample.fol"
-	putStr s
-	print (alexScanTokens s)
 }

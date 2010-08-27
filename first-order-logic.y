@@ -78,7 +78,7 @@ optNEWLINE: { Nil } | NEWLINE { $1 }
 
 {
 main = do
-	s <- readFile "./simple-grammar-sample.fol"
+	s <- getContents -- readFile "./simple-grammar-sample.fol"
 	putStr s
 	let parseTree = generate (alexScanTokens s)
 	putStrLn ("parseTree: " ++ show(parseTree))

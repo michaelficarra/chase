@@ -1,6 +1,8 @@
 task :ruby => ['ruby:lexer','ruby:parser','ruby:test']
 task :haskell => ['haskell:lexer','haskell:parser','haskell:test']
 
+task :clean => ['ruby:clean','haskell:clean']
+
 namespace 'ruby' do
 
 	desc 'Generate lexer with rexical'
@@ -20,7 +22,7 @@ namespace 'ruby' do
 
 	desc 'Test the generated parser against the sample program'
 	task :test do
-		sh 'ruby -Ku *.tab.rb *unicode*.fol*'
+		sh 'ruby -Ku *.tab.rb simple-grammar-sample-unicode.fol'
 	end
 
 end
@@ -40,12 +42,14 @@ namespace 'haskell' do
 
 	desc 'Clean up generated files and files output during debugging'
 	task :clean do
-		sh 'rm a.out *.{hi,hs,info,o}'
+		sh 'rm -f a.out *.{hi,hs,info,o}'
 	end
 
 	desc 'Test the generated parser against the sample program'
 	task :test do
-		sh 'ghci first-order-logic.x.hs first-order-logic.hs'
+		sh 'ghc -v -o first-order-logic first-order-logic{.x,}.hs'
+		sh 'chmod u+x first-order-logic'
+		sh 'cat simple-grammar-sample.fol | ./first-order-logic'
 	end
 
 end
