@@ -21,7 +21,7 @@ import Lexer
 	":"                { TokenColon _ }
 	","                { TokenComma _ }
 	"->"               { TokenImplies _ }
-	FREE_VARIABLE      { TokenFreeVariable _ $$ }
+	VARIABLE           { TokenVariable _ $$ }
 	PREDICATE          { TokenPredicate _ $$ }
 	NEWLINE            { TokenNewline _ }
 
@@ -71,7 +71,7 @@ argList
 	: arg                                   { [(Arg $1)] }
 	| argList "," arg                       { $1 ++ [(Arg $3)] }
 
-arg: FREE_VARIABLE                          { FreeVariable $1 }
+arg: VARIABLE                               { Variable $1 }
 
 optCOLON:   { Nil } | ":"     { $1 }
 optNEWLINE: { Nil } | NEWLINE { $1 }
@@ -96,11 +96,11 @@ data Formula
 	deriving (Show, Eq)
 
 data Arg
-	= Arg FreeVariable
+	= Arg Variable
 	deriving (Show, Eq)
 
-data FreeVariable
-	= FreeVariable String
+data Variable
+	= Variable String
 	deriving (Show, Eq)
 
 type ArgList = [Arg]

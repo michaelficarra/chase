@@ -22,7 +22,7 @@ tokens :-
 	"]"                             { \p s -> TokenBracketClose p }
 	":"                             { \p s -> TokenColon p }
 	","                             { \p s -> TokenComma p }
-	[a-z][a-z0-9_']*                { \p s -> TokenFreeVariable p s }
+	[a-z][a-z0-9_']*                { \p s -> TokenVariable p s }
 	[A-Z][a-z0-9_']*                { \p s -> TokenPredicate p s }
 
 {
@@ -42,7 +42,7 @@ data Token
 	| TokenColon AlexPosn
 	| TokenComma AlexPosn
 	| TokenImplies AlexPosn
-	| TokenFreeVariable AlexPosn String
+	| TokenVariable AlexPosn String
 	| TokenPredicate AlexPosn String
 	| TokenNewline AlexPosn
 	deriving (Eq,Show)
@@ -61,7 +61,7 @@ tokenPosn (TokenExists p) = p
 tokenPosn (TokenColon p) = p
 tokenPosn (TokenComma p) = p
 tokenPosn (TokenImplies p) = p
-tokenPosn (TokenFreeVariable p _) = p
+tokenPosn (TokenVariable p _) = p
 tokenPosn (TokenPredicate p _) = p
 tokenPosn (TokenNewline p) = p
 
@@ -79,7 +79,7 @@ showToken (TokenExists p) = "Exists"
 showToken (TokenColon p) = "Colon"
 showToken (TokenComma p) = "Comma"
 showToken (TokenImplies p) = "Implies"
-showToken (TokenFreeVariable p s) = "FreeVariable"
+showToken (TokenVariable p s) = "Variable"
 showToken (TokenPredicate p s) = "Predicate"
 showToken (TokenNewline p) = "Newline"
 
