@@ -81,12 +81,6 @@ optNEWLINE: { Nil } | NEWLINE { $1 }
 
 {
 
-parseError :: [Token] -> a
-parseError tokenList = let pos = tokenPosn(head(tokenList))
-	in
-	error ("parse error: unexpected " ++ showToken(head(tokenList)) ++ " at line " ++ show(getLineNum(pos)) ++ ", column " ++ show(getColumnNum(pos)))
-
-
 -- NODES --
 data Formula
 	= Formula Formula
@@ -111,25 +105,37 @@ type ArgList = [Variable]
 -- HELPERS --
 freeVariables :: Formula -> [Variable]
 freeVariables (Formula f) = freeVariables f
-freeVariables (Or f1 f2) = union (freeVariables f1) (freeVariables f2)
-freeVariables (And f1 f2) = union (freeVariables f1) (freeVariables f2)
+freeVariables (Or a b) = union (freeVariables a) (freeVariables b)
+freeVariables (And a b) = union (freeVariables a) (freeVariables b)
 freeVariables (Not f) = freeVariables f
-freeVariables (Implication f1 f2) = union (freeVariables f1) (freeVariables f2)
+freeVariables (Implication a b) = union (freeVariables a) (freeVariables b)
 freeVariables (UniversalQuantifier vars f) = (freeVariables f) \\ vars
 freeVariables (ExistentialQuantifier vars f) = (freeVariables f) \\ vars
 freeVariables (Tautology t) = []
 freeVariables (Contradiction f) = []
 freeVariables (Atomic predicate vars) = nub vars
 
+isSentence :: Formula -> Bool
+isSentence (Formula f) = case (freeVariables f) of
+	[] -> True
+	_ -> False
+
 
 -- MAIN --
+
+prettyPrintArray arr = "[ " ++ (foldr (\a b -> case b of; [] -> a; _ -> a ++ "\n\n, " ++ b) "" (map show arr)) ++ "\n]"
+
 main = do
 	s <- getContents
 	let parseTrees = generate (scanTokens s)
-	putStrLn ("free variables: " ++ (show (map (map (\(Variable s) -> s)) (map freeVariables parseTrees))))
-	putStr "parse tree: "
-	-- map (map putStrLn) (map show parseTrees)
-	-- putStrLn (map show parseTrees)
-	putStrLn ((foldl (\s1 s2 -> s1 ++ "\n\n , " ++ s2) "[" (map (\s -> (show s)) parseTrees)) ++ "\n\n]")
+	let arrFreeVariables = map (map (\(Variable s) -> s)) (map freeVariables parseTrees)
+	let arrIsSentence = map isSentence parseTrees
+	let zipped = (zip3 parseTrees arrFreeVariables arrIsSentence)
+	putStrLn (prettyPrintArray zipped)
+
+parseError :: [Token] -> a
+parseError tokenList = let pos = tokenPosn(head(tokenList))
+	in
+	error ("parse error: unexpected " ++ showToken(head(tokenList)) ++ " at line " ++ show(getLineNum(pos)) ++ ", column " ++ show(getColumnNum(pos)))
 
 }
