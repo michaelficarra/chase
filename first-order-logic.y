@@ -34,8 +34,8 @@ program
 	| formulaList optNEWLINE                { $1 }
 
 formulaList
-	: formula                               { [(Formula $1)] }
-	| formulaList NEWLINE formula           { $1 ++ [(Formula $3)] }
+	: formula                               { [$1] }
+	| formulaList NEWLINE formula           { $1 ++ [$3] }
 
 formula
 	: expr                                      { $1 }
@@ -43,7 +43,7 @@ formula
 	| FOR_ALL argList quantifierBody            { UniversalQuantifier $2 $3 }
 	| THERE_EXISTS argList quantifierBody       { ExistentialQuantifier $2 $3 }
 
-quantifierBody: optCOLON formula                { Formula $2 }
+quantifierBody: optCOLON formula                { $2 }
 
 expr: exprOR { $1 }
 
@@ -57,8 +57,8 @@ exprAND
 
 exprValue
 	: atomic                                { $1 }
-	| "(" formula ")"                       { Formula $2 }
-	| "[" formula "]"                       { Formula $2 }
+	| "(" formula ")"                       { $2 }
+	| "[" formula "]"                       { $2 }
 	| TAUTOLOGY                             { Tautology $1 }
 	| CONTRADICTION                         { Contradiction $1 }
 	| NOT exprValue                         { Not $2 }
@@ -83,8 +83,7 @@ optNEWLINE: { Nil } | NEWLINE { $1 }
 
 -- NODES --
 data Formula
-	= Formula Formula
-	| Or Formula Formula
+	= Or Formula Formula
 	| And Formula Formula
 	| Not Formula
 	| Implication Formula Formula
@@ -104,22 +103,39 @@ type ArgList = [Variable]
 
 -- HELPERS --
 freeVariables :: Formula -> [Variable]
-freeVariables (Formula f) = freeVariables f
-freeVariables (Or a b) = union (freeVariables a) (freeVariables b)
-freeVariables (And a b) = union (freeVariables a) (freeVariables b)
-freeVariables (Not f) = freeVariables f
-freeVariables (Implication a b) = union (freeVariables a) (freeVariables b)
-freeVariables (UniversalQuantifier vars f) = (freeVariables f) \\ vars
-freeVariables (ExistentialQuantifier vars f) = (freeVariables f) \\ vars
-freeVariables (Tautology t) = []
-freeVariables (Contradiction f) = []
-freeVariables (Atomic predicate vars) = nub vars
+freeVariables formula = case formula of
+	Or a b -> union (freeVariables a) (freeVariables b)
+	And a b -> union (freeVariables a) (freeVariables b)
+	Not f -> freeVariables f
+	Implication a b -> union (freeVariables a) (freeVariables b)
+	UniversalQuantifier vars f -> (freeVariables f) \\ vars
+	ExistentialQuantifier vars f -> (freeVariables f) \\ vars
+	Tautology t -> []
+	Contradiction f -> []
+	Atomic predicate vars -> nub vars
 
 isSentence :: Formula -> Bool
-isSentence (Formula f) = case (freeVariables f) of
+isSentence f = case (freeVariables f) of
 	[] -> True
 	_ -> False
 
+variant :: String -> [String] -> String
+variant x vars = if x `elem` vars then variant (x ++ "\'") vars else x
+
+nnf :: Formula -> Formula
+nnf formula = case formula of
+	Or a b -> Or (nnf a) (nnf b)
+	And a b -> And (nnf a) (nnf b)
+	Implication a b -> Or (nnf (Not a)) (nnf b)
+	Not (Not f) -> nnf f
+	Not (Or a b) -> And (nnf (Not a)) (nnf (Not b))
+	Not (And a b) -> Or (nnf (Not a)) (nnf (Not b))
+	Not (Implication a b) -> And (nnf a) (nnf (Not b))
+	UniversalQuantifier vars f -> UniversalQuantifier vars (nnf f)
+	ExistentialQuantifier vars f -> ExistentialQuantifier vars (nnf f)
+	Not (UniversalQuantifier vars f) -> UniversalQuantifier vars (nnf (Not f))
+	Not (ExistentialQuantifier vars f) -> ExistentialQuantifier vars (nnf (Not f))
+	_ -> formula
 
 -- MAIN --
 
@@ -130,8 +146,10 @@ main = do
 	let parseTrees = generate (scanTokens s)
 	let arrFreeVariables = map (map (\(Variable s) -> s)) (map freeVariables parseTrees)
 	let arrIsSentence = map isSentence parseTrees
-	let zipped = (zip3 parseTrees arrFreeVariables arrIsSentence)
+	let arrNNF = map nnf parseTrees
+	let zipped = (zip parseTrees arrNNF)
 	putStrLn (prettyPrintArray zipped)
+	putStrLn (show (map (variant "k") arrFreeVariables))
 
 parseError :: [Token] -> a
 parseError tokenList = let pos = tokenPosn(head(tokenList))
