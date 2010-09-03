@@ -126,8 +126,10 @@ freeVariables (Atomic predicate vars) = nub vars
 main = do
 	s <- getContents
 	let parseTrees = generate (scanTokens s)
-	putStrLn ("free variables: " ++ (show (map freeVariables parseTrees)))
-	putStrLn "parse tree:"
-	putStrLn (show parseTrees)
+	putStrLn ("free variables: " ++ (show (map (map (\(Variable s) -> s)) (map freeVariables parseTrees))))
+	putStr "parse tree: "
+	-- map (map putStrLn) (map show parseTrees)
+	-- putStrLn (map show parseTrees)
+	putStrLn ((foldl (\s1 s2 -> s1 ++ "\n\n , " ++ s2) "[" (map (\s -> (show s)) parseTrees)) ++ "\n\n]")
 
 }
