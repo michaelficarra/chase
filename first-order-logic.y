@@ -1,7 +1,9 @@
 {
 module Main where
 import Lexer
+import List
 }
+
 %name generate
 %tokentype { Token }
 %error { parseError }
@@ -68,20 +70,24 @@ index
 	| "[" argList "]"                       { $2 }
 
 argList
-	: arg                                   { [(Arg $1)] }
-	| argList "," arg                       { $1 ++ [(Arg $3)] }
+	: arg                                   { [$1] }
+	| argList "," arg                       { $1 ++ [$3] }
 
 arg: VARIABLE                               { Variable $1 }
 
 optCOLON:   { Nil } | ":"     { $1 }
 optNEWLINE: { Nil } | NEWLINE { $1 }
 
-{
-main = do
-	s <- getContents
-	let parseTree = generate (scanTokens s)
-	putStrLn ("parse tree: " ++ show(parseTree))
 
+{
+
+parseError :: [Token] -> a
+parseError tokenList = let pos = tokenPosn(head(tokenList))
+	in
+	error ("parse error: unexpected " ++ showToken(head(tokenList)) ++ " at line " ++ show(getLineNum(pos)) ++ ", column " ++ show(getColumnNum(pos)))
+
+
+-- NODES --
 data Formula
 	= Formula Formula
 	| Or Formula Formula
@@ -95,18 +101,33 @@ data Formula
 	| Atomic String ArgList
 	deriving (Show, Eq)
 
-data Arg
-	= Arg Variable
-	deriving (Show, Eq)
-
 data Variable
 	= Variable String
 	deriving (Show, Eq)
 
-type ArgList = [Arg]
+type ArgList = [Variable]
 
-parseError :: [Token] -> a
-parseError tokenList = let pos = tokenPosn(head(tokenList))
-	in
-	error ("parse error: unexpected " ++ showToken(head(tokenList)) ++ " at line " ++ show(getLineNum(pos)) ++ ", column " ++ show(getColumnNum(pos)))
+
+-- HELPERS --
+freeVariables :: Formula -> [Variable]
+freeVariables (Formula f) = freeVariables f
+freeVariables (Or f1 f2) = union (freeVariables f1) (freeVariables f2)
+freeVariables (And f1 f2) = union (freeVariables f1) (freeVariables f2)
+freeVariables (Not f) = freeVariables f
+freeVariables (Implication f1 f2) = union (freeVariables f1) (freeVariables f2)
+freeVariables (UniversalQuantifier vars f) = (freeVariables f) \\ vars
+freeVariables (ExistentialQuantifier vars f) = (freeVariables f) \\ vars
+freeVariables (Tautology t) = []
+freeVariables (Contradiction f) = []
+freeVariables (Atomic predicate vars) = nub vars
+
+
+-- MAIN --
+main = do
+	s <- getContents
+	let parseTrees = generate (scanTokens s)
+	putStrLn ("free variables: " ++ (show (map freeVariables parseTrees)))
+	putStrLn "parse tree:"
+	putStrLn (show parseTrees)
+
 }

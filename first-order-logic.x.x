@@ -1,4 +1,5 @@
-{ module Lexer where }
+{module Lexer where}
+
 %wrapper "posn"
 
 tokens :-
@@ -26,6 +27,7 @@ tokens :-
 	[A-Z][a-z0-9_']*                { \p s -> TokenPredicate p s }
 
 {
+
 data Token
 	= Nil
 	| TokenOR AlexPosn
@@ -47,6 +49,7 @@ data Token
 	| TokenNewline AlexPosn
 	deriving (Eq,Show)
 
+tokenPosn :: Token -> AlexPosn
 tokenPosn (TokenOR p) = p
 tokenPosn (TokenAND p) = p
 tokenPosn (TokenNOT p) = p
@@ -65,6 +68,7 @@ tokenPosn (TokenVariable p _) = p
 tokenPosn (TokenPredicate p _) = p
 tokenPosn (TokenNewline p) = p
 
+showToken :: Token -> String
 showToken (TokenOR p) = "OR"
 showToken (TokenAND p) = "AND"
 showToken (TokenNOT p) = "NOT"
@@ -83,7 +87,6 @@ showToken (TokenVariable p s) = "Variable"
 showToken (TokenPredicate p s) = "Predicate"
 showToken (TokenNewline p) = "Newline"
 
-
 getLineNum :: AlexPosn -> Int
 getLineNum (AlexPn offset line column) = line
 
@@ -91,10 +94,11 @@ getColumnNum :: AlexPosn -> Int
 getColumnNum (AlexPn offset line column) = column
 
 scanTokens str = go (alexStartPos,'\n',str)
-  where go inp@(pos,_,str) =
-          case alexScan inp 0 of
-                AlexEOF -> []
-                AlexError _ -> error ("lexical error: line " ++ show (getLineNum(pos)) ++ ", column " ++ show (getColumnNum(pos)))
-                AlexSkip  inp' len     -> go inp'
-                AlexToken inp' len act -> act pos (take len str) : go inp'
+	where go inp@(pos,_,str) =
+		case alexScan inp 0 of
+			AlexEOF -> []
+			AlexError _ -> error ("lexical error: line " ++ show (getLineNum(pos)) ++ ", column " ++ show (getColumnNum(pos)))
+			AlexSkip  inp' len     -> go inp'
+			AlexToken inp' len act -> act pos (take len str) : go inp'
+
 }

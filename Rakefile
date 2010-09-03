@@ -17,7 +17,7 @@ namespace 'ruby' do
 
 	desc 'Clean up generated files and files output during debugging'
 	task :clean do
-		sh 'rm -f *.{output,rex.rb,tab.rb}'
+		sh 'rm -f **/*.{output,rex.rb,tab.rb}'
 	end
 
 	desc 'Test the generated parser against the sample program'
@@ -42,7 +42,7 @@ namespace 'haskell' do
 
 	desc 'Clean up generated files and files output during debugging'
 	task :clean do
-		sh 'rm -f a.out *.{hi,hs,info,o}'
+		sh 'rm -f first-order-logic a.out *.{hs,hi,info,o} **/*.{hi,o}'
 	end
 
 	desc 'Test the generated parser against the sample program'
