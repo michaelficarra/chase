@@ -120,6 +120,16 @@ isSentence f = case (freeVariables f) of; [] -> True; _ -> False
 variant :: String -> [String] -> String
 variant x vars = if x `elem` vars then variant (x ++ "\'") vars else x
 
+len :: Formula -> Integer
+len formula = case formula of
+	Or a b -> 1 + (len a) + (len b)
+	And a b -> 1 + (len a) + (len b)
+	Not f -> 1 + (len f)
+	Implication a b -> 1 + (len a) + (len b)
+	UniversalQuantifier vars f -> len f
+	ExistentialQuantifier vars f -> len f
+	_ -> 1
+
 
 -- SIMPLIFICATION / REWRITING --
 
@@ -154,6 +164,8 @@ deMorgan formula = case formula of
 
 uselessQuantifiers :: Formula -> Formula
 uselessQuantifiers formula = case formula of
+	(UniversalQuantifier v1 (UniversalQuantifier v2 f)) -> UniversalQuantifier (union v1 v2) f
+	(ExistentialQuantifier v1 (ExistentialQuantifier v2 f)) -> ExistentialQuantifier (union v1 v2) f
 	(UniversalQuantifier vars f) ->
 		let intersection = (intersect vars (freeVariables f)) in
 		if (null intersection) then (uselessQuantifiers f)
@@ -180,14 +192,15 @@ main = do
 	let parseTrees = generate (scanTokens s)
 	let arrFreeVariables = map (map (\(Variable s) -> s)) (map freeVariables parseTrees)
 	let arrIsSentence = map isSentence parseTrees
+	let arrLen = map len parseTrees
 	let arrNNF = map nnf parseTrees
 	let arrSimplify = map simplify parseTrees
-	let zipped = (zip parseTrees arrSimplify)
-	putStrLn (prettyPrintArray arrSimplify)
+	let zipped = (zip parseTrees arrLen)
+	putStrLn (prettyPrintArray zipped)
 
 parseError :: [Token] -> a
-parseError tokenList = let pos = tokenPosn(head(tokenList))
-	in
+parseError tokenList =
+	let pos = tokenPosn(head(tokenList)) in
 	error ("parse error: unexpected " ++ showToken(head(tokenList)) ++ " at line " ++ show(getLineNum(pos)) ++ ", column " ++ show(getColumnNum(pos)))
 
 }
