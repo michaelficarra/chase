@@ -115,13 +115,15 @@ freeVariables formula = case formula of
 	Atomic predicate vars -> nub vars
 
 isSentence :: Formula -> Bool
-isSentence f = case (freeVariables f) of
-	[] -> True
-	_ -> False
+isSentence f = case (freeVariables f) of; [] -> True; _ -> False
 
 variant :: String -> [String] -> String
 variant x vars = if x `elem` vars then variant (x ++ "\'") vars else x
 
+
+-- SIMPLIFICATION / REWRITING --
+
+-- nnf = Negation Normal Form
 nnf :: Formula -> Formula
 nnf formula = case formula of
 	Or a b -> Or (nnf a) (nnf b)
@@ -137,9 +139,41 @@ nnf formula = case formula of
 	Not (ExistentialQuantifier vars f) -> ExistentialQuantifier vars (nnf (Not f))
 	_ -> formula
 
+doubleNegation :: Formula -> Formula
+doubleNegation formula = case formula of
+	Not (Not f) -> doubleNegation f
+	_ -> formula
+
+deMorgan :: Formula -> Formula
+deMorgan formula = case formula of
+	Not (And a b) -> Or (deMorgan (Not a)) (deMorgan (Not b))
+	Not (Or a b) -> And (deMorgan (Not a)) (deMorgan (Not b))
+	Not (UniversalQuantifier vars f) -> ExistentialQuantifier vars (deMorgan (Not f))
+	Not (ExistentialQuantifier vars f) -> UniversalQuantifier vars (deMorgan (Not f))
+	_ -> formula
+
+uselessQuantifiers :: Formula -> Formula
+uselessQuantifiers formula = case formula of
+	(UniversalQuantifier vars f) ->
+		let intersection = (intersect vars (freeVariables f)) in
+		if (null intersection) then (uselessQuantifiers f)
+		else UniversalQuantifier intersection (uselessQuantifiers f)
+	(ExistentialQuantifier vars f) ->
+		let intersection = (intersect vars (freeVariables f)) in
+		if (null intersection) then (uselessQuantifiers f)
+		else ExistentialQuantifier intersection (uselessQuantifiers f)
+	Or a b -> Or (uselessQuantifiers a) (uselessQuantifiers b)
+	And a b -> And (uselessQuantifiers a) (uselessQuantifiers b)
+	Implication a b -> Implication (uselessQuantifiers a) (uselessQuantifiers b)
+	Not f -> Not (uselessQuantifiers f)
+	_ -> formula
+
+simplify :: Formula -> Formula
+simplify f = foldl (\a b -> b a) f [uselessQuantifiers,doubleNegation,deMorgan]
+
 -- MAIN --
 
-prettyPrintArray arr = "[ " ++ (foldr (\a b -> case b of; [] -> a; _ -> a ++ "\n\n, " ++ b) "" (map show arr)) ++ "\n]"
+prettyPrintArray arr = "[ " ++ (foldr (\a b -> case b of; [] -> a; _ -> a ++ "\n, " ++ b) "" (map show arr)) ++ "\n]"
 
 main = do
 	s <- getContents
@@ -147,9 +181,9 @@ main = do
 	let arrFreeVariables = map (map (\(Variable s) -> s)) (map freeVariables parseTrees)
 	let arrIsSentence = map isSentence parseTrees
 	let arrNNF = map nnf parseTrees
-	let zipped = (zip parseTrees arrNNF)
-	putStrLn (prettyPrintArray zipped)
-	putStrLn (show (map (variant "k") arrFreeVariables))
+	let arrSimplify = map simplify parseTrees
+	let zipped = (zip parseTrees arrSimplify)
+	putStrLn (prettyPrintArray arrSimplify)
 
 parseError :: [Token] -> a
 parseError tokenList = let pos = tokenPosn(head(tokenList))
