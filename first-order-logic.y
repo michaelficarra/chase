@@ -102,6 +102,17 @@ type ArgList = [Variable]
 
 
 -- HELPERS --
+variables :: Formula -> [Variable]
+variables formula = case formula of
+	Or a b -> union (variables a) (variables b)
+	And a b -> union (variables a) (variables b)
+	Not f -> variables f
+	Implication a b -> union (variables a) (variables b)
+	UniversalQuantifier vars f -> union vars (variables f)
+	ExistentialQuantifier vars f -> union vars (variables f)
+	Atomic predicate vars -> nub vars
+	_ -> []
+
 freeVariables :: Formula -> [Variable]
 freeVariables formula = case formula of
 	Or a b -> union (freeVariables a) (freeVariables b)
@@ -110,15 +121,14 @@ freeVariables formula = case formula of
 	Implication a b -> union (freeVariables a) (freeVariables b)
 	UniversalQuantifier vars f -> (freeVariables f) \\ vars
 	ExistentialQuantifier vars f -> (freeVariables f) \\ vars
-	Tautology t -> []
-	Contradiction f -> []
 	Atomic predicate vars -> nub vars
+	_ -> []
 
 isSentence :: Formula -> Bool
 isSentence f = case (freeVariables f) of; [] -> True; _ -> False
 
-variant :: String -> [String] -> String
-variant x vars = if x `elem` vars then variant (x ++ "\'") vars else x
+variant :: Variable -> [Variable] -> Variable
+variant x vars = if x `elem` vars then variant (Variable (((\(Variable v) -> v) x) ++ "\'")) vars else x
 
 len :: Formula -> Integer
 len formula = case formula of
@@ -132,6 +142,43 @@ len formula = case formula of
 
 
 -- SIMPLIFICATION / REWRITING --
+
+-- takes a blacklist of variables and a formula, and replaces all
+-- occurrences of any of the variables with a safe alternative
+replaceVariables :: [Variable] -> Formula -> Formula
+replaceVariables vars formula = case formula of
+	Or a b -> Or (replaceVariables vars a) (replaceVariables vars b)
+	And a b -> And (replaceVariables vars a) (replaceVariables vars b)
+	Implication a b -> Implication (replaceVariables vars a) (replaceVariables vars b)
+	Not f -> Not (replaceVariables vars f)
+	UniversalQuantifier v f ->
+		let v' = map ($ (variables f)) (map variant v) in
+		UniversalQuantifier v' (replaceVariables (union v' vars) (substitute (zip v v') f))
+	ExistentialQuantifier v f ->
+		let v' = map ($ (variables f)) (map variant v) in
+		ExistentialQuantifier v' (replaceVariables (union v' vars) (substitute (zip v v') f))
+	Atomic p v ->
+		let v' = map ($ vars) (map variant v) in
+		Atomic p v'
+	_ -> formula
+
+-- for each tuple (<a>,<b>) in the first argument, recursively
+-- replaces references to <a> with <b>; replacement is done without
+-- regard to logical consistency
+substitute :: [(Variable,Variable)] -> Formula -> Formula
+substitute pairs formula = case formula of
+	Or a b -> Or (substitute pairs a) (substitute pairs b)
+	And a b -> And (substitute pairs a) (substitute pairs b)
+	Implication a b -> Implication (substitute pairs a) (substitute pairs b)
+	Not f -> Not (substitute pairs f)
+	UniversalQuantifier v f -> UniversalQuantifier (sub v) f
+	ExistentialQuantifier v f -> ExistentialQuantifier (sub v) f
+	Atomic p v -> Atomic p (sub v)
+	_ -> formula
+	where sub = listSubstitute pairs
+
+listSubstitute :: Eq a => [(a,a)] -> [a] -> [a]
+listSubstitute subs list = (map (\v -> case (lookup v subs) of; Just v' -> v'; _ -> v) list)
 
 -- nnf = Negation Normal Form
 nnf :: Formula -> Formula
@@ -185,7 +232,7 @@ simplify f = foldl (\a b -> b a) f [uselessQuantifiers,doubleNegation,deMorgan]
 
 -- MAIN --
 
-prettyPrintArray arr = "[ " ++ (foldr (\a b -> case b of; [] -> a; _ -> a ++ "\n, " ++ b) "" (map show arr)) ++ "\n]"
+prettyPrintArray arr = "[ " ++ (concat (intersperse "\n, " (map show arr))) ++ "\n]"
 
 main = do
 	s <- getContents
@@ -195,8 +242,7 @@ main = do
 	let arrLen = map len parseTrees
 	let arrNNF = map nnf parseTrees
 	let arrSimplify = map simplify parseTrees
-	let zipped = (zip parseTrees arrLen)
-	putStrLn (prettyPrintArray zipped)
+	putStrLn (prettyPrintArray parseTrees)
 
 parseError :: [Token] -> a
 parseError tokenList =
