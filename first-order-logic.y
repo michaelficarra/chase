@@ -82,6 +82,7 @@ optNEWLINE: { Nil } | NEWLINE { $1 }
 {
 
 -- NODES --
+
 data Formula
 	= Or Formula Formula
 	| And Formula Formula
@@ -100,8 +101,20 @@ data Variable
 
 type ArgList = [Variable]
 
+mkOr a b = Or a b
+mkAnd a b = And a b
+mkNot f = Not f
+mkImplication a b = Implication a b
+mkUniversalQuantifier v f = UniversalQuantifier v f
+mkExistentialQuantifier v f = ExistentialQuantifier v f
+mkTautology = Tautology (TokenTautology (AlexPosn -1))
+mkContradiction = Contradiction (TokenContradiction (AlexPosn -1))
+mkAtomic p v = Atomic p v
+mkVariable v = Variable v
+
 
 -- HELPERS --
+
 variables :: Formula -> [Variable]
 variables formula = case formula of
 	Or a b -> union (variables a) (variables b)
@@ -140,6 +153,16 @@ len formula = case formula of
 	ExistentialQuantifier vars f -> len f
 	_ -> 1
 
+isPEF :: Formula -> Bool
+isPEF formula = case formula of
+	Or a b -> (isPEF a) && (isPEF b)
+	And a b -> (isPEF a) && (isPEF b)
+	ExistentialQuantifier v f -> isPEF f
+	Atomic p v -> True
+	Tautology -> True
+	Contradiction -> True
+	_ -> False
+
 
 -- SIMPLIFICATION / REWRITING --
 
@@ -175,10 +198,11 @@ substitute pairs formula = case formula of
 	ExistentialQuantifier v f -> ExistentialQuantifier (sub v) f
 	Atomic p v -> Atomic p (sub v)
 	_ -> formula
-	where sub = listSubstitute pairs
+	where
+		sub list = (map (\v -> case (lookup v pairs) of; Just v' -> v'; _ -> v) list)
 
-listSubstitute :: Eq a => [(a,a)] -> [a] -> [a]
-listSubstitute subs list = (map (\v -> case (lookup v subs) of; Just v' -> v'; _ -> v) list)
+prenex :: Formula -> Formula
+prenex = 
 
 -- nnf = Negation Normal Form
 nnf :: Formula -> Formula
@@ -195,6 +219,14 @@ nnf formula = case formula of
 	Not (UniversalQuantifier vars f) -> UniversalQuantifier vars (nnf (Not f))
 	Not (ExistentialQuantifier vars f) -> ExistentialQuantifier vars (nnf (Not f))
 	_ -> formula
+
+-- pnf = Prenex Normal Form
+pnf :: Formula -> Formula
+pnf = 
+
+-- pef = Positive Existential Form
+pef :: Formula -> Maybe Formula
+pef = 
 
 doubleNegation :: Formula -> Formula
 doubleNegation formula = case formula of
@@ -230,7 +262,15 @@ uselessQuantifiers formula = case formula of
 simplify :: Formula -> Formula
 simplify f = foldl (\a b -> b a) f [uselessQuantifiers,doubleNegation,deMorgan]
 
+
 -- MAIN --
+
+{-
+chase :: Formula -> [(a,b)] -> Maybe Model
+chase (Implication a b) =
+	| (isPEF a) && (isPEF b) = Model
+	| otherwise = error "Both arguments to the `chase` function must be in Positive Existential Form"
+-}
 
 prettyPrintArray arr = "[ " ++ (concat (intersperse "\n, " (map show arr))) ++ "\n]"
 
