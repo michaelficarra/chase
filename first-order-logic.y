@@ -59,8 +59,8 @@ exprValue
 	: atomic                                { $1 }
 	| "(" formula ")"                       { $2 }
 	| "[" formula "]"                       { $2 }
-	| TAUTOLOGY                             { Tautology $1 }
-	| CONTRADICTION                         { Contradiction $1 }
+	| TAUTOLOGY                             { Tautology }
+	| CONTRADICTION                         { Contradiction }
 	| NOT exprValue                         { Not $2 }
 
 atomic: PREDICATE index                     { Atomic $1 $2 }
@@ -90,8 +90,8 @@ data Formula
 	| Implication Formula Formula
 	| UniversalQuantifier ArgList Formula
 	| ExistentialQuantifier ArgList Formula
-	| Tautology Token
-	| Contradiction Token
+	| Tautology
+	| Contradiction
 	| Atomic String ArgList
 	deriving (Show, Eq)
 
@@ -107,8 +107,8 @@ mkNot f = Not f
 mkImplication a b = Implication a b
 mkUniversalQuantifier v f = UniversalQuantifier v f
 mkExistentialQuantifier v f = ExistentialQuantifier v f
-mkTautology = Tautology (TokenTautology (AlexPosn -1))
-mkContradiction = Contradiction (TokenContradiction (AlexPosn -1))
+mkTautology = Tautology
+mkContradiction = Contradiction
 mkAtomic p v = Atomic p v
 mkVariable v = Variable v
 
@@ -201,8 +201,35 @@ substitute pairs formula = case formula of
 	where
 		sub list = (map (\v -> case (lookup v pairs) of; Just v' -> v'; _ -> v) list)
 
+pullQuantifiers :: Formula -> Formula
+pullQuantifiers formula = case formula of
+	And (UniversalQuantifier v1 f1)   (UniversalQuantifier v2 f2)   -> pullQuantifier (True,True) formula mkAnd mkUniversalQuantifier   v1 f1 v2 f2
+	Or  (ExistentialQuantifier v1 f1) (ExistentialQuantifier v2 f2) -> pullQuantifier (True,True) formula mkOr  mkExistentialQuantifier v1 f1 v2 f2
+	And (UniversalQuantifier v1 f1)   b -> pullQuantifier (True,False) formula mkAnd mkUniversalQuantifier   v1 f1 v1 b
+	And a   (UniversalQuantifier v2 f2) -> pullQuantifier (False,True) formula mkAnd mkUniversalQuantifier   v2 a v2 f2
+	Or  (UniversalQuantifier v1 f1)   b -> pullQuantifier (True,False) formula mkOr  mkUniversalQuantifier   v1 f1 v1 b
+	Or  a   (UniversalQuantifier v2 f2) -> pullQuantifier (False,True) formula mkOr  mkUniversalQuantifier   v2 a v2 f2
+	And (ExistentialQuantifier v1 f1) b -> pullQuantifier (True,False) formula mkAnd mkExistentialQuantifier v1 f1 v1 b
+	And a (ExistentialQuantifier v2 f2) -> pullQuantifier (False,True) formula mkAnd mkExistentialQuantifier v2 a v2 f2
+	Or  (ExistentialQuantifier v1 f1) b -> pullQuantifier (True,False) formula mkOr  mkExistentialQuantifier v1 f1 v1 b
+	Or  a (ExistentialQuantifier v2 f2) -> pullQuantifier (False,True) formula mkOr  mkExistentialQuantifier v2 a v2 f2
+	_ -> formula
+
+pullQuantifier :: (Bool,Bool) -> Formula -> (Formula -> Formula -> Formula) -> ([Variable] -> Formula -> Formula) -> [Variable] -> Formula -> [Variable] -> Formula -> Formula
+pullQuantifier (l,r) formula operator quantifier v1 f1 v2 f2 =
+	quantifier z (pullQuantifiers (operator a' b'))
+	where
+		z = map (\s -> variant s (freeVariables formula)) v1
+		a' = if l then substitute (zip v1 z) f1 else f1
+		b' = if r then substitute (zip v2 z) f2 else f2
+
 prenex :: Formula -> Formula
-prenex = 
+prenex formula = case formula of
+	And a b -> pullQuantifiers $ And (prenex a) (prenex b)
+	Or a b -> pullQuantifiers $ Or (prenex a) (prenex b)
+	UniversalQuantifier v f -> UniversalQuantifier v (prenex f)
+	ExistentialQuantifier v f -> ExistentialQuantifier v (prenex f)
+	_ -> formula
 
 -- nnf = Negation Normal Form
 nnf :: Formula -> Formula
@@ -222,11 +249,13 @@ nnf formula = case formula of
 
 -- pnf = Prenex Normal Form
 pnf :: Formula -> Formula
-pnf = 
+pnf formula = prenex . nnf . uselessQuantifiers $ formula
 
+{-
 -- pef = Positive Existential Form
 pef :: Formula -> Maybe Formula
-pef = 
+pef formula = 
+-}
 
 doubleNegation :: Formula -> Formula
 doubleNegation formula = case formula of
