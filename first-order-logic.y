@@ -220,8 +220,8 @@ pullQuantifier (l,r) formula operator quantifier v1 f1 v2 f2 =
 	quantifier z (pullQuantifiers (operator a' b'))
 	where
 		z = map (\s -> variant s (freeVariables formula)) v1
-		a' = if l then substitute (zip v1 z) f1 else f1
-		b' = if r then substitute (zip v2 z) f2 else f2
+		a' = if l then substitute (filter (\p -> (fst p) /= (snd p)) (zip v1 z)) f1 else f1
+		b' = if r then substitute (filter (\p -> (fst p) /= (snd p)) (zip v2 z)) f2 else f2
 
 prenex :: Formula -> Formula
 prenex formula = case formula of
@@ -251,11 +251,26 @@ nnf formula = case formula of
 pnf :: Formula -> Formula
 pnf formula = prenex . nnf . uselessQuantifiers $ formula
 
-{-
+-- attempt to coerce a formula into positive existential form
+pefCoerce :: Formula -> Formula
+pefCoerce formula = case formula of
+	Not (UniversalQuantifier v (Not f)) -> ExistentialQuantifier v f
+	And (Not a) (Not b) -> Or a b
+	Or (Not a) (Not b) -> And a b
+	Implication (Not a) b -> Or (pef a) (pef b)
+	Implication a (Not b) -> And (pef a) (pef b)
+	Not (Not f) -> (pef f)
+	ExistentialQuantifier v f -> ExistentialQuantifier v (pef f)
+	And a b -> And (pef a) (pef b)
+	Or a b -> Or (pef a) (pef b)
+	Atomic p v -> Atomic p v
+	Contradiction -> Contradiction
+	Tautology -> Tautology
+	_ -> error("Unable to convert (" ++ (show formula) ++ ") to Positive Existential Form")
+
 -- pef = Positive Existential Form
-pef :: Formula -> Maybe Formula
-pef formula = 
--}
+pef :: Formula -> Formula
+pef formula = uselessQuantifiers . pullQuantifiers . pefCoerce $ formula
 
 doubleNegation :: Formula -> Formula
 doubleNegation formula = case formula of
@@ -311,7 +326,8 @@ main = do
 	let arrLen = map len parseTrees
 	let arrNNF = map nnf parseTrees
 	let arrSimplify = map simplify parseTrees
-	putStrLn (prettyPrintArray parseTrees)
+	putStrLn . prettyPrintArray $ parseTrees
+	putStrLn . show . pef $ (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
 
 parseError :: [Token] -> a
 parseError tokenList =
