@@ -112,10 +112,20 @@ mkContradiction = Contradiction
 mkAtomic p v = Atomic p v
 mkVariable v = Variable v
 
+type DomainElement = Int -- TODO: make this unsigned
+type Domain = [DomainElement]
+type Relation = (String, [[DomainElement]])
+type Model = (Domain,[Relation])
+
+mkDomain size = [1..size]
+mkRelation name truthTable = (name,truthTable)
+mkModel domain relations = (domain,relations)
+
 
 -- HELPERS --
 
 variables :: Formula -> [Variable]
+-- return an array of all free and bound variables
 variables formula = case formula of
 	Or a b -> union (variables a) (variables b)
 	And a b -> union (variables a) (variables b)
@@ -127,6 +137,7 @@ variables formula = case formula of
 	_ -> []
 
 freeVariables :: Formula -> [Variable]
+-- return an array of all free variables
 freeVariables formula = case formula of
 	Or a b -> union (freeVariables a) (freeVariables b)
 	And a b -> union (freeVariables a) (freeVariables b)
@@ -138,12 +149,16 @@ freeVariables formula = case formula of
 	_ -> []
 
 isSentence :: Formula -> Bool
+-- returns true if all variables in the given formula are bound, false otherwise
 isSentence f = case (freeVariables f) of; [] -> True; _ -> False
 
 variant :: Variable -> [Variable] -> Variable
+-- takes a variable and a blacklist of variables and returns a variable that is
+-- not in the blacklist
 variant x vars = if x `elem` vars then variant (Variable (((\(Variable v) -> v) x) ++ "\'")) vars else x
 
 len :: Formula -> Integer
+-- calculates a "length" of a formula
 len formula = case formula of
 	Or a b -> 1 + (len a) + (len b)
 	And a b -> 1 + (len a) + (len b)
@@ -154,6 +169,7 @@ len formula = case formula of
 	_ -> 1
 
 isPEF :: Formula -> Bool
+-- determines whether a given formula is in positive existential form
 isPEF formula = case formula of
 	Or a b -> (isPEF a) && (isPEF b)
 	And a b -> (isPEF a) && (isPEF b)
@@ -163,12 +179,23 @@ isPEF formula = case formula of
 	Contradiction -> True
 	_ -> False
 
+parseRelations :: [String] -> [Relation]
+-- takes an array of Strings that represent the truth of a relation and returns
+-- an array of Relations
+parseRelations strings = foldl parseRelation [] strings
+
+parseRelation :: [Relation] -> String -> [Relation]
+-- takes a blacklist of already-parsed Relations and a string representation of
+-- a relation and returns a new list of Relations containing that parsed
+-- relation if it did not already contain it
+parseRelation seen str = 
+
 
 -- SIMPLIFICATION / REWRITING --
 
--- takes a blacklist of variables and a formula, and replaces all
--- occurrences of any of the variables with a safe alternative
 replaceVariables :: [Variable] -> Formula -> Formula
+-- takes a blacklist of variables and a formula and replaces all occurrences of
+-- any of the variables with a safe alternative
 replaceVariables vars formula = case formula of
 	Or a b -> Or (replaceVariables vars a) (replaceVariables vars b)
 	And a b -> And (replaceVariables vars a) (replaceVariables vars b)
@@ -185,10 +212,10 @@ replaceVariables vars formula = case formula of
 		Atomic p v'
 	_ -> formula
 
--- for each tuple (<a>,<b>) in the first argument, recursively
--- replaces references to <a> with <b>; replacement is done without
--- regard to logical consistency
 substitute :: [(Variable,Variable)] -> Formula -> Formula
+-- for each tuple (<a>,<b>) in the first argument, recursively replaces
+-- references to <a> with <b>; replacement is done without regard to logical
+-- consistency
 substitute pairs formula = case formula of
 	Or a b -> Or (substitute pairs a) (substitute pairs b)
 	And a b -> And (substitute pairs a) (substitute pairs b)
@@ -202,6 +229,8 @@ substitute pairs formula = case formula of
 		sub list = (map (\v -> case (lookup v pairs) of; Just v' -> v'; _ -> v) list)
 
 pullQuantifiers :: Formula -> Formula
+-- pulls the quantifiers in the given formula from any sub-formula to the
+-- outermost formula
 pullQuantifiers formula = case formula of
 	And (UniversalQuantifier v1 f1)   (UniversalQuantifier v2 f2)   -> pullQuantifier (True,True) formula mkAnd mkUniversalQuantifier   v1 f1 v2 f2
 	Or  (ExistentialQuantifier v1 f1) (ExistentialQuantifier v2 f2) -> pullQuantifier (True,True) formula mkOr  mkExistentialQuantifier v1 f1 v2 f2
@@ -216,6 +245,7 @@ pullQuantifiers formula = case formula of
 	_ -> formula
 
 pullQuantifier :: (Bool,Bool) -> Formula -> (Formula -> Formula -> Formula) -> ([Variable] -> Formula -> Formula) -> [Variable] -> Formula -> [Variable] -> Formula -> Formula
+-- a function used for mutual recursion with pullQuantifiers
 pullQuantifier (l,r) formula operator quantifier v1 f1 v2 f2 =
 	quantifier z (pullQuantifiers (operator a' b'))
 	where
@@ -224,6 +254,7 @@ pullQuantifier (l,r) formula operator quantifier v1 f1 v2 f2 =
 		b' = if r then substitute (filter (\p -> (fst p) /= (snd p)) (zip v2 z)) f2 else f2
 
 prenex :: Formula -> Formula
+-- applies pullQuantifiers to a given formula and its subformulas
 prenex formula = case formula of
 	And a b -> pullQuantifiers $ And (prenex a) (prenex b)
 	Or a b -> pullQuantifiers $ Or (prenex a) (prenex b)
@@ -231,8 +262,9 @@ prenex formula = case formula of
 	ExistentialQuantifier v f -> ExistentialQuantifier v (prenex f)
 	_ -> formula
 
--- nnf = Negation Normal Form
 nnf :: Formula -> Formula
+-- nnf = Negation Normal Form
+-- converts an arbitrary formula to negation normal form
 nnf formula = case formula of
 	Or a b -> Or (nnf a) (nnf b)
 	And a b -> And (nnf a) (nnf b)
@@ -247,12 +279,18 @@ nnf formula = case formula of
 	Not (ExistentialQuantifier vars f) -> ExistentialQuantifier vars (nnf (Not f))
 	_ -> formula
 
--- pnf = Prenex Normal Form
 pnf :: Formula -> Formula
+-- pnf = Prenex Normal Form
+-- converts an arbitrary formula to prenex normal form
 pnf formula = prenex . nnf . uselessQuantifiers $ formula
 
--- attempt to coerce a formula into positive existential form
+pef :: Formula -> Formula
+-- pef = Positive Existential Form
+-- attempts to convert a formula to positive existential form
+pef formula = uselessQuantifiers . pullQuantifiers . pefCoerce $ formula
+
 pefCoerce :: Formula -> Formula
+-- used by pef to do the tautological replacements
 pefCoerce formula = case formula of
 	Not (UniversalQuantifier v (Not f)) -> ExistentialQuantifier v f
 	And (Not a) (Not b) -> Or a b
@@ -268,16 +306,14 @@ pefCoerce formula = case formula of
 	Tautology -> Tautology
 	_ -> error("Unable to convert (" ++ (show formula) ++ ") to Positive Existential Form")
 
--- pef = Positive Existential Form
-pef :: Formula -> Formula
-pef formula = uselessQuantifiers . pullQuantifiers . pefCoerce $ formula
-
 doubleNegation :: Formula -> Formula
+-- a simplifier that removes all double-negations from a given formula
 doubleNegation formula = case formula of
 	Not (Not f) -> doubleNegation f
 	_ -> formula
 
 deMorgan :: Formula -> Formula
+-- a simplifier that applies deMorgan's laws to a given formula
 deMorgan formula = case formula of
 	Not (And a b) -> Or (deMorgan (Not a)) (deMorgan (Not b))
 	Not (Or a b) -> And (deMorgan (Not a)) (deMorgan (Not b))
@@ -286,6 +322,8 @@ deMorgan formula = case formula of
 	_ -> formula
 
 uselessQuantifiers :: Formula -> Formula
+-- a simplifier that removes unnecessary quantifiers and combines bound
+-- variables in adjacent quantifiers
 uselessQuantifiers formula = case formula of
 	(UniversalQuantifier v1 (UniversalQuantifier v2 f)) -> UniversalQuantifier (union v1 v2) f
 	(ExistentialQuantifier v1 (ExistentialQuantifier v2 f)) -> ExistentialQuantifier (union v1 v2) f
@@ -304,7 +342,28 @@ uselessQuantifiers formula = case formula of
 	_ -> formula
 
 simplify :: Formula -> Formula
+-- applies a preselected list of simplifications to a given formula
 simplify f = foldl (\a b -> b a) f [uselessQuantifiers,doubleNegation,deMorgan]
+
+
+-- I/O --
+
+loadModel :: String -> Model
+-- takes the name of a model and loads it from disk
+loadModel fileName =
+	mkModel (mkDomain domainSize) (parseRelations relations)
+	where
+		fileContents = split "\n" (readFile fileName)
+		domainSize = head fileContents
+		relations = tail fileContents
+
+showModel :: Model -> String
+-- nicely outputs a Model
+showModel m = show m
+
+prettyPrintArray :: [a] -> String
+-- nicely outputs a list
+prettyPrintArray arr = "[ " ++ (concat (intersperse "\n, " (map show arr))) ++ "\n]"
 
 
 -- MAIN --
@@ -316,10 +375,9 @@ chase (Implication a b) =
 	| otherwise = error "Both arguments to the `chase` function must be in Positive Existential Form"
 -}
 
-prettyPrintArray arr = "[ " ++ (concat (intersperse "\n, " (map show arr))) ++ "\n]"
-
 main = do
 	s <- getContents
+	let model = loadModel "A"
 	let parseTrees = generate (scanTokens s)
 	let arrFreeVariables = map (map (\(Variable s) -> s)) (map freeVariables parseTrees)
 	let arrIsSentence = map isSentence parseTrees
