@@ -2,6 +2,7 @@
 module Main where
 import Lexer
 import List
+import Word
 }
 
 %name generate
@@ -112,7 +113,7 @@ mkContradiction = Contradiction
 mkAtomic p v = Atomic p v
 mkVariable v = Variable v
 
-type DomainElement = Int -- TODO: make this unsigned
+type DomainElement = Word
 type Domain = [DomainElement]
 type Relation = (String, [[DomainElement]])
 type Model = (Domain,[Relation])
@@ -155,7 +156,7 @@ isSentence f = case (freeVariables f) of; [] -> True; _ -> False
 variant :: Variable -> [Variable] -> Variable
 -- takes a variable and a blacklist of variables and returns a variable that is
 -- not in the blacklist
-variant x vars = if x `elem` vars then variant (Variable (((\(Variable v) -> v) x) ++ "\'")) vars else x
+variant x vars = if x `elem` vars then variant (Variable (((\(Variable v) -> v) x) ++ "'")) vars else x
 
 len :: Formula -> Integer
 -- calculates a "length" of a formula
@@ -182,13 +183,29 @@ isPEF formula = case formula of
 parseRelations :: [String] -> [Relation]
 -- takes an array of Strings that represent the truth of a relation and returns
 -- an array of Relations
-parseRelations strings = foldl parseRelation [] strings
+parseRelations strings = foldl (\a b -> mergeRelation b a) [] (map parseRelation strings)
 
-parseRelation :: [Relation] -> String -> [Relation]
--- takes a blacklist of already-parsed Relations and a string representation of
--- a relation and returns a new list of Relations containing that parsed
--- relation if it did not already contain it
-parseRelation seen str = 
+parseRelation :: String -> Relation
+parseRelation str =
+	mkRelation (takeWhile predicateSep str) [map read (split ',' (init .tail $ dropWhile predicateSep str))]
+	where
+		predicateSep = (\a -> a /= '(' && a /= '[')
+
+mergeRelation :: Relation -> [Relation] -> [Relation]
+mergeRelation relation [] = [relation]
+mergeRelation relation (r:rs)
+	| fst r == predicate = (predicate, nub ((snd r) ++ (snd relation))) : rs
+	| otherwise = r : (mergeRelation relation rs)
+	where
+		predicate = fst relation
+
+split :: Eq a => a -> [a] -> [[a]]
+split delim [] = [[]]
+split delim (c:cs)
+	| c == delim = [] : others
+	| otherwise = (c : head others) : tail others
+	where
+		others = split delim cs
 
 
 -- SIMPLIFICATION / REWRITING --
@@ -350,18 +367,20 @@ simplify f = foldl (\a b -> b a) f [uselessQuantifiers,doubleNegation,deMorgan]
 
 loadModel :: String -> Model
 -- takes the name of a model and loads it from disk
-loadModel fileName =
-	mkModel (mkDomain domainSize) (parseRelations relations)
-	where
-		fileContents = split "\n" (readFile fileName)
-		domainSize = head fileContents
-		relations = tail fileContents
+loadModel fileName = -- do
+	-- let fileContents = ""
+	-- fileContents >>= readFile fileName
+	-- let fileLines = lines fileContents
+	-- let domainSize = read . head $ fileLines
+	-- let relations = tail fileLines
+	-- return $ mkModel (mkDomain domainSize) (parseRelations relations)
+	mkModel (mkDomain 30) (parseRelations ["R(0,1)","R[ 0, 0 ]","P(20)"])
 
 showModel :: Model -> String
 -- nicely outputs a Model
-showModel m = show m
+showModel m = "( domain:[1.." ++ (show . last $ fst m) ++ "], relations:" ++ (show $ snd m) ++ " )"
 
-prettyPrintArray :: [a] -> String
+prettyPrintArray :: Show a => [a] -> String
 -- nicely outputs a list
 prettyPrintArray arr = "[ " ++ (concat (intersperse "\n, " (map show arr))) ++ "\n]"
 
@@ -377,15 +396,16 @@ chase (Implication a b) =
 
 main = do
 	s <- getContents
-	let model = loadModel "A"
 	let parseTrees = generate (scanTokens s)
-	let arrFreeVariables = map (map (\(Variable s) -> s)) (map freeVariables parseTrees)
-	let arrIsSentence = map isSentence parseTrees
-	let arrLen = map len parseTrees
-	let arrNNF = map nnf parseTrees
-	let arrSimplify = map simplify parseTrees
-	putStrLn . prettyPrintArray $ parseTrees
-	putStrLn . show . pef $ (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
+	let model = loadModel "A"
+	putStrLn $ showModel model
+	-- let arrFreeVariables = map (map (\(Variable s) -> s)) (map freeVariables parseTrees)
+	-- let arrIsSentence = map isSentence parseTrees
+	-- let arrLen = map len parseTrees
+	-- let arrNNF = map nnf parseTrees
+	-- let arrSimplify = map simplify parseTrees
+	putStrLn . show $ pef (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
+	putStrLn $ prettyPrintArray parseTrees
 
 parseError :: [Token] -> a
 parseError tokenList =
