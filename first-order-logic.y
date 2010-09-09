@@ -152,6 +152,7 @@ freeVariables formula = case formula of
 	_ -> []
 
 variableName :: Variable -> String
+-- returns the internal string value of a given variable
 variableName v = (\(Variable v') -> v') v
 
 isSentence :: Formula -> Bool
@@ -191,12 +192,15 @@ parseRelations :: [String] -> [Relation]
 parseRelations strings = foldl (\a b -> mergeRelation b a) [] (map parseRelation strings)
 
 parseRelation :: String -> Relation
+-- returns a relation represented by the given string
 parseRelation str =
 	mkRelation (takeWhile predicateSep str) [map read (split ',' (init .tail $ dropWhile predicateSep str))]
 	where
 		predicateSep = (\a -> a /= '(' && a /= '[')
 
 mergeRelation :: Relation -> [Relation] -> [Relation]
+-- takes a relation and a list of relations and adds the relation to the list,
+-- only adding its arguments if the predicate already exists
 mergeRelation relation [] = [relation]
 mergeRelation relation (r:rs)
 	| fst r == predicate = (predicate, nub ((snd r) ++ (snd relation))) : rs
@@ -205,15 +209,16 @@ mergeRelation relation (r:rs)
 		predicate = fst relation
 
 parseModel :: String -> Model
+-- returns a model when given a string representation of a model
 parseModel str =
 	mkModel (mkDomain domainSize) (parseRelations relations)
-	-- mkModel (mkDomain 30) (parseRelations ["R(0,1)","R[ 0, 0 ]","P(20)"])
 	where
 		fileLines = lines $ str
 		domainSize = read . head $ fileLines :: DomainElement
 		relations = tail fileLines
 
 split :: Eq a => a -> [a] -> [[a]]
+-- split an array by an element of that array
 split delim [] = [[]]
 split delim (c:cs)
 	| c == delim = [] : others
@@ -222,6 +227,7 @@ split delim (c:cs)
 		others = split delim cs
 
 hashSet :: Eq a => [(a,b)] -> a -> b -> [(a,b)]
+-- like setting the value of an element of a hash
 hashSet (k:ks) v v' = case fst k == v of
 	True -> (v,v') : ks
 	False -> case ks of
@@ -387,6 +393,7 @@ simplify f = foldl (\a b -> b a) f [uselessQuantifiers,doubleNegation,deMorgan]
 -- I/O --
 
 loadModel :: String -> IO String
+-- when given the name of a stored model, returns a lazy string representation of it
 loadModel fileName = readFile ("./models/" ++ fileName)
 
 showModel :: Model -> String
