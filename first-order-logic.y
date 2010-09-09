@@ -3,6 +3,7 @@ module Main where
 import Lexer
 import List
 import Word
+import Data.Maybe
 }
 
 %name generate
@@ -117,6 +118,7 @@ type DomainElement = Word
 type Domain = [DomainElement]
 type Relation = (String, [[DomainElement]])
 type Model = (Domain,[Relation])
+type Environment = [(Variable,DomainElement)]
 
 mkDomain size = [1..size]
 mkRelation name truthTable = (name,truthTable)
@@ -149,6 +151,9 @@ freeVariables formula = case formula of
 	Atomic predicate vars -> nub vars
 	_ -> []
 
+variableName :: Variable -> String
+variableName v = (\(Variable v') -> v') v
+
 isSentence :: Formula -> Bool
 -- returns true if all variables in the given formula are bound, false otherwise
 isSentence f = case (freeVariables f) of; [] -> True; _ -> False
@@ -156,7 +161,7 @@ isSentence f = case (freeVariables f) of; [] -> True; _ -> False
 variant :: Variable -> [Variable] -> Variable
 -- takes a variable and a blacklist of variables and returns a variable that is
 -- not in the blacklist
-variant x vars = if x `elem` vars then variant (Variable (((\(Variable v) -> v) x) ++ "'")) vars else x
+variant x vars = if x `elem` vars then variant (Variable ((variableName x) ++ "'")) vars else x
 
 len :: Formula -> Integer
 -- calculates a "length" of a formula
@@ -216,6 +221,13 @@ split delim (c:cs)
 	where
 		others = split delim cs
 
+hashSet :: Eq a => [(a,b)] -> a -> b -> [(a,b)]
+hashSet (k:ks) v v' = case fst k == v of
+	True -> (v,v') : ks
+	False -> case ks of
+		[] -> [(v,v')]
+		_ -> k : hashSet ks v v'
+
 
 -- SIMPLIFICATION / REWRITING --
 
@@ -252,7 +264,7 @@ substitute pairs formula = case formula of
 	Atomic p v -> Atomic p (sub v)
 	_ -> formula
 	where
-		sub list = (map (\v -> case (lookup v pairs) of; Just v' -> v'; _ -> v) list)
+		sub list = (map (\v -> fromMaybe v (lookup v pairs)) list)
 
 pullQuantifiers :: Formula -> Formula
 -- pulls the quantifiers in the given formula from any sub-formula to the
@@ -387,6 +399,23 @@ prettyPrintArray arr = "[ " ++ (concat (intersperse "\n, " (map show arr))) ++ "
 
 
 -- MAIN --
+
+holds :: Model -> Environment -> Formula -> Bool
+holds model env formula = let (domain,relations) = model in case formula of
+	Contradiction -> False
+	Tautology -> True
+	Atomic predicate vars -> (map (\v -> case lookup v env of
+		Just v' -> v'
+		Nothing -> error("Could not look up " ++ variableName v ++ " in given environment")
+		) vars) `elem` (fromMaybe [] (lookup predicate relations))
+	Or a b -> holds model env a || holds model env b
+	And a b -> holds model env a && holds model env b
+	Not f -> not $ holds model env f
+	Implication a b -> holds model env b || not (holds model env a)
+	UniversalQuantifier [] f -> holds model env f
+	UniversalQuantifier (v:vs) f -> all (\v' -> holds model (hashSet env v v') (UniversalQuantifier vs f)) domain
+	ExistentialQuantifier [] f -> holds model env f
+	ExistentialQuantifier (v:vs) f -> any (\v' -> holds model (hashSet env v v') (ExistentialQuantifier vs f)) domain
 
 {-
 chase :: Formula -> [(a,b)] -> Maybe Model
