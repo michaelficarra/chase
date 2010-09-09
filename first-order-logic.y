@@ -199,6 +199,15 @@ mergeRelation relation (r:rs)
 	where
 		predicate = fst relation
 
+parseModel :: String -> Model
+parseModel str =
+	mkModel (mkDomain domainSize) (parseRelations relations)
+	-- mkModel (mkDomain 30) (parseRelations ["R(0,1)","R[ 0, 0 ]","P(20)"])
+	where
+		fileLines = lines $ str
+		domainSize = read . head $ fileLines :: DomainElement
+		relations = tail fileLines
+
 split :: Eq a => a -> [a] -> [[a]]
 split delim [] = [[]]
 split delim (c:cs)
@@ -365,20 +374,12 @@ simplify f = foldl (\a b -> b a) f [uselessQuantifiers,doubleNegation,deMorgan]
 
 -- I/O --
 
-loadModel :: String -> Model
--- takes the name of a model and loads it from disk
-loadModel fileName = -- do
-	-- let fileContents = ""
-	-- fileContents >>= readFile fileName
-	-- let fileLines = lines fileContents
-	-- let domainSize = read . head $ fileLines
-	-- let relations = tail fileLines
-	-- return $ mkModel (mkDomain domainSize) (parseRelations relations)
-	mkModel (mkDomain 30) (parseRelations ["R(0,1)","R[ 0, 0 ]","P(20)"])
+loadModel :: String -> IO String
+loadModel fileName = readFile ("./models/" ++ fileName)
 
 showModel :: Model -> String
 -- nicely outputs a Model
-showModel m = "( domain:[1.." ++ (show . last $ fst m) ++ "], relations:" ++ (show $ snd m) ++ " )"
+showModel m = "( domain: 1.." ++ (show . last $ fst m) ++ ", relations: " ++ (concat . intersperse ", " $ map show (snd m)) ++ " )"
 
 prettyPrintArray :: Show a => [a] -> String
 -- nicely outputs a list
@@ -395,17 +396,16 @@ chase (Implication a b) =
 -}
 
 main = do
-	s <- getContents
-	let parseTrees = generate (scanTokens s)
-	let model = loadModel "A"
-	putStrLn $ showModel model
-	-- let arrFreeVariables = map (map (\(Variable s) -> s)) (map freeVariables parseTrees)
-	-- let arrIsSentence = map isSentence parseTrees
-	-- let arrLen = map len parseTrees
-	-- let arrNNF = map nnf parseTrees
-	-- let arrSimplify = map simplify parseTrees
+	formulae <- getContents
+	let parseTrees = generate (scanTokens formulae)
+	-- putStrLn $ prettyPrintArray parseTrees
+
+	modelAStr <- loadModel "A"
+	let modelA = parseModel modelAStr
+	putStrLn $ "model A: " ++ showModel modelA
+
+	-- testing positive existential form conversion
 	putStrLn . show $ pef (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
-	putStrLn $ prettyPrintArray parseTrees
 
 parseError :: [Token] -> a
 parseError tokenList =
