@@ -467,15 +467,22 @@ holds model env formula = let (domain,relations) = model in case formula of
 	ExistentialQuantifier [] f -> holds model env f
 	ExistentialQuantifier (v:vs) f -> any (\v' -> holds model (hashSet env v v') (ExistentialQuantifier vs f)) domain
 
-{-
-chase :: [Formula] -> [(a,b)] -> Maybe Model
-chase (Implication a b) =
-	| (isPEF a) && (isPEF b) = Model
-	| otherwise = error "Both arguments to the `chase` function must be in Positive Existential Form"
-	where
-		a' = UniversalQuantifier (freeVariables a) a
-		b' = UniversalQuantifier (freeVariables b) b
--}
+satisfyModel :: Model -> Formula -> Model
+satisfyModel model formula =
+	if holds model [] formula then model
+	else model -- TODO: implement
+
+chase :: [Formula] -> Model
+chase formulas = runChase ([],[]) formulas
+
+runChase :: Model -> [Formula] -> Model
+runChase model formulas = if all (\(Implication a b) ->
+		let a' = UniversalQuantifier (freeVariables a) a in
+		let b' = UniversalQuantifier (freeVariables b) b in
+		if (isPEF a) && (isPEF b) then True -- TODO: implement
+		else error "All formulas given to the `chase` function must be in Positive Existential Form"
+	) formulas then model
+	else runChase (foldl satisfyModel model formulas) formulas
 
 main = do
 	formulae <- getContents
@@ -486,7 +493,7 @@ main = do
 	let modelA = parseModel modelAStr
 	putStrLn $ "model A: " ++ showModel modelA
 
-	-- testing positive existential form conversion
+	-- tests
 	putStrLn.showFormula $ simplify (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Contradiction)))))
 	putStrLn.show $ holds modelA [(Variable "x",0)] (ExistentialQuantifier [Variable "y"] (Atomic "R" [Variable "x", Variable "y"]))
 	putStrLn.showFormula $ pef (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
