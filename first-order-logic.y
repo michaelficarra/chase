@@ -1,8 +1,8 @@
 {
 module Main where
 import Lexer
-import List
 import Word
+import Data.List
 import Data.Maybe
 }
 
@@ -237,6 +237,20 @@ hashSet (k:ks) v v' = case fst k == v of
 
 -- SIMPLIFICATION / REWRITING --
 
+recursivelyApply :: (Formula -> Formula) -> Formula -> Formula
+-- helps when writing rewriters, as it handles formula walking and applies the
+-- rewriting function to all nodes
+recursivelyApply fn formula = case formula of
+	And a b -> fn $ And (recursivelyApply fn a) (recursivelyApply fn b)
+	Or a b -> fn $ Or (recursivelyApply fn a) (recursivelyApply fn b)
+	Not f -> fn $ Not (recursivelyApply fn f)
+	Implication a b -> fn $ Implication (recursivelyApply fn a) (recursivelyApply fn b)
+	UniversalQuantifier v f -> fn $ UniversalQuantifier v (recursivelyApply fn f)
+	ExistentialQuantifier v f -> fn $ ExistentialQuantifier v (recursivelyApply fn f)
+	Atomic p v -> fn $ Atomic p v
+	Tautology -> fn $ Tautology
+	Contradiction -> fn $ Contradiction
+
 replaceVariables :: [Variable] -> Formula -> Formula
 -- takes a blacklist of variables and a formula and replaces all occurrences of
 -- any of the variables with a safe alternative
@@ -309,19 +323,16 @@ prenex formula = case formula of
 nnf :: Formula -> Formula
 -- nnf = Negation Normal Form
 -- converts an arbitrary formula to negation normal form
-nnf formula = case formula of
-	Or a b -> Or (nnf a) (nnf b)
-	And a b -> And (nnf a) (nnf b)
-	Implication a b -> Or (nnf (Not a)) (nnf b)
-	Not (Not f) -> nnf f
-	Not (Or a b) -> And (nnf (Not a)) (nnf (Not b))
-	Not (And a b) -> Or (nnf (Not a)) (nnf (Not b))
-	Not (Implication a b) -> And (nnf a) (nnf (Not b))
-	UniversalQuantifier vars f -> UniversalQuantifier vars (nnf f)
-	ExistentialQuantifier vars f -> ExistentialQuantifier vars (nnf f)
-	Not (UniversalQuantifier vars f) -> UniversalQuantifier vars (nnf (Not f))
-	Not (ExistentialQuantifier vars f) -> ExistentialQuantifier vars (nnf (Not f))
+nnf formula = recursivelyApply (\formula -> case formula of
+	Not (Implication a b) -> And a (Not b)
+	Implication a b -> Or (Not a) b
+	Not (Not f) -> f
+	Not (Or a b) -> And (Not a) (Not b)
+	Not (And a b) -> Or (Not a) (Not b)
+	Not (UniversalQuantifier vars f) -> ExistentialQuantifier vars (Not f)
+	Not (ExistentialQuantifier vars f) -> UniversalQuantifier vars (Not f)
 	_ -> formula
+	) formula
 
 pnf :: Formula -> Formula
 -- pnf = Prenex Normal Form
@@ -329,65 +340,84 @@ pnf :: Formula -> Formula
 pnf formula = prenex . nnf . uselessQuantifiers $ formula
 
 pef :: Formula -> Formula
--- pef = Positive Existential Form
 -- attempts to convert a formula to positive existential form
-pef formula = uselessQuantifiers . pullQuantifiers . pefCoerce $ formula
-
-pefCoerce :: Formula -> Formula
--- used by pef to do the tautological replacements
-pefCoerce formula = case formula of
-	Not (UniversalQuantifier v (Not f)) -> ExistentialQuantifier v f
+pef formula = uselessQuantifiers . pullQuantifiers $ recursivelyApply (\formula -> case formula of
 	And (Not a) (Not b) -> Or a b
 	Or (Not a) (Not b) -> And a b
-	Implication (Not a) b -> Or (pef a) (pef b)
-	Implication a (Not b) -> And (pef a) (pef b)
-	Not (Not f) -> (pef f)
-	ExistentialQuantifier v f -> ExistentialQuantifier v (pef f)
-	And a b -> And (pef a) (pef b)
-	Or a b -> Or (pef a) (pef b)
+	Not (Not f) -> f
+	Implication (Not a) b -> Or a b
+	Implication a (Not b) -> And a b
+	Not (UniversalQuantifier v (Not f)) -> ExistentialQuantifier v f
+	-- the rest of these exist just to ensure the error condition is not met
+	-- basically, they are the nodes that are naturally allowed
+	ExistentialQuantifier v f -> ExistentialQuantifier v f
+	And a b -> And a b
+	Or a b -> Or a b
 	Atomic p v -> Atomic p v
 	Contradiction -> Contradiction
 	Tautology -> Tautology
 	_ -> error("Unable to convert (" ++ (show formula) ++ ") to Positive Existential Form")
+	) (simplify formula)
 
 doubleNegation :: Formula -> Formula
 -- a simplifier that removes all double-negations from a given formula
-doubleNegation formula = case formula of
-	Not (Not f) -> doubleNegation f
+doubleNegation formula = recursivelyApply (\formula -> case formula of
+	Not (Not f) -> f
 	_ -> formula
+	) formula
 
 deMorgan :: Formula -> Formula
 -- a simplifier that applies deMorgan's laws to a given formula
-deMorgan formula = case formula of
-	Not (And a b) -> Or (deMorgan (Not a)) (deMorgan (Not b))
-	Not (Or a b) -> And (deMorgan (Not a)) (deMorgan (Not b))
-	Not (UniversalQuantifier vars f) -> ExistentialQuantifier vars (deMorgan (Not f))
-	Not (ExistentialQuantifier vars f) -> UniversalQuantifier vars (deMorgan (Not f))
+deMorgan formula = recursivelyApply (\formula -> case formula of
+	Not (And a b) -> Or (Not a) (Not b)
+	Not (Or a b) -> And (Not a) (Not b)
+	Not (UniversalQuantifier vars f) -> ExistentialQuantifier vars (Not f)
+	Not (ExistentialQuantifier vars f) -> UniversalQuantifier vars (Not f)
 	_ -> formula
+	) formula
 
 uselessQuantifiers :: Formula -> Formula
 -- a simplifier that removes unnecessary quantifiers and combines bound
 -- variables in adjacent quantifiers
-uselessQuantifiers formula = case formula of
+uselessQuantifiers formula = recursivelyApply (\formula -> case formula of
+	Not (UniversalQuantifier v (Not f)) -> ExistentialQuantifier v f
+	Not (ExistentialQuantifier v (Not f)) -> UniversalQuantifier v f
 	(UniversalQuantifier v1 (UniversalQuantifier v2 f)) -> UniversalQuantifier (union v1 v2) f
 	(ExistentialQuantifier v1 (ExistentialQuantifier v2 f)) -> ExistentialQuantifier (union v1 v2) f
 	(UniversalQuantifier vars f) ->
 		let intersection = (intersect vars (freeVariables f)) in
-		if (null intersection) then (uselessQuantifiers f)
-		else UniversalQuantifier intersection (uselessQuantifiers f)
+		if (null intersection) then f
+		else UniversalQuantifier intersection f
 	(ExistentialQuantifier vars f) ->
 		let intersection = (intersect vars (freeVariables f)) in
-		if (null intersection) then (uselessQuantifiers f)
-		else ExistentialQuantifier intersection (uselessQuantifiers f)
-	Or a b -> Or (uselessQuantifiers a) (uselessQuantifiers b)
-	And a b -> And (uselessQuantifiers a) (uselessQuantifiers b)
-	Implication a b -> Implication (uselessQuantifiers a) (uselessQuantifiers b)
-	Not f -> Not (uselessQuantifiers f)
+		if (null intersection) then f
+		else ExistentialQuantifier intersection f
 	_ -> formula
+	) formula
+
+tautologies :: Formula -> Formula
+tautologies formula = recursivelyApply (\formula -> case formula of
+	And a Tautology -> a
+	And Tautology b -> b
+	And a Contradiction -> Contradiction
+	And Contradiction b -> Contradiction
+	Or a Tautology -> Tautology
+	Or Tautology b -> Tautology
+	Or a Contradiction -> a
+	Or Contradiction b -> b
+	Not Tautology -> Contradiction
+	Not Contradiction -> Tautology
+	Implication Tautology b -> b
+	Implication Contradiction b -> Tautology
+	Implication a Tautology -> Tautology
+	Implication a Contradiction -> Not a
+	_ -> formula
+	) formula
 
 simplify :: Formula -> Formula
 -- applies a preselected list of simplifications to a given formula
-simplify f = foldl (\a b -> b a) f [uselessQuantifiers,doubleNegation,deMorgan]
+simplify f = foldl (\a b -> b a) f (concat $ permutations simplifiers)
+	where simplifiers = [uselessQuantifiers,deMorgan,doubleNegation,tautologies]
 
 
 -- I/O --
@@ -398,11 +428,25 @@ loadModel fileName = readFile ("./models/" ++ fileName)
 
 showModel :: Model -> String
 -- nicely outputs a Model
-showModel m = "( domain: 1.." ++ (show . last $ fst m) ++ ", relations: " ++ (concat . intersperse ", " $ map show (snd m)) ++ " )"
+showModel (domain,relations) = "( domain: 1.." ++ (show . last $ domain) ++ ", relations: " ++ (intercalate ", " truths) ++ " )"
+	where
+		truths = concat $ map (\(predicate,arrVars) ->
+				map (\vars -> predicate ++ "[" ++ intercalate "," (map show vars) ++ "]") arrVars
+			) relations
 
-prettyPrintArray :: Show a => [a] -> String
--- nicely outputs a list
-prettyPrintArray arr = "[ " ++ (concat (intersperse "\n, " (map show arr))) ++ "\n]"
+showFormula :: Formula -> String
+-- builds a human-readable string representation of a formula
+showFormula formula = case formula of
+	And a b -> (showFormula a) ++ " ∧ " ++ (showFormula b)
+	Or a b -> "(" ++ (showFormula a) ++ " ∨ " ++ (showFormula b) ++ ")"
+	Not f -> "¬" ++ (showFormula f)
+	Implication a b -> (showFormula a) ++ " → " ++ (showFormula b)
+	UniversalQuantifier v f -> "∀ " ++ (intercalate "," (map variableName v)) ++ ": " ++ (showFormula f)
+	ExistentialQuantifier v f -> "∃ " ++ (intercalate "," (map variableName v)) ++ ": " ++ (showFormula f)
+	Atomic p v -> p ++ "[" ++ (intercalate "," (map variableName v)) ++ "]"
+	Tautology -> "True"
+	Contradiction -> "False"
+	_ -> "[?]"
 
 
 -- MAIN --
@@ -434,14 +478,19 @@ chase (Implication a b) =
 main = do
 	formulae <- getContents
 	let parseTrees = generate (scanTokens formulae)
-	-- putStrLn $ prettyPrintArray parseTrees
+	-- putStrLn $ prettyPrintArray (map showFormula parseTrees)
 
 	modelAStr <- loadModel "A"
 	let modelA = parseModel modelAStr
 	putStrLn $ "model A: " ++ showModel modelA
 
 	-- testing positive existential form conversion
-	putStrLn . show $ pef (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
+	putStrLn . showFormula . tautologies $ doubleNegation (And (Not $ Not Tautology) (Or (Not . Not $ Not Contradiction) Tautology))
+	putStrLn . showFormula . pef $ (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
+	putStrLn . showFormula . simplify . nnf $ (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
+
+	where
+		prettyPrintArray arr = "[ " ++ (intercalate "\n, " arr) ++ "\n]"
 
 parseError :: [Token] -> a
 parseError tokenList =
