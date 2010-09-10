@@ -194,7 +194,7 @@ parseRelations strings = foldl (\a b -> mergeRelation b a) [] (map parseRelation
 parseRelation :: String -> Relation
 -- returns a relation represented by the given string
 parseRelation str =
-	mkRelation (takeWhile predicateSep str) [map read (split ',' (init .tail $ dropWhile predicateSep str))]
+	mkRelation (takeWhile predicateSep str) [map read (split ',' (init.tail $ dropWhile predicateSep str))]
 	where
 		predicateSep = (\a -> a /= '(' && a /= '[')
 
@@ -214,7 +214,7 @@ parseModel str =
 	mkModel (mkDomain domainSize) (parseRelations relations)
 	where
 		fileLines = lines $ str
-		domainSize = read . head $ fileLines :: DomainElement
+		domainSize = read.head $ fileLines :: DomainElement
 		relations = tail fileLines
 
 split :: Eq a => a -> [a] -> [[a]]
@@ -228,11 +228,10 @@ split delim (c:cs)
 
 hashSet :: Eq a => [(a,b)] -> a -> b -> [(a,b)]
 -- like setting the value of an element of a hash
-hashSet (k:ks) v v' = case fst k == v of
-	True -> (v,v') : ks
-	False -> case ks of
-		[] -> [(v,v')]
-		_ -> k : hashSet ks v v'
+hashSet [] v v' = [(v,v')]
+hashSet (k:ks) v v'
+	| fst k == v = (v,v') : ks
+	| otherwise = k : hashSet ks v v'
 
 
 -- SIMPLIFICATION / REWRITING --
@@ -337,11 +336,11 @@ nnf formula = recursivelyApply (\formula -> case formula of
 pnf :: Formula -> Formula
 -- pnf = Prenex Normal Form
 -- converts an arbitrary formula to prenex normal form
-pnf formula = prenex . nnf . uselessQuantifiers $ formula
+pnf formula = prenex.nnf.uselessQuantifiers $ formula
 
 pef :: Formula -> Formula
 -- attempts to convert a formula to positive existential form
-pef formula = uselessQuantifiers . pullQuantifiers $ recursivelyApply (\formula -> case formula of
+pef formula = uselessQuantifiers.pullQuantifiers $ recursivelyApply (\formula -> case formula of
 	And (Not a) (Not b) -> Or a b
 	Or (Not a) (Not b) -> And a b
 	Not (Not f) -> f
@@ -428,7 +427,7 @@ loadModel fileName = readFile ("./models/" ++ fileName)
 
 showModel :: Model -> String
 -- nicely outputs a Model
-showModel (domain,relations) = "( domain: 1.." ++ (show . last $ domain) ++ ", relations: " ++ (intercalate ", " truths) ++ " )"
+showModel (domain,relations) = "( domain: 1.." ++ (show.last $ domain) ++ ", relations: " ++ (intercalate ", " truths) ++ " )"
 	where
 		truths = concat $ map (\(predicate,arrVars) ->
 				map (\vars -> predicate ++ "[" ++ intercalate "," (map show vars) ++ "]") arrVars
@@ -444,8 +443,8 @@ showFormula formula = case formula of
 	UniversalQuantifier v f -> "∀ " ++ (intercalate "," (map variableName v)) ++ ": " ++ (showFormula f)
 	ExistentialQuantifier v f -> "∃ " ++ (intercalate "," (map variableName v)) ++ ": " ++ (showFormula f)
 	Atomic p v -> p ++ "[" ++ (intercalate "," (map variableName v)) ++ "]"
-	Tautology -> "True"
-	Contradiction -> "False"
+	Tautology -> "⟙"
+	Contradiction -> "⟘"
 	_ -> "[?]"
 
 
@@ -457,7 +456,7 @@ holds model env formula = let (domain,relations) = model in case formula of
 	Tautology -> True
 	Atomic predicate vars -> (map (\v -> case lookup v env of
 		Just v' -> v'
-		Nothing -> error("Could not look up " ++ variableName v ++ " in given environment")
+		Nothing -> error("Could not look up variable \"" ++ variableName v ++ "\" in given environment")
 		) vars) `elem` (fromMaybe [] (lookup predicate relations))
 	Or a b -> holds model env a || holds model env b
 	And a b -> holds model env a && holds model env b
@@ -469,10 +468,13 @@ holds model env formula = let (domain,relations) = model in case formula of
 	ExistentialQuantifier (v:vs) f -> any (\v' -> holds model (hashSet env v v') (ExistentialQuantifier vs f)) domain
 
 {-
-chase :: Formula -> [(a,b)] -> Maybe Model
+chase :: [Formula] -> [(a,b)] -> Maybe Model
 chase (Implication a b) =
 	| (isPEF a) && (isPEF b) = Model
 	| otherwise = error "Both arguments to the `chase` function must be in Positive Existential Form"
+	where
+		a' = UniversalQuantifier (freeVariables a) a
+		b' = UniversalQuantifier (freeVariables b) b
 -}
 
 main = do
@@ -485,9 +487,10 @@ main = do
 	putStrLn $ "model A: " ++ showModel modelA
 
 	-- testing positive existential form conversion
-	putStrLn . showFormula . tautologies $ doubleNegation (And (Not $ Not Tautology) (Or (Not . Not $ Not Contradiction) Tautology))
-	putStrLn . showFormula . pef $ (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
-	putStrLn . showFormula . simplify . nnf $ (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
+	putStrLn.showFormula $ simplify (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Contradiction)))))
+	putStrLn.show $ holds modelA [(Variable "x",0)] (ExistentialQuantifier [Variable "y"] (Atomic "R" [Variable "x", Variable "y"]))
+	putStrLn.showFormula $ pef (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
+	putStrLn.showFormula.simplify $ nnf (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
 
 	where
 		prettyPrintArray arr = "[ " ++ (intercalate "\n, " arr) ++ "\n]"
