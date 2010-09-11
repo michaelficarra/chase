@@ -40,14 +40,15 @@ formulaList
 	| formulaList NEWLINE formula           { $1 ++ [$3] }
 
 formula
-	: expr                                      { $1 }
-	| expr "->" expr                            { Implication $1 $3 }
-	| FOR_ALL argList quantifierBody            { UniversalQuantifier $2 $3 }
-	| THERE_EXISTS argList quantifierBody       { ExistentialQuantifier $2 $3 }
+	: expr                                  { $1 }
+	| expr "->" expr                        { Implication $1 $3 }
 
-quantifierBody: optCOLON formula                { $2 }
+quantifierBody: optCOLON expr               { $2 }
 
-expr: exprOR { $1 }
+expr
+	: exprOR                                { $1 }
+	| FOR_ALL argList quantifierBody        { UniversalQuantifier $2 $3 }
+	| THERE_EXISTS argList quantifierBody   { ExistentialQuantifier $2 $3 }
 
 exprOR
 	: exprAND                               { $1 }
@@ -120,7 +121,8 @@ type Relation = (String, [[DomainElement]])
 type Model = (Domain,[Relation])
 type Environment = [(Variable,DomainElement)]
 
-mkDomain size = [1..size]
+mkDomain :: Integer -> [DomainElement]
+mkDomain size = [1..(fromIntegral size)]
 mkRelation name truthTable = (name,truthTable)
 mkModel domain relations = (domain,relations)
 
@@ -211,7 +213,7 @@ mergeRelation relation (r:rs)
 parseModel :: String -> Model
 -- returns a model when given a string representation of a model
 parseModel str =
-	mkModel (mkDomain domainSize) (parseRelations relations)
+	mkModel (mkDomain $ fromIntegral domainSize) (parseRelations relations)
 	where
 		fileLines = lines $ str
 		domainSize = read.head $ fileLines :: DomainElement
@@ -427,7 +429,7 @@ loadModel fileName = readFile ("./models/" ++ fileName)
 
 showModel :: Model -> String
 -- nicely outputs a Model
-showModel (domain,relations) = "( domain: 1.." ++ (show.last $ domain) ++ ", relations: " ++ (intercalate ", " truths) ++ " )"
+showModel (domain,relations) = "( domain: 1.." ++ (show.length $ domain) ++ ", relations: [" ++ (intercalate ", " truths) ++ "] )"
 	where
 		truths = concat $ map (\(predicate,arrVars) ->
 				map (\vars -> predicate ++ "[" ++ intercalate "," (map show vars) ++ "]") arrVars
@@ -456,7 +458,7 @@ holds model env formula = let (domain,relations) = model in case formula of
 	Tautology -> True
 	Atomic predicate vars -> (map (\v -> case lookup v env of
 		Just v' -> v'
-		Nothing -> error("Could not look up variable \"" ++ variableName v ++ "\" in given environment")
+		Nothing -> error ("Could not look up variable \"" ++ variableName v ++ "\" in environment " ++ show env ++ " for formula " ++ showFormula formula)
 		) vars) `elem` (fromMaybe [] (lookup predicate relations))
 	Or a b -> holds model env a || holds model env b
 	And a b -> holds model env a && holds model env b
@@ -467,20 +469,28 @@ holds model env formula = let (domain,relations) = model in case formula of
 	ExistentialQuantifier [] f -> holds model env f
 	ExistentialQuantifier (v:vs) f -> any (\v' -> holds model (hashSet env v v') (ExistentialQuantifier vs f)) domain
 
+expandDomain :: Model -> Model
+expandDomain (domain,relations) = (domain',relations)
+	where domain' = mkDomain (1 + (fromIntegral $ length domain))
+
 satisfyModel :: Model -> Formula -> Model
 satisfyModel model formula =
 	if holds model [] formula then model
-	else model -- TODO: implement
+	else satisfyModel (expandDomain model) formula
 
 chase :: [Formula] -> Model
 chase formulas = runChase ([],[]) formulas
 
 runChase :: Model -> [Formula] -> Model
-runChase model formulas = if all (\(Implication a b) ->
-		let a' = UniversalQuantifier (freeVariables a) a in
-		let b' = UniversalQuantifier (freeVariables b) b in
-		if (isPEF a) && (isPEF b) then True -- TODO: implement
-		else error "All formulas given to the `chase` function must be in Positive Existential Form"
+runChase model formulas = if all (\formula -> case formula of
+		Implication a b ->
+			let f = (Implication a b) in
+			let f' = UniversalQuantifier (freeVariables f) f in
+			if (isPEF a) && (isPEF b) then holds model [] f'
+			else error "All formulas given to the `chase` function must be in positive existential form"
+		_ ->
+			if (isPEF formula) then True -- holds model [] (UniversalQuantifier (freeVariables formula) formula)
+			else error "All formulas given to the `chase` function must be an implication of positive existential formulas"
 	) formulas then model
 	else runChase (foldl satisfyModel model formulas) formulas
 
@@ -493,14 +503,25 @@ main = do
 	let modelA = parseModel modelAStr
 	putStrLn $ "model A: " ++ showModel modelA
 
-	-- tests
+	-- random tests / sanity checks
 	putStrLn.showFormula $ simplify (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Contradiction)))))
-	putStrLn.show $ holds modelA [(Variable "x",0)] (ExistentialQuantifier [Variable "y"] (Atomic "R" [Variable "x", Variable "y"]))
-	putStrLn.showFormula $ pef (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
-	putStrLn.showFormula.simplify $ nnf (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
+	-- putStrLn.show $ holds modelA [(Variable "x",0)] (ExistentialQuantifier [Variable "y"] (Atomic "R" [Variable "x", Variable "y"]))
+	-- putStrLn.showFormula $ pef (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
+	-- putStrLn.showFormula.simplify $ nnf (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
+	-- putStrLn.show $ all (\formula -> holds (mkModel [0,1,2] [("R",[[0,1]]),("Q",[[1,2]])]) [] formula) theory
+
+	-- chase function tests
+	putStrLn "--- chase ---"
+	putStrLn.prettyPrintArray $ map showFormula theory
+	putStrLn.showModel $ chase theory
 
 	where
 		prettyPrintArray arr = "[ " ++ (intercalate "\n, " arr) ++ "\n]"
+		theory = map (head.generate.scanTokens) [
+			"Tautology -> Exists y,y': R[y,y']",
+			"R[x,w] -> Exists y: Q[x,y]",
+			"Q[u,v] -> Exists z: R[v,z]"
+			]
 
 parseError :: [Token] -> a
 parseError tokenList =
