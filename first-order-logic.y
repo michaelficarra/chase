@@ -117,13 +117,13 @@ mkVariable v = Variable v
 
 type DomainElement = Word
 type Domain = [DomainElement]
-type Relation = (String, [[DomainElement]])
+type Relation = (String, Int, [[DomainElement]])
 type Model = (Domain,[Relation])
 type Environment = [(Variable,DomainElement)]
 
 mkDomain :: Integer -> [DomainElement]
 mkDomain size = [1..(fromIntegral size)]
-mkRelation name truthTable = (name,truthTable)
+mkRelation name arity truthTable = (name,(fromIntegral arity),truthTable)
 mkModel domain relations = (domain,relations)
 
 
@@ -196,19 +196,22 @@ parseRelations strings = foldl (\a b -> mergeRelation b a) [] (map parseRelation
 parseRelation :: String -> Relation
 -- returns a relation represented by the given string
 parseRelation str =
-	mkRelation (takeWhile predicateSep str) [map read (split ',' (init.tail $ dropWhile predicateSep str))]
+	mkRelation (takeWhile predicateSep str) (length argList) argList
 	where
 		predicateSep = (\a -> a /= '(' && a /= '[')
+		argList = [map read (split ',' (init.tail $ dropWhile predicateSep str))]
 
 mergeRelation :: Relation -> [Relation] -> [Relation]
 -- takes a relation and a list of relations and adds the relation to the list,
 -- only adding its arguments if the predicate already exists
 mergeRelation relation [] = [relation]
 mergeRelation relation (r:rs)
-	| fst r == predicate = (predicate, nub ((snd r) ++ (snd relation))) : rs
+	| rPredicate == relationPredicate && rArity == relationArity =
+		(rPredicate, rArity, nub (rTruthTable ++ relationTruthTable)) : rs
 	| otherwise = r : (mergeRelation relation rs)
 	where
-		predicate = fst relation
+		(rPredicate,rArity,rTruthTable) = r
+		(relationPredicate,relationArity,relationTruthTable) = relation
 
 parseModel :: String -> Model
 -- returns a model when given a string representation of a model
@@ -227,6 +230,9 @@ split delim (c:cs)
 	| otherwise = (c : head others) : tail others
 	where
 		others = split delim cs
+
+lookup2 :: Eq a => Eq b => a -> b -> [(a,b,c)] -> Maybe c
+lookup2 a b abc = lookup (a,b) (map (\(a,b,c) -> ((a,b),c)) abc)
 
 hashSet :: Eq a => [(a,b)] -> a -> b -> [(a,b)]
 -- like setting the value of an element of a hash
@@ -431,7 +437,7 @@ showModel :: Model -> String
 -- nicely outputs a Model
 showModel (domain,relations) = "( domain: 1.." ++ (show.length $ domain) ++ ", relations: [" ++ (intercalate ", " truths) ++ "] )"
 	where
-		truths = concat $ map (\(predicate,arrVars) ->
+		truths = concat $ map (\(predicate,arity,arrVars) ->
 				map (\vars -> predicate ++ "[" ++ intercalate "," (map show vars) ++ "]") arrVars
 			) relations
 
@@ -459,7 +465,7 @@ holds model env formula = let (domain,relations) = model in case formula of
 	Atomic predicate vars -> (map (\v -> case lookup v env of
 		Just v' -> v'
 		Nothing -> error ("Could not look up variable \"" ++ variableName v ++ "\" in environment " ++ show env ++ " for formula " ++ showFormula formula)
-		) vars) `elem` (fromMaybe [] (lookup predicate relations))
+		) vars) `elem` (fromMaybe [] (lookup2 predicate (length vars) relations))
 	Or a b -> holds model env a || holds model env b
 	And a b -> holds model env a && holds model env b
 	Not f -> not $ holds model env f
@@ -473,10 +479,20 @@ expandDomain :: Model -> Model
 expandDomain (domain,relations) = (domain',relations)
 	where domain' = mkDomain (1 + (fromIntegral $ length domain))
 
+expandRelations :: Model -> Formula -> Model
+expandRelations (domain,relations) formula = let model = (domain,relations) in
+	case formula of
+		And a b -> expandRelations (expandRelations model a) b
+		Or a b -> expandRelations (expandRelations model a) b
+		Implication a b -> expandRelations (expandRelations model a) b
+		Atomic p v -> (domain,relations')
+		_ -> model
+	where relations' = relations -- TODO: implement
+
 satisfyModel :: Model -> Formula -> Model
 satisfyModel model formula =
 	if holds model [] formula then model
-	else satisfyModel (expandDomain model) formula
+	else satisfyModel (expandRelations (expandDomain model) formula) formula
 
 chase :: [Formula] -> Model
 chase formulas = runChase ([],[]) formulas
