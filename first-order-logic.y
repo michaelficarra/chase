@@ -488,8 +488,9 @@ expandRelations (domain,relations) formula = let model = (domain,relations) in c
 	UniversalQuantifier v f -> expandRelations model f
 	ExistentialQuantifier v f -> expandRelations model f
 	Atomic p v -> let l = length v in
-		-- (domain, foldl (\rs v' -> mergeRelation (p,l,v') rs) relations (permutations (take l domain)))
-		(domain, mergeRelation (p,l,[take l domain]) relations)
+		let perms = nub $ map (take l) (permutations $ concat $ map (\d -> take l $ cycle [d]) domain) in
+		-- (domain, foldl (\rs v' -> mergeRelation (p,l,[v']) rs) relations perms)
+		(domain, mergeRelation (p,l,perms) relations)
 	_ -> model
 
 satisfyModel :: Model -> Formula -> Model
@@ -503,15 +504,16 @@ chase formulae = runChase ([],[]) formulae
 runChase :: Model -> [Formula] -> Model
 runChase model formulae = if all (\formula -> case formula of
 	Implication a b ->
-		let f = (Implication a b) in
+		let f = Implication a b in
 		let f' = UniversalQuantifier (freeVariables f) f in
 		if (isPEF a) && (isPEF b) then
 			holds model [] f'
 		else
 			error "All formulas given to the `chase` function must be in positive existential form"
 	_ ->
-		if (isPEF formula) then holds model [] (UniversalQuantifier (freeVariables formula) formula)
-		else error "All formulas given to the `chase` function must be an implication of positive existential formulas"
+		-- if (isPEF formula) then
+			holds model [] (UniversalQuantifier (freeVariables formula) formula)
+		-- else error "All formulas given to the `chase` function must be an implication of positive existential formulas"
 	) formulae then model
 	else runChase (foldl satisfyModel model formulae) formulae
 
@@ -535,15 +537,18 @@ main = do
 	-- chase function tests
 	putStrLn "--- chase ---"
 	putStrLn.prettyPrintArray $ map showFormula theory
-	putStrLn.show $ holds ([0,1],[("R",2,[[1,0]]),("Q",2,[[1,0]])]) [] (head.generate $ scanTokens "ForAll x,w: R[x,w] -> (Exists y: Q[x,y])")
-	-- putStrLn.showModel $ chase theory
+	let modelB = mkModel [1..3] [("R",2,[[1,2]]),("Q",2,[[1,3]])]
+	putStrLn.show $ holds modelB [] (head.generate $ scanTokens "Tautology -> Exists y,y': R[y,y']")
+	putStrLn.show $ holds modelB [] (head.generate $ scanTokens "ForAll x,w: R[x,w] -> Exists y: Q[x,y]")
+	putStrLn.show $ holds modelB [] (head.generate $ scanTokens "ForAll u,v: Q[u,v] -> Exists z: R[u,z]")
+	putStrLn.showModel $ chase theory
 
 	where
 		prettyPrintArray arr = "[ " ++ (intercalate "\n, " arr) ++ "\n]"
 		theory = map (head.generate.scanTokens) [
 			"Tautology -> Exists y,y': R[y,y']",
-			"R[x,w] -> Exists y: Q[x,y]",
-			"Q[u,v] -> Exists z: R[v,z]"
+			"ForAll x,w: R[x,w] -> Exists y: Q[x,y]",
+			"ForAll u,v: Q[u,v] -> Exists z: R[u,z]"
 			]
 
 parseError :: [Token] -> a
