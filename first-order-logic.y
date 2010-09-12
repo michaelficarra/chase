@@ -41,14 +41,14 @@ formulaList
 
 formula
 	: expr                                  { $1 }
-	| expr "->" expr                        { Implication $1 $3 }
+	| FOR_ALL argList quantifierBody        { UniversalQuantifier $2 $3 }
+	| THERE_EXISTS argList quantifierBody   { ExistentialQuantifier $2 $3 }
 
-quantifierBody: optCOLON expr               { $2 }
+quantifierBody: optCOLON formula            { $2 }
 
 expr
 	: exprOR                                { $1 }
-	| FOR_ALL argList quantifierBody        { UniversalQuantifier $2 $3 }
-	| THERE_EXISTS argList quantifierBody   { ExistentialQuantifier $2 $3 }
+	| exprOR "->" formula                   { Implication $1 $3 }
 
 exprOR
 	: exprAND                               { $1 }
@@ -121,8 +121,9 @@ type Relation = (String, Int, [[DomainElement]])
 type Model = (Domain,[Relation])
 type Environment = [(Variable,DomainElement)]
 
-mkDomain :: Integer -> [DomainElement]
+mkDomain :: Integral i => i -> Domain
 mkDomain size = [1..(fromIntegral size)]
+mkRelation :: Integral a => String -> a -> [[DomainElement]] -> Relation
 mkRelation name arity truthTable = (name,(fromIntegral arity),truthTable)
 mkModel domain relations = (domain,relations)
 
@@ -216,7 +217,7 @@ mergeRelation relation (r:rs)
 parseModel :: String -> Model
 -- returns a model when given a string representation of a model
 parseModel str =
-	mkModel (mkDomain $ fromIntegral domainSize) (parseRelations relations)
+	mkModel (mkDomain domainSize) (parseRelations relations)
 	where
 		fileLines = lines $ str
 		domainSize = read.head $ fileLines :: DomainElement
@@ -236,10 +237,10 @@ lookup2 a b abc = lookup (a,b) (map (\(a,b,c) -> ((a,b),c)) abc)
 
 hashSet :: Eq a => [(a,b)] -> a -> b -> [(a,b)]
 -- like setting the value of an element of a hash
-hashSet [] v v' = [(v,v')]
-hashSet (k:ks) v v'
-	| fst k == v = (v,v') : ks
-	| otherwise = k : hashSet ks v v'
+hashSet [] k v = [(k,v)]
+hashSet (x:xs) k v
+	| fst x == k = (k,v) : xs
+	| otherwise = x : hashSet xs k v
 
 
 -- SIMPLIFICATION / REWRITING --
@@ -444,12 +445,12 @@ showModel (domain,relations) = "( domain: 1.." ++ (show.length $ domain) ++ ", r
 showFormula :: Formula -> String
 -- builds a human-readable string representation of a formula
 showFormula formula = case formula of
-	And a b -> (showFormula a) ++ " ∧ " ++ (showFormula b)
+	And a b -> "(" ++ (showFormula a) ++ " ∧ " ++ (showFormula b) ++ ")"
 	Or a b -> "(" ++ (showFormula a) ++ " ∨ " ++ (showFormula b) ++ ")"
 	Not f -> "¬" ++ (showFormula f)
-	Implication a b -> (showFormula a) ++ " → " ++ (showFormula b)
-	UniversalQuantifier v f -> "∀ " ++ (intercalate "," (map variableName v)) ++ ": " ++ (showFormula f)
-	ExistentialQuantifier v f -> "∃ " ++ (intercalate "," (map variableName v)) ++ ": " ++ (showFormula f)
+	Implication a b -> "(" ++ (showFormula a) ++ ")" ++ " → " ++ "(" ++ (showFormula b) ++ ")"
+	UniversalQuantifier v f -> "∀ " ++ (intercalate "," (map variableName v)) ++ ": (" ++ (showFormula f) ++ ")"
+	ExistentialQuantifier v f -> "∃ " ++ (intercalate "," (map variableName v)) ++ ": (" ++ (showFormula f) ++ ")"
 	Atomic p v -> p ++ "[" ++ (intercalate "," (map variableName v)) ++ "]"
 	Tautology -> "⟙"
 	Contradiction -> "⟘"
@@ -477,17 +478,19 @@ holds model env formula = let (domain,relations) = model in case formula of
 
 expandDomain :: Model -> Model
 expandDomain (domain,relations) = (domain',relations)
-	where domain' = mkDomain (1 + (fromIntegral $ length domain))
+	where domain' = mkDomain (1 + (length domain))
 
 expandRelations :: Model -> Formula -> Model
-expandRelations (domain,relations) formula = let model = (domain,relations) in
-	case formula of
-		And a b -> expandRelations (expandRelations model a) b
-		Or a b -> expandRelations (expandRelations model a) b
-		Implication a b -> expandRelations (expandRelations model a) b
-		Atomic p v -> (domain,relations')
-		_ -> model
-	where relations' = relations -- TODO: implement
+expandRelations (domain,relations) formula = let model = (domain,relations) in case formula of
+	And a b -> expandRelations (expandRelations model a) b
+	Or a b -> expandRelations (expandRelations model a) b
+	Implication a b -> expandRelations (expandRelations model a) b
+	UniversalQuantifier v f -> expandRelations model f
+	ExistentialQuantifier v f -> expandRelations model f
+	Atomic p v -> let l = length v in
+		-- (domain, foldl (\rs v' -> mergeRelation (p,l,v') rs) relations (permutations (take l domain)))
+		(domain, mergeRelation (p,l,[take l domain]) relations)
+	_ -> model
 
 satisfyModel :: Model -> Formula -> Model
 satisfyModel model formula =
@@ -495,20 +498,22 @@ satisfyModel model formula =
 	else satisfyModel (expandRelations (expandDomain model) formula) formula
 
 chase :: [Formula] -> Model
-chase formulas = runChase ([],[]) formulas
+chase formulae = runChase ([],[]) formulae
 
 runChase :: Model -> [Formula] -> Model
-runChase model formulas = if all (\formula -> case formula of
-		Implication a b ->
-			let f = (Implication a b) in
-			let f' = UniversalQuantifier (freeVariables f) f in
-			if (isPEF a) && (isPEF b) then holds model [] f'
-			else error "All formulas given to the `chase` function must be in positive existential form"
-		_ ->
-			if (isPEF formula) then True -- holds model [] (UniversalQuantifier (freeVariables formula) formula)
-			else error "All formulas given to the `chase` function must be an implication of positive existential formulas"
-	) formulas then model
-	else runChase (foldl satisfyModel model formulas) formulas
+runChase model formulae = if all (\formula -> case formula of
+	Implication a b ->
+		let f = (Implication a b) in
+		let f' = UniversalQuantifier (freeVariables f) f in
+		if (isPEF a) && (isPEF b) then
+			holds model [] f'
+		else
+			error "All formulas given to the `chase` function must be in positive existential form"
+	_ ->
+		if (isPEF formula) then holds model [] (UniversalQuantifier (freeVariables formula) formula)
+		else error "All formulas given to the `chase` function must be an implication of positive existential formulas"
+	) formulae then model
+	else runChase (foldl satisfyModel model formulae) formulae
 
 main = do
 	formulae <- getContents
@@ -520,16 +525,18 @@ main = do
 	putStrLn $ "model A: " ++ showModel modelA
 
 	-- random tests / sanity checks
-	putStrLn.showFormula $ simplify (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Contradiction)))))
+	-- putStrLn.showFormula $ simplify (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Contradiction)))))
 	-- putStrLn.show $ holds modelA [(Variable "x",0)] (ExistentialQuantifier [Variable "y"] (Atomic "R" [Variable "x", Variable "y"]))
 	-- putStrLn.showFormula $ pef (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
 	-- putStrLn.showFormula.simplify $ nnf (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
 	-- putStrLn.show $ all (\formula -> holds (mkModel [0,1,2] [("R",[[0,1]]),("Q",[[1,2]])]) [] formula) theory
+	putStrLn.show $ map variableName (freeVariables.head.generate $ scanTokens "R[x,w] -> Exists y: Q[x,y]")
 
 	-- chase function tests
 	putStrLn "--- chase ---"
 	putStrLn.prettyPrintArray $ map showFormula theory
-	putStrLn.showModel $ chase theory
+	putStrLn.show $ holds ([0,1],[("R",2,[[1,0]]),("Q",2,[[1,0]])]) [] (head.generate $ scanTokens "ForAll x,w: R[x,w] -> (Exists y: Q[x,y])")
+	-- putStrLn.showModel $ chase theory
 
 	where
 		prettyPrintArray arr = "[ " ++ (intercalate "\n, " arr) ++ "\n]"
