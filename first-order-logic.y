@@ -49,6 +49,7 @@ quantifierBody: optCOLON formula            { $2 }
 expr
 	: exprOR                                { $1 }
 	| exprOR "->" formula                   { Implication $1 $3 }
+	| "->" formula                          { Implication Tautology $2 }
 
 exprOR
 	: exprAND                               { $1 }
@@ -506,14 +507,11 @@ runChase model formulae = if all (\formula -> case formula of
 	Implication a b ->
 		let f = Implication a b in
 		let f' = UniversalQuantifier (freeVariables f) f in
-		if (isPEF a) && (isPEF b) then
-			holds model [] f'
-		else
-			error "All formulas given to the `chase` function must be in positive existential form"
+		if (isPEF a) && (isPEF b) then holds model [] f'
+		else error "All formulas given to the `chase` function must be in positive existential form"
 	_ ->
-		-- if (isPEF formula) then
-			holds model [] (UniversalQuantifier (freeVariables formula) formula)
-		-- else error "All formulas given to the `chase` function must be an implication of positive existential formulas"
+		if (isPEF formula) then holds model [] (UniversalQuantifier (freeVariables formula) formula)
+		else error "All formulas given to the `chase` function must be an implication of positive existential formulas"
 	) formulae then model
 	else runChase (foldl satisfyModel model formulae) formulae
 
@@ -538,17 +536,17 @@ main = do
 	putStrLn "--- chase ---"
 	putStrLn.prettyPrintArray $ map showFormula theory
 	let modelB = mkModel [1..3] [("R",2,[[1,2]]),("Q",2,[[1,3]])]
-	putStrLn.show $ holds modelB [] (head.generate $ scanTokens "Tautology -> Exists y,y': R[y,y']")
+	putStrLn.show $ holds modelB [] (head.generate $ scanTokens "-> Exists y,y': R[y,y']")
 	putStrLn.show $ holds modelB [] (head.generate $ scanTokens "ForAll x,w: R[x,w] -> Exists y: Q[x,y]")
 	putStrLn.show $ holds modelB [] (head.generate $ scanTokens "ForAll u,v: Q[u,v] -> Exists z: R[u,z]")
 	putStrLn.showModel $ chase theory
 
 	where
 		prettyPrintArray arr = "[ " ++ (intercalate "\n, " arr) ++ "\n]"
-		theory = map (head.generate.scanTokens) [
-			"Tautology -> Exists y,y': R[y,y']",
-			"ForAll x,w: R[x,w] -> Exists y: Q[x,y]",
-			"ForAll u,v: Q[u,v] -> Exists z: R[u,z]"
+		theory = map (simplify.head.generate.scanTokens) [
+			"-> Exists y,y': R[y,y']",
+			"R[x,w] -> Exists y: Q[x,y]",
+			"Q[u,v] -> Exists z: R[u,z]"
 			]
 
 parseError :: [Token] -> a
