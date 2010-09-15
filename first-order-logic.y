@@ -486,6 +486,65 @@ holds' model env formula = let (domain,relations) = model in let self = holds' m
 
 
 
+chase formulae = chase' (mkModel (mkDomain 0) []) formulae
+
+chase' model formulae =
+	if all (\f -> holds model [] (UniversalQuantifier (freeVariables f) f)) formulae then model
+	else chase' (attemptToSatisfyAll model formulae) formulae
+
+attemptToSatisfyAll model formulae =
+	foldl attemptToSatisfy model formulae
+
+attemptToSatisfy model formula =
+	let f' = UniversalQuantifier (freeVariables formula) formula in
+	if holds model f' then model
+	else case formula of
+		Implication a b ->
+			if not$isPEF a || not$isPEF b then error "formula must be in positive existential form"
+			if holds model (UniversalQuantifier (freeVariables a) a) then alterModelSoFormulaHolds model b
+		_ ->
+			if not$isPEF formula then error "formula must be in positive existential form"
+			alterModelSoFormulaHolds model formula
+
+alterModelSoFormulaHolds model formula = alterModelSoFormulaHolds' model [] [] formula
+
+alterModelSoFormulaHolds' model env bound formula =
+	let (domain,relations) = model in
+	let self = alterModelSoFormulaHolds' in
+	case formula of
+		Tautology = model
+		Contradiction = error "formula unsatisfiable for given model"
+		-- Or a b = self model env bound a
+		And a b = self (self model env bound b) env bound a
+		Atomic p v =
+			let newRelation = genNewRelation (length domain) (intersect bound v) env p v in
+			mkModel (mkDomain (length domain + length bound)) (mergeRelation newRelation relations)
+		ExistentialQuantifier [] f = self model env bound f
+		ExistentialQuantifier (v:vs) f =
+			let f' = ExistentialQuantifier vs f in
+			if any (\v' -> holds' model (hashSet env v v') f') domain then model
+			else self model env (union bound [v]) f'
+		{-
+		UniversalQuantifier [] f = self model env bound f
+		UniversalQuantifier (v:vs) f =
+			lef f' = UniversalQuantifier vs f in
+			foldl (\m' v' ->
+				if holds' m' env f' then m'
+				else self m' (hashSet env v v') (union bound [v]) f'
+			) model domain
+		-}
+		_ -> error "formula not in positive existential form"
+
+genNewRelation oldDomainLength boundVariables env predicate vars =
+	let arity = length vars in
+	let truthTable = [map (\v -> case lookup v env of
+		Just v' -> v'
+		_ -> {-  incrementing number, starting at oldDomainLength  -}
+	) vars] in
+	mkRelation predicate arity truthTable
+
+
+
 main = do
 	formulae <- getContents
 	let parseTrees = generate (scanTokens formulae)
