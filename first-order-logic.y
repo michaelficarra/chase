@@ -501,10 +501,12 @@ attemptToSatisfy model formula =
 	else case formula of
 		Implication a b ->
 			if not$isPEF a || not$isPEF b then error "formula must be in positive existential form"
-			if holds model (UniversalQuantifier (freeVariables a) a) then alterModelSoFormulaHolds model b
+			else
+				if holds model (UniversalQuantifier (freeVariables a) a) then model
+				else alterModelSoFormulaHolds model b
 		_ ->
 			if not$isPEF formula then error "formula must be in positive existential form"
-			alterModelSoFormulaHolds model formula
+			else alterModelSoFormulaHolds model formula
 
 alterModelSoFormulaHolds model formula = alterModelSoFormulaHolds' model [] [] formula
 
@@ -512,21 +514,21 @@ alterModelSoFormulaHolds' model env bound formula =
 	let (domain,relations) = model in
 	let self = alterModelSoFormulaHolds' in
 	case formula of
-		Tautology = model
-		Contradiction = error "formula unsatisfiable for given model"
-		-- Or a b = self model env bound a
-		And a b = self (self model env bound b) env bound a
-		Atomic p v =
+		Tautology -> model
+		Contradiction -> error "formula unsatisfiable for given model"
+		-- Or a b -> self model env bound a
+		And a b -> self (self model env bound b) env bound a
+		Atomic p v ->
 			let newRelation = genNewRelation (length domain) (intersect bound v) env p v in
 			mkModel (mkDomain (length domain + length bound)) (mergeRelation newRelation relations)
-		ExistentialQuantifier [] f = self model env bound f
-		ExistentialQuantifier (v:vs) f =
+		ExistentialQuantifier [] f -> self model env bound f
+		ExistentialQuantifier (v:vs) f ->
 			let f' = ExistentialQuantifier vs f in
 			if any (\v' -> holds' model (hashSet env v v') f') domain then model
 			else self model env (union bound [v]) f'
 		{-
-		UniversalQuantifier [] f = self model env bound f
-		UniversalQuantifier (v:vs) f =
+		UniversalQuantifier [] f -> self model env bound f
+		UniversalQuantifier (v:vs) f ->
 			lef f' = UniversalQuantifier vs f in
 			foldl (\m' v' ->
 				if holds' m' env f' then m'
@@ -537,11 +539,19 @@ alterModelSoFormulaHolds' model env bound formula =
 
 genNewRelation oldDomainLength boundVariables env predicate vars =
 	let arity = length vars in
-	let truthTable = [map (\v -> case lookup v env of
-		Just v' -> v'
-		_ -> {-  incrementing number, starting at oldDomainLength  -}
-	) vars] in
+	let truthTable = [listDifferenceWithSubstitutions env vars (oldDomainLength + 1)] in
 	mkRelation predicate arity truthTable
+
+listDifferenceWithSubstitutions :: Integral a => [a] -> [a] -> a -> [a]
+listDifferenceWithSubstitutions [] (b:bs) sub =
+	let self = listDifferenceWithSubstitutions [] in
+	self sub:bs (sub+1)
+listDifferenceWithSubstitutions listA [] sub = []
+listDifferenceWithSubstitutions listA (b:bs) sub =
+	let self = listDifferenceWithSubstitutions listA in
+	case lookup b listA of
+		Just a -> self (a:bs) sub
+		_ -> self (sub:bs) sub+1
 
 
 
