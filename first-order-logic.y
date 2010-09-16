@@ -4,6 +4,8 @@ import Lexer
 import Word
 import Data.List
 import Data.Maybe
+import Debug.Trace
+debug = flip trace
 }
 
 %name generate
@@ -465,7 +467,7 @@ showFormula formula = case formula of
 -- MAIN --
 
 holds :: Model -> Formula -> Bool
-holds model formula = holds' model [] formula
+holds model formula = (holds' model [] formula) `debug` ("Checking if " ++ (show formula) ++ " holds")
 
 holds' :: Model -> Environment -> Formula -> Bool
 holds' model env formula = let (domain,relations) = model in let self = holds' model in case formula of
@@ -496,6 +498,7 @@ attemptToSatisfyAll model formulae =
 	foldl attemptToSatisfy model formulae
 
 attemptToSatisfy model formula =
+	let (domain,relations) = model in
 	let f' = UniversalQuantifier (freeVariables formula) formula in
 	let isNotPEF = not.isPEF in
 	if holds model f' then model
@@ -504,7 +507,7 @@ attemptToSatisfy model formula =
 			if isNotPEF a || isNotPEF b then error "formula must be in positive existential form"
 			else
 				if holds model (UniversalQuantifier (freeVariables a) a) then model
-				else alterModelSoFormulaHolds model b
+				else alterModelSoFormulaHolds model (UniversalQuantifier (freeVariables b) b)
 		_ ->
 			if isNotPEF formula then error "formula must be in positive existential form"
 			else alterModelSoFormulaHolds model formula
@@ -527,15 +530,13 @@ alterModelSoFormulaHolds' model env bound formula =
 			let f' = ExistentialQuantifier vs f in
 			if any (\v' -> holds' model (hashSet env v v') f') domain then model
 			else self model env (union bound [v]) f'
-		{-
 		UniversalQuantifier [] f -> self model env bound f
 		UniversalQuantifier (v:vs) f ->
-			lef f' = UniversalQuantifier vs f in
+			let f' = UniversalQuantifier vs f in
 			foldl (\m' v' ->
-				if holds' m' env f' then m'
+				if holds' m' (hashSet env v v') f' then m'
 				else self m' (hashSet env v v') (union bound [v]) f'
 			) model domain
-		-}
 		_ -> error "formula not in positive existential form"
 
 genNewRelation :: Word -> [Variable] -> [(Variable,DomainElement)] -> String -> [Variable] -> Relation
