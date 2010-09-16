@@ -157,7 +157,7 @@ freeVariables formula = case formula of
 
 boundVariables :: Formula -> [Variable]
 -- return an array of all bound variables in given formula
-boundVariables formula = variables \\ freeVariables
+boundVariables formula = variables formula \\ freeVariables formula
 
 variableName :: Variable -> String
 -- returns the internal string value of a given variable
@@ -489,7 +489,7 @@ holds' model env formula = let (domain,relations) = model in let self = holds' m
 chase formulae = chase' (mkModel (mkDomain 0) []) formulae
 
 chase' model formulae =
-	if all (\f -> holds model [] (UniversalQuantifier (freeVariables f) f)) formulae then model
+	if all (\f -> holds model (UniversalQuantifier (freeVariables f) f)) formulae then model
 	else chase' (attemptToSatisfyAll model formulae) formulae
 
 attemptToSatisfyAll model formulae =
@@ -497,15 +497,16 @@ attemptToSatisfyAll model formulae =
 
 attemptToSatisfy model formula =
 	let f' = UniversalQuantifier (freeVariables formula) formula in
+	let isNotPEF = not.isPEF in
 	if holds model f' then model
 	else case formula of
 		Implication a b ->
-			if not$isPEF a || not$isPEF b then error "formula must be in positive existential form"
+			if isNotPEF a || isNotPEF b then error "formula must be in positive existential form"
 			else
 				if holds model (UniversalQuantifier (freeVariables a) a) then model
 				else alterModelSoFormulaHolds model b
 		_ ->
-			if not$isPEF formula then error "formula must be in positive existential form"
+			if isNotPEF formula then error "formula must be in positive existential form"
 			else alterModelSoFormulaHolds model formula
 
 alterModelSoFormulaHolds model formula = alterModelSoFormulaHolds' model [] [] formula
@@ -519,7 +520,7 @@ alterModelSoFormulaHolds' model env bound formula =
 		-- Or a b -> self model env bound a
 		And a b -> self (self model env bound b) env bound a
 		Atomic p v ->
-			let newRelation = genNewRelation (length domain) (intersect bound v) env p v in
+			let newRelation = genNewRelation (fromIntegral $ length domain) (intersect bound v) env p v in
 			mkModel (mkDomain (length domain + length bound)) (mergeRelation newRelation relations)
 		ExistentialQuantifier [] f -> self model env bound f
 		ExistentialQuantifier (v:vs) f ->
@@ -537,21 +538,22 @@ alterModelSoFormulaHolds' model env bound formula =
 		-}
 		_ -> error "formula not in positive existential form"
 
+genNewRelation :: Word -> [Variable] -> [(Variable,DomainElement)] -> String -> [Variable] -> Relation
 genNewRelation oldDomainLength boundVariables env predicate vars =
 	let arity = length vars in
 	let truthTable = [listDifferenceWithSubstitutions env vars (oldDomainLength + 1)] in
 	mkRelation predicate arity truthTable
 
-listDifferenceWithSubstitutions :: Integral a => [a] -> [a] -> a -> [a]
+listDifferenceWithSubstitutions :: [(Variable,Word)] -> [Variable] -> Word -> [Word]
 listDifferenceWithSubstitutions [] (b:bs) sub =
 	let self = listDifferenceWithSubstitutions [] in
-	self sub:bs (sub+1)
+	sub : self bs (sub+1)
 listDifferenceWithSubstitutions listA [] sub = []
 listDifferenceWithSubstitutions listA (b:bs) sub =
 	let self = listDifferenceWithSubstitutions listA in
 	case lookup b listA of
-		Just a -> self (a:bs) sub
-		_ -> self (sub:bs) sub+1
+		Just a -> a : self bs sub
+		_ -> sub : self bs (sub+1)
 
 
 
