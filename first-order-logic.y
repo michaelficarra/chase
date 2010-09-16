@@ -452,22 +452,22 @@ showModel (domain,relations) = "( domain: 1.." ++ (show.length $ domain) ++ ", r
 showFormula :: Formula -> String
 -- builds a human-readable string representation of a formula
 showFormula formula = case formula of
-	And a b -> "(" ++ (showFormula a) ++ " ∧ " ++ (showFormula b) ++ ")"
-	Or a b -> "(" ++ (showFormula a) ++ " ∨ " ++ (showFormula b) ++ ")"
-	Not f -> "¬" ++ (showFormula f)
-	Implication a b -> "(" ++ (showFormula a) ++ ")" ++ " → " ++ "(" ++ (showFormula b) ++ ")"
-	UniversalQuantifier v f -> "∀ " ++ (intercalate "," (map variableName v)) ++ ": (" ++ (showFormula f) ++ ")"
-	ExistentialQuantifier v f -> "∃ " ++ (intercalate "," (map variableName v)) ++ ": (" ++ (showFormula f) ++ ")"
+	And a b -> "(" ++ (showFormula a) ++ " & " ++ (showFormula b) ++ ")"
+	Or a b -> "(" ++ (showFormula a) ++ " | " ++ (showFormula b) ++ ")"
+	Not f -> "!" ++ (showFormula f)
+	Implication a b -> "(" ++ (showFormula a) ++ ")" ++ " -> " ++ "(" ++ (showFormula b) ++ ")"
+	UniversalQuantifier v f -> "ForAll " ++ (intercalate "," (map variableName v)) ++ ": (" ++ (showFormula f) ++ ")"
+	ExistentialQuantifier v f -> "Exists " ++ (intercalate "," (map variableName v)) ++ ": (" ++ (showFormula f) ++ ")"
 	Atomic p v -> p ++ "[" ++ (intercalate "," (map variableName v)) ++ "]"
-	Tautology -> "⟙"
-	Contradiction -> "⟘"
+	Tautology -> "True"
+	Contradiction -> "False"
 	_ -> "[?]"
 
 
 -- MAIN --
 
 holds :: Model -> Formula -> Bool
-holds model formula = (holds' model [] formula) `debug` ("Checking if " ++ (show formula) ++ " holds")
+holds model formula = (holds' model [] formula) -- `debug` ("Checking if " ++ (show.showFormula $ uselessQuantifiers formula) ++ " holds")
 
 holds' :: Model -> Environment -> Formula -> Bool
 holds' model env formula = let (domain,relations) = model in let self = holds' model in case formula of
@@ -507,7 +507,8 @@ attemptToSatisfy model formula =
 			if isNotPEF a || isNotPEF b then error "formula must be in positive existential form"
 			else
 				if holds model (UniversalQuantifier (freeVariables a) a) then model
-				else alterModelSoFormulaHolds model (UniversalQuantifier (freeVariables b) b)
+				-- else alterModelSoFormulaHolds model (UniversalQuantifier (freeVariables b) b)
+				else alterModelSoFormulaHolds' model (zip (freeVariables b) domain) [] b
 		_ ->
 			if isNotPEF formula then error "formula must be in positive existential form"
 			else alterModelSoFormulaHolds model formula
@@ -530,13 +531,16 @@ alterModelSoFormulaHolds' model env bound formula =
 			let f' = ExistentialQuantifier vs f in
 			if any (\v' -> holds' model (hashSet env v v') f') domain then model
 			else self model env (union bound [v]) f'
+{-
 		UniversalQuantifier [] f -> self model env bound f
 		UniversalQuantifier (v:vs) f ->
 			let f' = UniversalQuantifier vs f in
-			foldl (\m' v' ->
+			if all (\v' -> holds' model (hashSet env v v') f') domain then model
+			else foldl (\m' v' ->
 				if holds' m' (hashSet env v v') f' then m'
 				else self m' (hashSet env v v') (union bound [v]) f'
 			) model domain
+-}
 		_ -> error "formula not in positive existential form"
 
 genNewRelation :: Word -> [Variable] -> [(Variable,DomainElement)] -> String -> [Variable] -> Relation
@@ -588,8 +592,8 @@ main = do
 		prettyPrintArray arr = "[ " ++ (intercalate "\n, " arr) ++ "\n]"
 		theory = map (simplify.head.generate.scanTokens) [
 			"-> Exists y,y': R[y,y']",
-			"R[x,w] -> Exists y: Q[x,y]"
-			-- "Q[u,v] -> Exists z: R[u,z]"
+			"R[x,w] -> Exists y: Q[x,y]",
+			"Q[u,v] -> Exists z: R[u,z]"
 			]
 
 parseError :: [Token] -> a
