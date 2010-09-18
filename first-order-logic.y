@@ -111,6 +111,7 @@ mkOr a b = Or a b
 mkAnd a b = And a b
 mkNot f = Not f
 mkImplication a b = Implication a b
+decomposeImplication (Implication a b) = (a,b)
 mkUniversalQuantifier v f = UniversalQuantifier v f
 mkExistentialQuantifier v f = ExistentialQuantifier v f
 mkTautology = Tautology
@@ -501,7 +502,7 @@ chaseVerify formulae =
 	) formulae
 
 chase :: [Formula] -> [Model]
-chase formulae = chase' (chaseVerify formulae) [(mkModel [] [])]
+chase formulae = chase' (chaseVerify formulae) ([],[(mkModel [] [])])
 
 chase' :: [Formula] -> ([Model],[Model]) -> [Model]
 chase' formulae (done,pending) =
@@ -509,19 +510,19 @@ chase' formulae (done,pending) =
 	let (p:ending) = pending in
 	if pending == [] then []
 	else
-		map (\f ->
+		concatMap (\f ->
 			if holds p (UniversalQuantifier (freeVariables f) f)
 			then self (union done [p],ending)
-			else self (done,union ending (nub.concat $ attemptToSatisfy p f))
+			else self (done,union ending (nub $ attemptToSatisfy p (snd $ decomposeImplication f)))
 		) formulae
 
 attemptToSatisfy :: Model -> Formula -> [Model]
 attemptToSatisfy model formula =
 	let f' = UniversalQuantifier (freeVariables formula) formula in
-	attemptToSatisfy' model f' []
+	attemptToSatisfy' model [] f'
 
-attemptToSatisfy' :: Model -> Formula -> Environment -> [Model]
-attemptToSatisfy' model formula env =
+attemptToSatisfy' :: Model -> Environment -> Formula -> [Model]
+attemptToSatisfy' model env formula =
 	let (domain,relations) = model in
 	let domainSize = length domain in
 	let self = attemptToSatisfy' model in
@@ -532,7 +533,7 @@ attemptToSatisfy' model formula env =
 		And a b -> intersect (self env a) (self env b)
 		Atomic predicate vars ->
 			let newRelation = genNewRelation predicate vars env (length domain) in
-			mkModel (mkDomain domainSize) (mergeRelation newRelation relations)
+			[mkModel (mkDomain domainSize) (mergeRelation newRelation relations)]
 {- -- Pretending these don't exist for now
 		ExistentialQuantifier [] f -> self model env bound f
 		ExistentialQuantifier (v:vs) f ->
@@ -540,21 +541,21 @@ attemptToSatisfy' model formula env =
 			if any (\v' -> holds' model (hashSet env v v') f') domain then model
 			else self model env (union bound [v]) f'
 -}
-		UniversalQuantifier [] f -> self model env f
+		UniversalQuantifier [] f -> self env f
 		UniversalQuantifier (v:vs) f ->
 			let f' = UniversalQuantifier vs f in
-			concat $ map (\v' -> self f (hashSet env v v') f') domain
-		_ -> error "formula not in positive existential form"
+			concatMap (\v' -> self (hashSet env v v') f') domain
+		_ -> error ("formula not in positive existential form: " ++ showFormula formula)
 
-genNewRelation :: Integral a => String -> [Variable] -> Environment -> a -> Relation
+genNewRelation :: String -> [Variable] -> Environment -> Int -> Relation
 genNewRelation predicate vars env domainSize =
-	mkRelation predicate (length vars) (genNewRelationArgs env vars) domainSize
+	mkRelation predicate (length vars) [(genNewRelationArgs env vars (fromIntegral domainSize))]
 
-genNewRelationArgs :: Integral a => Environment -> [Variable] -> a -> [a]
+genNewRelationArgs :: Environment -> [Variable] -> Word -> [Word]
 genNewRelationArgs env (v:ars) domainSize =
 	let self = genNewRelationArgs env in
 	case lookup v env of
-		Just v' -> v' : (self ars env domainSize)
+		Just v' -> v' : (self ars domainSize)
 		Nothing -> (domainSize + 1) : (self ars domainSize)
 
 
@@ -583,7 +584,7 @@ main = do
 	-- putStrLn.show $ holds modelB (head.generate $ scanTokens "-> Exists y,y': R[y,y']")
 	-- putStrLn.show $ holds modelB (head.generate $ scanTokens "ForAll x,w: R[x,w] -> Exists y: Q[x,y]")
 	-- putStrLn.show $ holds modelB (head.generate $ scanTokens "ForAll u,v: Q[u,v] -> Exists z: R[u,z]")
-	putStrLn.showModel $ chase theory
+	putStrLn.prettyPrintArray $ map showModel (chase theory)
 
 	where
 		prettyPrintArray arr = "[ " ++ (intercalate "\n, " arr) ++ "\n]"
