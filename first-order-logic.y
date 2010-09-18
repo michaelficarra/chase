@@ -475,9 +475,9 @@ holds' model env formula = let (domain,relations) = model in let self = holds' m
 	Tautology -> True
 	Atomic predicate vars -> (map (\v -> case lookup v env of
 		Just v' -> v'
-		Nothing -> error ("Could not look up variable \"" ++ variableName v ++ "\" in environment " ++ show env ++ " for formula " ++ showFormula formula)
+		Nothing -> error ("Could not look up variable \"" ++ variableName v ++ "\" in environment " ++ show env ++ " for atomic " ++ showFormula formula)
 		) vars) `elem` (fromMaybe [] (lookup2 predicate (length vars) relations))
-	Or a b -> self env a -- || self env b
+	Or a b -> self env a || self env b
 	And a b -> self env a && self env b
 	Not f -> not $ self env f
 	Implication a b -> self env b || not (self env a)
@@ -488,77 +488,74 @@ holds' model env formula = let (domain,relations) = model in let self = holds' m
 
 
 
-chase formulae = chase' (mkModel (mkDomain 0) []) formulae
-
-chase' model formulae =
-	if all (\f -> holds model (UniversalQuantifier (freeVariables f) f)) formulae then model
-	else chase' (attemptToSatisfyAll model formulae) formulae
-
-attemptToSatisfyAll model formulae =
-	foldl attemptToSatisfy model formulae
-
-attemptToSatisfy model formula =
-	let (domain,relations) = model in
-	let f' = UniversalQuantifier (freeVariables formula) formula in
+chaseVerify :: [Formula] -> [Formula]
+chaseVerify formulae =
 	let isNotPEF = not.isPEF in
-	if holds model f' then model
-	else case formula of
+	map (\f -> case f of
 		Implication a b ->
 			if isNotPEF a || isNotPEF b then error "formula must be in positive existential form"
-			else
-				if holds model (UniversalQuantifier (freeVariables a) a) then model
-				-- else alterModelSoFormulaHolds model (UniversalQuantifier (freeVariables b) b)
-				else alterModelSoFormulaHolds' model (zip (freeVariables b) domain) [] b
+			else f
 		_ ->
-			if isNotPEF formula then error "formula must be in positive existential form"
-			else alterModelSoFormulaHolds model formula
+			if isNotPEF f then error "formula must be in positive existential form"
+			else (Implication Tautology f)
+	) formulae
 
-alterModelSoFormulaHolds model formula = alterModelSoFormulaHolds' model [] [] formula
+chase :: [Formula] -> [Model]
+chase formulae = chase' (chaseVerify formulae) [(mkModel [] [])]
 
-alterModelSoFormulaHolds' model env bound formula =
+chase' :: [Formula] -> ([Model],[Model]) -> [Model]
+chase' formulae (done,pending) =
+	let self = chase' formulae in
+	let (p:ending) = pending in
+	if pending == [] then []
+	else
+		map (\f ->
+			if holds p (UniversalQuantifier (freeVariables f) f)
+			then self (union done [p],ending)
+			else self (done,union ending (nub.concat $ attemptToSatisfy p f))
+		) formulae
+
+attemptToSatisfy :: Model -> Formula -> [Model]
+attemptToSatisfy model formula =
+	let f' = UniversalQuantifier (freeVariables formula) formula in
+	attemptToSatisfy' model f' []
+
+attemptToSatisfy' :: Model -> Formula -> Environment -> [Model]
+attemptToSatisfy' model formula env =
 	let (domain,relations) = model in
-	let self = alterModelSoFormulaHolds' in
+	let domainSize = length domain in
+	let self = attemptToSatisfy' model in
 	case formula of
-		Tautology -> model
+		Tautology -> [model]
 		Contradiction -> error "formula unsatisfiable for given model"
-		-- Or a b -> self model env bound a
-		And a b -> self (self model env bound b) env bound a
-		Atomic p v ->
-			let newRelation = genNewRelation (fromIntegral $ length domain) (intersect bound v) env p v in
-			mkModel (mkDomain (length domain + length bound)) (mergeRelation newRelation relations)
+		Or a b -> union (self env a) (self env b)
+		And a b -> intersect (self env a) (self env b)
+		Atomic predicate vars ->
+			let newRelation = genNewRelation predicate vars env (length domain) in
+			mkModel (mkDomain domainSize) (mergeRelation newRelation relations)
+{- -- Pretending these don't exist for now
 		ExistentialQuantifier [] f -> self model env bound f
 		ExistentialQuantifier (v:vs) f ->
 			let f' = ExistentialQuantifier vs f in
 			if any (\v' -> holds' model (hashSet env v v') f') domain then model
 			else self model env (union bound [v]) f'
-{-
-		UniversalQuantifier [] f -> self model env bound f
+-}
+		UniversalQuantifier [] f -> self model env f
 		UniversalQuantifier (v:vs) f ->
 			let f' = UniversalQuantifier vs f in
-			if all (\v' -> holds' model (hashSet env v v') f') domain then model
-			else foldl (\m' v' ->
-				if holds' m' (hashSet env v v') f' then m'
-				else self m' (hashSet env v v') (union bound [v]) f'
-			) model domain
--}
+			concat $ map (\v' -> self f (hashSet env v v') f') domain
 		_ -> error "formula not in positive existential form"
 
-genNewRelation :: Word -> [Variable] -> [(Variable,DomainElement)] -> String -> [Variable] -> Relation
-genNewRelation oldDomainLength boundVariables env predicate vars =
-	let arity = length vars in
-	let truthTable = [listDifferenceWithSubstitutions env vars (oldDomainLength + 1)] in
-	mkRelation predicate arity truthTable
+genNewRelation :: Integral a => String -> [Variable] -> Environment -> a -> Relation
+genNewRelation predicate vars env domainSize =
+	mkRelation predicate (length vars) (genNewRelationArgs env vars) domainSize
 
-listDifferenceWithSubstitutions :: [(Variable,Word)] -> [Variable] -> Word -> [Word]
-listDifferenceWithSubstitutions [] (b:bs) sub =
-	let self = listDifferenceWithSubstitutions [] in
-	sub : self bs (sub+1)
-listDifferenceWithSubstitutions listA [] sub = []
-listDifferenceWithSubstitutions listA (b:bs) sub =
-	let self = listDifferenceWithSubstitutions listA in
-	case lookup b listA of
-		Just a -> a : self bs sub
-		_ -> sub : self bs (sub+1)
+genNewRelationArgs :: Integral a => Environment -> [Variable] -> a -> [a]
+genNewRelationArgs env (v:ars) domainSize =
+	let self = genNewRelationArgs env in
+	case lookup v env of
+		Just v' -> v' : (self ars env domainSize)
+		Nothing -> (domainSize + 1) : (self ars domainSize)
 
 
 
