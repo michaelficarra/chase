@@ -505,20 +505,34 @@ chase :: [Formula] -> [Model]
 chase formulae = chase' (chaseVerify formulae) ([],[(mkModel [] [])])
 
 chase' :: [Formula] -> ([Model],[Model]) -> [Model]
+chase' formulae (done,[]) = done
 chase' formulae (done,pending) =
 	let self = chase' formulae in
 	let (p:ending) = pending in
-	if pending == [] then []
+	trace ("running chase on " ++ show (done,pending)) $
+	if all (\f -> holds p (UniversalQuantifier (freeVariables f) f)) formulae then
+		trace ("  all formulae in theory hold for model " ++ showModel p) $
+		trace ("  moving model into done list") $
+		self (union done [p],ending)
 	else
-		concatMap (\f ->
-			if holds p (UniversalQuantifier (freeVariables f) f)
-			then self (union done [p],ending)
-			else self (done,union ending (nub $ attemptToSatisfy p (snd $ decomposeImplication f)))
-		) formulae
+		let possiblySatisfiedModels = attemptToSatisfyFirstFailure p formulae in
+		trace ("  at least one formula does not hold for model " ++ showModel p) $
+		trace ("  unioning " ++ show ending ++ " with " ++ intercalate ", " (map showModel possiblySatisfiedModels)) $
+		self (done, union ending possiblySatisfiedModels)
+
+attemptToSatisfyFirstFailure :: Model -> [Formula] -> [Model]
+attemptToSatisfyFirstFailure model (f:ormulae) =
+	let self = attemptToSatisfyFirstFailure model in
+	if holds model (UniversalQuantifier (freeVariables f) f) then
+		self ormulae
+	else
+		trace ("    found first failure: " ++ showFormula f) $
+		attemptToSatisfy model f
 
 attemptToSatisfy :: Model -> Formula -> [Model]
 attemptToSatisfy model formula =
 	let f' = UniversalQuantifier (freeVariables formula) formula in
+	trace ("  attempting to satisfy (" ++ showFormula formula ++ ")") $
 	attemptToSatisfy' model [] f'
 
 attemptToSatisfy' :: Model -> Environment -> Formula -> [Model]
@@ -526,21 +540,28 @@ attemptToSatisfy' model env formula =
 	let (domain,relations) = model in
 	let domainSize = length domain in
 	let self = attemptToSatisfy' model in
+	-- trace ("  attempting to satisfy (" ++ showFormula formula ++ ") with env " ++ show env) $
 	case formula of
 		Tautology -> [model]
-		Contradiction -> error "formula unsatisfiable for given model"
+		Contradiction -> []
 		Or a b -> union (self env a) (self env b)
 		And a b -> intersect (self env a) (self env b)
+		Implication a b -> if holds' model env a then self env b else []
 		Atomic predicate vars ->
 			let newRelation = genNewRelation predicate vars env (length domain) in
-			[mkModel (mkDomain domainSize) (mergeRelation newRelation relations)]
-{- -- Pretending these don't exist for now
-		ExistentialQuantifier [] f -> self model env bound f
+			let newModel = mkModel (mkDomain domainSize) (mergeRelation newRelation relations) in
+			trace ("    adding new relation: " ++ show newRelation) $
+			[newModel]
+		ExistentialQuantifier [] f -> self env f
 		ExistentialQuantifier (v:vs) f ->
 			let f' = ExistentialQuantifier vs f in
-			if any (\v' -> holds' model (hashSet env v v') f') domain then model
-			else self model env (union bound [v]) f'
--}
+			let nextDomainElement = fromIntegral $ (length domain) + 1 in
+			if any (\v' -> holds' model (hashSet env v v') f') domain then
+				trace ("    " ++ showFormula formula ++ " already holds") $
+				[model]
+			else
+				trace ("    adding new domain element " ++ show nextDomainElement ++ " for variable " ++ (show$variableName v)) $
+				attemptToSatisfy' (mkDomain nextDomainElement,relations) (hashSet env v nextDomainElement) f'
 		UniversalQuantifier [] f -> self env f
 		UniversalQuantifier (v:vs) f ->
 			let f' = UniversalQuantifier vs f in
@@ -549,14 +570,17 @@ attemptToSatisfy' model env formula =
 
 genNewRelation :: String -> [Variable] -> Environment -> Int -> Relation
 genNewRelation predicate vars env domainSize =
-	mkRelation predicate (length vars) [(genNewRelationArgs env vars (fromIntegral domainSize))]
+	let args = genNewRelationArgs env vars (fromIntegral domainSize) in
+	-- trace ("      generated args " ++ show args) $
+	mkRelation predicate (length vars) [args]
 
-genNewRelationArgs :: Environment -> [Variable] -> Word -> [Word]
+genNewRelationArgs :: Environment -> [Variable] -> DomainElement -> [DomainElement]
+genNewRelationArgs env [] domainSize = []
 genNewRelationArgs env (v:ars) domainSize =
 	let self = genNewRelationArgs env in
 	case lookup v env of
 		Just v' -> v' : (self ars domainSize)
-		Nothing -> (domainSize + 1) : (self ars domainSize)
+		_ -> (domainSize+1) : (self ars (domainSize+1))
 
 
 
@@ -584,7 +608,7 @@ main = do
 	-- putStrLn.show $ holds modelB (head.generate $ scanTokens "-> Exists y,y': R[y,y']")
 	-- putStrLn.show $ holds modelB (head.generate $ scanTokens "ForAll x,w: R[x,w] -> Exists y: Q[x,y]")
 	-- putStrLn.show $ holds modelB (head.generate $ scanTokens "ForAll u,v: Q[u,v] -> Exists z: R[u,z]")
-	putStrLn.prettyPrintArray $ map showModel (chase theory)
+	putStrLn.prettyPrintArray $ map showModel generatedModels
 
 	where
 		prettyPrintArray arr = "[ " ++ (intercalate "\n, " arr) ++ "\n]"
@@ -593,10 +617,11 @@ main = do
 			"R[x,w] -> Exists y: Q[x,y]",
 			"Q[u,v] -> Exists z: R[u,z]"
 			]
+		generatedModels = chase theory
 
 parseError :: [Token] -> a
 parseError tokenList =
-	let pos = tokenPosn(head(tokenList)) in
-	error ("parse error: unexpected " ++ showToken(head(tokenList)) ++ " at line " ++ show(getLineNum(pos)) ++ ", column " ++ show(getColumnNum(pos)))
+	let pos = tokenPosn $ head tokenList in
+	error ("parse error: unexpected " ++ (showToken$head tokenList) ++ " at line " ++ (show$getLineNum pos) ++ ", column " ++ (show$getColumnNum pos))
 
 }
