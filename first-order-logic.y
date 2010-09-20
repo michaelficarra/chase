@@ -205,10 +205,9 @@ parseRelations strings = foldl (\a b -> mergeRelation b a) [] (map parseRelation
 parseRelation :: String -> Relation
 -- returns a relation represented by the given string
 parseRelation str =
+	let predicateSep = (\a -> a /= '(' && a /= '[') in
+	let argList = map read (split ',' (init.tail $ dropWhile predicateSep str)) in
 	mkRelation (takeWhile predicateSep str) (length argList) [argList]
-	where
-		predicateSep = (\a -> a /= '(' && a /= '[')
-		argList = map read (split ',' (init.tail $ dropWhile predicateSep str))
 
 mergeRelation :: Relation -> [Relation] -> [Relation]
 -- takes a relation and a list of relations and adds the relation to the list,
@@ -225,11 +224,10 @@ mergeRelation relation (r:rs)
 parseModel :: String -> Model
 -- returns a model when given a string representation of a model
 parseModel str =
+	let fileLines = lines $ str in
+	let domainSize = read.head $ fileLines :: DomainElement in
+	let relations = tail fileLines in
 	mkModel (mkDomain domainSize) (parseRelations relations)
-	where
-		fileLines = lines $ str
-		domainSize = read.head $ fileLines :: DomainElement
-		relations = tail fileLines
 
 split :: Eq a => a -> [a] -> [[a]]
 -- split an array by an element of that array
@@ -321,11 +319,10 @@ pullQuantifiers formula = case formula of
 pullQuantifier :: (Bool,Bool) -> Formula -> (Formula -> Formula -> Formula) -> ([Variable] -> Formula -> Formula) -> [Variable] -> Formula -> [Variable] -> Formula -> Formula
 -- a function used for mutual recursion with pullQuantifiers
 pullQuantifier (l,r) formula operator quantifier v1 f1 v2 f2 =
+	let z = map (\s -> variant s (freeVariables formula)) v1 in
+	let a' = if l then substitute (filter (\p -> (fst p) /= (snd p)) (zip v1 z)) f1 else f1 in
+	let b' = if r then substitute (filter (\p -> (fst p) /= (snd p)) (zip v2 z)) f2 else f2 in
 	quantifier z (pullQuantifiers (operator a' b'))
-	where
-		z = map (\s -> variant s (freeVariables formula)) v1
-		a' = if l then substitute (filter (\p -> (fst p) /= (snd p)) (zip v1 z)) f1 else f1
-		b' = if r then substitute (filter (\p -> (fst p) /= (snd p)) (zip v2 z)) f2 else f2
 
 prenex :: Formula -> Formula
 -- applies pullQuantifiers to a given formula and its subformulas
@@ -432,8 +429,9 @@ tautologies formula = recursivelyApply (\formula -> case formula of
 
 simplify :: Formula -> Formula
 -- applies a preselected list of simplifications to a given formula
-simplify f = foldl (\a b -> b a) f (concat $ permutations simplifiers)
-	where simplifiers = [uselessQuantifiers,deMorgan,doubleNegation,tautologies]
+simplify f =
+	let simplifiers = [uselessQuantifiers,deMorgan,doubleNegation,tautologies] in
+	foldl (\a b -> b a) f (concat $ permutations simplifiers)
 
 
 -- I/O --
@@ -523,11 +521,8 @@ chase' formulae (done,pending) =
 attemptToSatisfyFirstFailure :: Model -> [Formula] -> [Model]
 attemptToSatisfyFirstFailure model (f:ormulae) =
 	let self = attemptToSatisfyFirstFailure model in
-	if holds model (UniversalQuantifier (freeVariables f) f) then
-		self ormulae
-	else
-		trace ("    found first failure: " ++ showFormula f) $
-		attemptToSatisfy model f
+	if holds model (UniversalQuantifier (freeVariables f) f) then self ormulae
+	else attemptToSatisfy model f
 
 attemptToSatisfy :: Model -> Formula -> [Model]
 attemptToSatisfy model formula =
@@ -593,21 +588,10 @@ main = do
 	let modelA = parseModel modelAStr
 	-- putStrLn $ "model A: " ++ showModel modelA
 
-	-- random tests / sanity checks
-	-- putStrLn.showFormula $ simplify (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Contradiction)))))
-	-- putStrLn.show $ holds' modelA [(Variable "x",0)] (ExistentialQuantifier [Variable "y"] (Atomic "R" [Variable "x", Variable "y"]))
-	-- putStrLn.showFormula $ pef (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
-	-- putStrLn.showFormula.simplify $ nnf (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
-	-- putStrLn.show $ all (\formula -> holds (mkModel [0,1,2] [("R",[[0,1]]),("Q",[[1,2]])]) formula) theory
-
 	-- chase function tests
-	-- let modelB = mkModel [1..3] [("R",2,[[1,2]]),("Q",2,[[1,3]])]
-	-- putStrLn.show $ holds modelB (head.generate $ scanTokens "-> Exists y,y': R[y,y']")
-	-- putStrLn.show $ holds modelB (head.generate $ scanTokens "ForAll x,w: R[x,w] -> Exists y: Q[x,y]")
-	-- putStrLn.show $ holds modelB (head.generate $ scanTokens "ForAll u,v: Q[u,v] -> Exists z: R[u,z]")
-	putStrLn "--- chase 0 ---"
-	putStrLn.prettyPrintArray $ map showFormula theory0
-	putStrLn.prettyPrintArray $ map showModel generatedModels0
+	-- putStrLn "--- chase 0 ---"
+	-- putStrLn.prettyPrintArray $ map showFormula theory0
+	-- putStrLn.prettyPrintArray $ map showModel generatedModels0
 	putStrLn "--- chase 1 ---"
 	putStrLn.prettyPrintArray $ map showFormula theory1
 	putStrLn.prettyPrintArray $ map showModel generatedModels1
