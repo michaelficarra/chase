@@ -494,10 +494,10 @@ chaseVerify formulae =
 	let isNotPEF = not.isPEF in
 	map (\f -> case f of
 		Implication a b ->
-			if isNotPEF a || isNotPEF b then error "formula must be in positive existential form"
+			if isNotPEF a || isNotPEF b then error ("implication must be in positive existential form: " ++ showFormula f)
 			else f
 		_ ->
-			if isNotPEF f then error "formula must be in positive existential form"
+			if isNotPEF f then error ("formula must be in positive existential form: " ++ showFormula f)
 			else (Implication Tautology f)
 	) formulae
 
@@ -517,7 +517,7 @@ chase' formulae (done,pending) =
 	else
 		let possiblySatisfiedModels = attemptToSatisfyFirstFailure p formulae in
 		trace ("  at least one formula does not hold for model " ++ showModel p) $
-		trace ("  unioning " ++ show ending ++ " with " ++ intercalate ", " (map showModel possiblySatisfiedModels)) $
+		trace ("  unioning " ++ show ending ++ " with [" ++ intercalate ", " (map showModel possiblySatisfiedModels) ++ "]") $
 		self (done, union ending possiblySatisfiedModels)
 
 attemptToSatisfyFirstFailure :: Model -> [Formula] -> [Model]
@@ -591,7 +591,7 @@ main = do
 
 	modelAStr <- loadModel "A"
 	let modelA = parseModel modelAStr
-	putStrLn $ "model A: " ++ showModel modelA
+	-- putStrLn $ "model A: " ++ showModel modelA
 
 	-- random tests / sanity checks
 	-- putStrLn.showFormula $ simplify (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Contradiction)))))
@@ -599,25 +599,34 @@ main = do
 	-- putStrLn.showFormula $ pef (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
 	-- putStrLn.showFormula.simplify $ nnf (And (ExistentialQuantifier [Variable "x"] Tautology) (Not (UniversalQuantifier [Variable "y"] (Not (Atomic "R" [Variable "y",Variable "z"])))))
 	-- putStrLn.show $ all (\formula -> holds (mkModel [0,1,2] [("R",[[0,1]]),("Q",[[1,2]])]) formula) theory
-	putStrLn.show $ map variableName (freeVariables.head.generate $ scanTokens "R[x,w] -> Exists y: Q[x,y]")
 
 	-- chase function tests
-	putStrLn "--- chase ---"
-	putStrLn.prettyPrintArray $ map show theory
-	let modelB = mkModel [1..3] [("R",2,[[1,2]]),("Q",2,[[1,3]])]
+	-- let modelB = mkModel [1..3] [("R",2,[[1,2]]),("Q",2,[[1,3]])]
 	-- putStrLn.show $ holds modelB (head.generate $ scanTokens "-> Exists y,y': R[y,y']")
 	-- putStrLn.show $ holds modelB (head.generate $ scanTokens "ForAll x,w: R[x,w] -> Exists y: Q[x,y]")
 	-- putStrLn.show $ holds modelB (head.generate $ scanTokens "ForAll u,v: Q[u,v] -> Exists z: R[u,z]")
-	putStrLn.prettyPrintArray $ map showModel generatedModels
+	putStrLn "--- chase 0 ---"
+	putStrLn.prettyPrintArray $ map showFormula theory0
+	putStrLn.prettyPrintArray $ map showModel generatedModels0
+	putStrLn "--- chase 1 ---"
+	putStrLn.prettyPrintArray $ map showFormula theory1
+	putStrLn.prettyPrintArray $ map showModel generatedModels1
 
 	where
-		prettyPrintArray arr = "[ " ++ (intercalate "\n, " arr) ++ "\n]"
-		theory = map (simplify.head.generate.scanTokens) [
-			"-> Exists y,y': R[y,y']",
-			"R[x,w] -> Exists y: Q[x,y]",
+		prettyPrintArray arr = if length arr == 1 then "[ " ++ (head arr) ++ " ]" else "[ " ++ (intercalate "\n, " arr) ++ "\n]"
+
+		generatedModels0 = chase theory0
+		theory0 = generate.scanTokens $
+			"-> Exists y,y': R[y,y']" ++ "\n" ++
+			"R[x,w] -> Exists y: Q[x,y]" ++ "\n" ++
 			"Q[u,v] -> Exists z: R[u,z]"
-			]
-		generatedModels = chase theory
+
+		generatedModels1 = chase theory1
+		theory1 = generate.scanTokens $
+			"-> Exists y,z: R[y,z]" ++ "\n" ++
+			"R[x,w] -> (Exists y: Q[x,y]) | (Exists z: P[x,z])" ++ "\n" ++
+			"Q[u,v] -> (Exists z: R[u,z]) | (Exists z: R[z,w])" ++ "\n" ++
+			"P[u,v] -> Contradiction"
 
 parseError :: [Token] -> a
 parseError tokenList =
