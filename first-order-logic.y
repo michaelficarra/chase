@@ -582,7 +582,7 @@ attemptToSatisfy' model env formula =
 		And a b -> concatMap (\m -> attemptToSatisfy' m env b) (self env a)
 		Implication a b -> if holds' model env a then self env b else []
 		Atomic predicate vars ->
-			let newRelation = genNewRelation predicate vars env (length domain) in
+			let newRelation = mkRelation predicate (length vars) [genNewRelationArgs env vars (fromIntegral (length domain))] in
 			let newModel = mkModel (mkDomain domainSize) (mergeRelation newRelation relations) in
 			trace ("    adding new relation: " ++ show newRelation) $
 			[newModel]
@@ -601,13 +601,6 @@ attemptToSatisfy' model env formula =
 			let f' = UniversalQuantifier vs f in
 			concatMap (\v' -> self (hashSet env v v') f') domain
 		_ -> error ("formula not in positive existential form: " ++ showFormula formula)
-
-genNewRelation :: String -> [Variable] -> Environment -> Int -> Relation
--- generates a relation for an atomic that fails in the attemptToSatisfy' function
-genNewRelation predicate vars env domainSize =
-	let args = genNewRelationArgs env vars (fromIntegral domainSize) in
-	-- trace ("      generated args " ++ show args) $
-	mkRelation predicate (length vars) [args]
 
 genNewRelationArgs :: Environment -> [Variable] -> DomainElement -> [DomainElement]
 -- for each Variable in the given list of Variables, retrieves the value
