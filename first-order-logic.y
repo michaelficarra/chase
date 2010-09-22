@@ -476,10 +476,10 @@ exportModel (domain,relations) =
 	) relations
 
 writeModelsToFiles :: String -> [Model] -> IO ()
-writeModelsToFiles folder models = do
+writeModelsToFiles directory models = do
 	head $
 		map (\(modelNumber,model) ->
-				let file = folder ++ "/" ++ (show modelNumber) in
+				let file = directory ++ "/" ++ (show modelNumber) in
 				writeFile file (exportModel model)
 			)
 		$ zip (iterate (+1) 0) models
@@ -607,8 +607,8 @@ main = do
 	time <- getCurrentTime
 	-- putStrLn $ prettyPrintArray (map showFormula parseTrees)
 
-	modelAStr <- loadModel "A"
-	let modelA = parseModel modelAStr
+	-- modelAStr <- loadModel "A"
+	-- let modelA = parseModel modelAStr
 	-- putStrLn $ "model A: " ++ showModel modelA
 
 	-- chase function tests
@@ -617,8 +617,9 @@ main = do
 	putStrLn.prettyPrintArray $ map showModel generatedModels0
 
 	let timeStr = formatTime (defaultTimeLocale) "%s" time
-	createDirectory timeStr
-	writeModelsToFiles timeStr generatedModels0
+	let modelOutputDir = "models/" ++ timeStr
+	createDirectory modelOutputDir
+	writeModelsToFiles modelOutputDir generatedModels0
 
 	-- putStrLn "--- chase 1 ---"
 	-- putStrLn.prettyPrintArray $ map showFormula theory1
