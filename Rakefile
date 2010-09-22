@@ -47,7 +47,7 @@ namespace 'haskell' do
 
 	desc 'Test the generated parser against the sample program'
 	task :test do
-		sh 'ghc -o first-order-logic first-order-logic{.x,}.hs'
+		sh 'ghc -o first-order-logic first-order-logic{.x,}.hs helpers.hs chase.hs main.hs'
 		sh 'chmod u+x first-order-logic'
 		sh 'cat simple-grammar-sample.fol | ./first-order-logic'
 	end
