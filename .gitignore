@@ -6,3 +6,6 @@ a.out
 *.info
 *.o
 first-order-logic
+first-order-logic.hs
+first-order-logic.x.hs
+models
