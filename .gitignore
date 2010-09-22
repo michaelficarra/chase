@@ -3,7 +3,6 @@
 *.tab.rb
 a.out
 *.hi
-*.hs
 *.info
 *.o
 first-order-logic
