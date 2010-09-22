@@ -9,7 +9,6 @@ import Data.Time.Clock
 import System.Locale
 import System.Directory
 import Debug.Trace
-debug = flip trace
 }
 
 %name generate
@@ -243,6 +242,7 @@ split delim (c:cs)
 		others = split delim cs
 
 lookup2 :: Eq a => Eq b => a -> b -> [(a,b,c)] -> Maybe c
+-- like Data.List.lookup, but with a two-value key on a three-value tuple
 lookup2 a b abc = lookup (a,b) (map (\(a,b,c) -> ((a,b),c)) abc)
 
 hashSet :: Eq a => [(a,b)] -> a -> b -> [(a,b)]
@@ -413,6 +413,8 @@ uselessQuantifiers formula = recursivelyApply (\formula -> case formula of
 	) formula
 
 tautologies :: Formula -> Formula
+-- removes tautological expressions stemming from Boolean operations being
+-- performed on truth or falsehood constants
 tautologies formula = recursivelyApply (\formula -> case formula of
 	And a Tautology -> a
 	And Tautology b -> b
@@ -467,6 +469,8 @@ showFormula formula = case formula of
 	_ -> "[?]"
 
 exportModel :: Model -> String
+-- converts a model to a String that is in an easily parseable, yet
+-- human-readable format
 exportModel (domain,relations) =
 	(show$length domain) ++
 	concatMap (\(predicate,arity,truthTable) ->
@@ -476,6 +480,8 @@ exportModel (domain,relations) =
 	) relations
 
 writeModelsToFiles :: String -> [Model] -> IO ()
+-- outputs the given list of models to files in the given directory in a format
+-- as defined by `exportModel`
 writeModelsToFiles directory models = do
 	head $
 		map (\(modelNumber,model) ->
@@ -488,9 +494,13 @@ writeModelsToFiles directory models = do
 -- MAIN --
 
 holds :: Model -> Formula -> Bool
-holds model formula = (holds' model [] formula) -- `debug` ("Checking if " ++ (show.showFormula $ uselessQuantifiers formula) ++ " holds")
+-- determines if the given formula holds in the given model
+-- note: formula given will not be universally quantified, so unbound variable
+--       references will cause an error
+holds model formula = holds' model [] formula
 
 holds' :: Model -> Environment -> Formula -> Bool
+-- used by `holds` to hide the environment identity argument
 holds' model env formula = let (domain,relations) = model in let self = holds' model in case formula of
 	Contradiction -> False
 	Tautology -> True
@@ -507,9 +517,9 @@ holds' model env formula = let (domain,relations) = model in let self = holds' m
 	ExistentialQuantifier [] f -> self env f
 	ExistentialQuantifier (v:vs) f -> any (\v' -> self (hashSet env v v') (ExistentialQuantifier vs f)) domain
 
-
-
 chaseVerify :: [Formula] -> [Formula]
+-- verifies that each formula is in positive existential form and performs some
+-- normilization on implied/constant implications
 chaseVerify formulae =
 	let isNotPEF = not.isPEF in
 	map (\f -> case f of
@@ -522,9 +532,12 @@ chaseVerify formulae =
 	) formulae
 
 chase :: [Formula] -> [Model]
+-- runs the chase algorithm on a given theory and returns a list of models that
+-- satisfy it
 chase formulae = chase' (chaseVerify formulae) ([],[(mkModel [] [])])
 
 chase' :: [Formula] -> ([Model],[Model]) -> [Model]
+-- used by the chase function to hide the model identity argument
 chase' formulae (done,[]) = done
 chase' formulae (done,pending) =
 	let self = chase' formulae in
@@ -541,18 +554,22 @@ chase' formulae (done,pending) =
 		self (done, union ending possiblySatisfiedModels)
 
 attemptToSatisfyFirstFailure :: Model -> [Formula] -> [Model]
+-- checks if each formula holds, sequentially, until one does not, then tries
+-- to satisfy that formula
 attemptToSatisfyFirstFailure model (f:ormulae) =
 	let self = attemptToSatisfyFirstFailure model in
 	if holds model (UniversalQuantifier (freeVariables f) f) then self ormulae
 	else attemptToSatisfy model f
 
 attemptToSatisfy :: Model -> Formula -> [Model]
+-- returns a model that is altered so that the given formula will hold
 attemptToSatisfy model formula =
 	let f' = UniversalQuantifier (freeVariables formula) formula in
 	trace ("  attempting to satisfy (" ++ showFormula formula ++ ")") $
 	attemptToSatisfy' model [] f'
 
 attemptToSatisfy' :: Model -> Environment -> Formula -> [Model]
+-- hides the environment identity in the `attemptToSatisfy` function arguments
 attemptToSatisfy' model env formula =
 	let (domain,relations) = model in
 	let domainSize = length domain in
@@ -586,12 +603,16 @@ attemptToSatisfy' model env formula =
 		_ -> error ("formula not in positive existential form: " ++ showFormula formula)
 
 genNewRelation :: String -> [Variable] -> Environment -> Int -> Relation
+-- generates a relation for an atomic that fails in the attemptToSatisfy' function
 genNewRelation predicate vars env domainSize =
 	let args = genNewRelationArgs env vars (fromIntegral domainSize) in
 	-- trace ("      generated args " ++ show args) $
 	mkRelation predicate (length vars) [args]
 
 genNewRelationArgs :: Environment -> [Variable] -> DomainElement -> [DomainElement]
+-- for each Variable in the given list of Variables, retrieves the value
+-- assigned to it in the given environment, or the next domain element if it
+-- does not exist
 genNewRelationArgs env [] domainSize = []
 genNewRelationArgs env (v:ars) domainSize =
 	let self = genNewRelationArgs env in
