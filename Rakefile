@@ -42,7 +42,7 @@ namespace 'haskell' do
 
 	desc 'Clean up generated files and files output during debugging'
 	task :clean do
-		sh 'rm -rf first-order-logic{,.hs} a.out *.{hi,info,o} models/*'
+		sh 'rm -rf first-order-logic{,.x.hs,.hs} a.out *.{hi,info,o} models/*'
 	end
 
 	desc 'Test the generated parser against the sample program'
