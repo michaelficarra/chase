@@ -1,5 +1,6 @@
 task :ruby => ['ruby:lexer','ruby:parser','ruby:test']
 task :haskell => ['haskell:lexer','haskell:parser','haskell:test']
+task :paper => ['paper:pdf','paper:view','paper:clean']
 
 task :clean => ['ruby:clean','haskell:clean']
 
@@ -50,6 +51,28 @@ namespace 'haskell' do
 		sh 'ghc -o first-order-logic first-order-logic{.x,}.hs helpers.hs chase.hs main.hs'
 		sh 'chmod u+x first-order-logic'
 		sh 'cat simple-grammar-sample.fol | ./first-order-logic'
+	end
+
+end
+
+
+namespace 'paper' do
+
+	desc 'Generate PDF from latex document'
+	task :pdf do
+		Dir.chdir 'paper' do
+			sh 'pdflatex paper.tex'
+		end
+	end
+
+	desc 'View the generated pdf in the default pdf viewer'
+	task :view do
+		sh 'xdg-open paper/paper.pdf'
+	end
+
+	desc 'Clean up unnecessary generated files'
+	task :clean do
+		sh 'rm -f *.log paper/*.{aux,toc,lof,lot,log}'
 	end
 
 end
