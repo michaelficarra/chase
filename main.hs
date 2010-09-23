@@ -8,6 +8,7 @@ import Data.Time
 import Data.Time.Clock
 import System.Locale
 import System.Directory
+import Control.Monad
 
 main = do
 	formulae <- getContents
@@ -25,7 +26,10 @@ main = do
 	putStrLn.prettyPrintArray $ map showModel generatedModels0
 
 	let timeStr = formatTime (defaultTimeLocale) "%s" time
-	let modelOutputDir = "models/" ++ timeStr
+	let modelDir = "models"
+	modelDirExists <- doesDirectoryExist modelDir
+	let modelOutputDir = modelDir ++ "/" ++ timeStr
+	unless modelDirExists (createDirectory modelDir)
 	createDirectory modelOutputDir
 	writeModelsToFiles modelOutputDir generatedModels0
 
