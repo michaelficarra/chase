@@ -2,7 +2,7 @@ task :ruby => ['ruby:lexer','ruby:parser','ruby:test']
 task :haskell => ['haskell:lexer','haskell:parser','haskell:test']
 task :paper => ['paper:pdf','paper:view','paper:clean']
 
-task :clean => ['ruby:clean','haskell:clean']
+task :clean => ['ruby:clean','haskell:clean','paper:clean']
 
 namespace 'ruby' do
 
