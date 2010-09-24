@@ -41,16 +41,18 @@ main = do
 		prettyPrintArray arr = if length arr == 1 then "[ " ++ (head arr) ++ " ]" else "[ " ++ (intercalate "\n, " arr) ++ "\n]"
 
 		generatedModels0 = chase theory0
-		theory0 = generate.scanTokens $
-			"-> Exists y,z: R[y,z]" ++ "\n" ++
-			"R[x,w] -> (Exists y: Q[x,y]) | (Exists z: P[x,z])" ++ "\n" ++
-			"Q[u,v] -> (Exists z: R[u,z]) | (Exists z: R[z,w])" ++ "\n" ++
+		theory0 = generate.scanTokens.unlines $ [
+			"-> Exists y,z: R[y,z]",
+			"R[x,w] -> (Exists y: Q[x,y]) | (Exists z: P[x,z])",
+			"Q[u,v] -> (Exists z: R[u,z]) | (Exists z: R[z,w])",
 			"P[u,v] -> Contradiction"
+			]
 
 		generatedModels1 = chase theory1
-		theory1 = generate.scanTokens $
-			"-> Exists a,b: P[a,b,b]" ++ "\n" ++
-			"R[a,b] -> (Exists y: Q[a,y]) | (Exists z,b: P[z,b,a])" ++ "\n" ++
-			"Q[a,a] -> Exists z: R[a,z]" ++ "\n" ++
+		theory1 = generate.scanTokens.unlines $ [
+			"-> Exists a,b: P[a,b,b]",
+			"R[a,b] -> (Exists y: Q[a,y]) | (Exists z,b: P[z,b,a])",
+			"Q[a,a] -> Exists z: R[a,z]",
 			"P[a,b,c] -> R[a,a] & Q[b,b]"
+			]
 
