@@ -1,8 +1,14 @@
 \documentclass[11pt, a4paper]{article}
 
-\usepackage{graphicx}
-\usepackage{datetime}
+\usepackage{amssymb}
 \usepackage{listings}
+\usepackage[nodayofweek]{datetime}
+\usepackage{graphicx}
+\usepackage[breaklinks]{hyperref}
+\usepackage[all]{hypcap}
+
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{0.4cm}
 
 \begin{document}
 
@@ -22,9 +28,9 @@
 	{\Large \today}\\
 	\vfill
 	\begin{flushright}
-	\hspace{8cm}\dotfill \\
-	\textsc{Daniel Dougherty}\\
-	professor, project advisor\\
+		\hspace{8cm}\dotfill \\
+		\textsc{Daniel Dougherty}\\
+		professor, project advisor\\
 	\end{flushright}
 \end{center}
 \end{titlepage}
@@ -34,23 +40,13 @@
 ~\\
 \vfill
 \begin{abstract}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam diam diam,
-elementum eget fringilla non, hendrerit at lacus. Vivamus at purus mauris.
-Praesent vel nibh ipsum. Lorem ipsum dolor sit amet, consectetur adipiscing
-elit. Proin faucibus gravida purus, ut volutpat quam cursus in. Praesent nulla
-est, laoreet a mattis id, rutrum ac augue. Etiam bibendum urna molestie sem
-lobortis lacinia. Curabitur aliquam nisl pulvinar enim aliquam adipiscing.
-Praesent non ligula eget odio lacinia sagittis. Quisque blandit metus vel ipsum
-elementum tincidunt. Nulla viverra dui nec metus viverra ut interdum tellus
-ullamcorper. Quisque fringilla, felis vitae placerat facilisis, metus nibh
-sagittis lacus, quis volutpat tortor massa sit amet lectus. Proin eu arcu quam,
-at accumsan lectus. Proin dignissim consectetur nisl mattis scelerisque. Nulla
-ac enim ipsum. Pellentesque tellus massa, aliquam nec malesuada eget, porta
-vitae metus. Mauris congue, enim eget suscipit tristique, mauris magna faucibus
-nunc, ac iaculis quam orci non nisl. Aliquam pharetra arcu vel sapien commodo
-dapibus. In commodo risus quis elit lobortis quis ornare tellus ultricies.
-Donec adipiscing, velit at gravida suscipit, ligula sapien ullamcorper mi, et
-tempor erat mi vel quam.
+This paper describes a method, referred to as the chase, for generating minimal
+models for a geometric theory. A minimal model for a theory is a model for
+which there exists a homomorphism to any other model that can satisfy the
+theory. These models are useful in solutions to problems in many practical
+applications, including firewall configuration examination and access control
+evaluation. Also described is a Haskell implementation of the chase and its
+development process and design decisions.
 \end{abstract}
 \vfill
 ~\\
@@ -66,19 +62,25 @@ tempor erat mi vel quam.
 
 % main paper sections
 \include{introduction}
+\include{technicalBackground}
+
+
+\section{For later reference:}
+	preceq: $\mathbb{M} \preceq \mathbb{N}$
+	\begin{figure}[graphics_test]
+		\begin{center}
+			\includegraphics[width=0.8\textwidth]{pic1.jpg}
+		\end{center}
+		\caption[Caption in List of Figures]{Caption in report}
+	\end{figure}
+
+
+\appendix
+	\include{appendixChase}
 
 
 \addcontentsline{toc}{section}{References}
 \include{references}
-
-\appendix
-	\include{appendix}
-	\section{Chase code}
-		{\tiny
-			\lstset{numbers=left,columns=fixed,tabsize=4}
-			\lstinputlisting{../chase.hs}
-		}
-
 
 
 \end{document}

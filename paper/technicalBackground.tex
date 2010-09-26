@@ -1,0 +1,57 @@
+\section{Technical Background}
+
+	\subsection{Definitions}
+
+	In this paper, logic symbols and other possibly ambiguous or uncommon
+	notation will be used extensively, and thusly must be clearly defined.
+
+		\subsubsection{Models}
+
+		A \emph{model} $\mathbb{M}$ is a construct that consists of:
+			\begin{itemize}
+			\item a set, referenced as $|\mathbb{M}|$, called the \emph{universe} or \emph{domain} of $\mathbb{M}$
+			\item a set of pairings of a \emph{predicate} and a non-negative integral arity
+			\item for each predicate $R$ with arity $k$, a relation $R^\mathbb{M}_k \subseteq |\mathbb{M}|$
+			\end{itemize}
+		It is important to distinguish the predicate, which is just a symbol,
+		from the relation that it refers to when paired with its arity. The
+		relation itself is a set of tuples of elements from the universe.
+
+		\subsubsection{First-order Logic}
+
+		
+
+		\subsubsection{Geometric Logic}
+
+		Geometric logic is first-order logic with constraints on the shape of
+		the expression.  Geometric logic formulas are implicitly universally
+		quantified first-order logic expressions of the form \[A_0 \wedge
+		\ldots \wedge A_n \to E_0 \vee \ldots \vee E_m\] where $A_0 \ldots A_n$
+		are atomics, $E_0 \ldots E_m$ are first-order logic expressions of the
+		form $\exists_{x_0 \ldots x_k} A_0 \wedge \ldots \wedge \exists_{x_0
+		\ldots x_p} A_y$, and $n$, $m$, $k$, $p$, and $y$ are integers greater
+		than or equal to $0$.
+
+		(Explain why GL is useful)
+
+
+	\subsection{Homomorphisms}
+
+	A homomorphism from $\mathbb{A}$ to $\mathbb{B}$ is a function $h:
+	|\mathbb{A}|\to|\mathbb{B}|$ such that, for each relation symbol $R$ and
+	tuple $\langle a_0 , \ldots , a_n \rangle$ where $a_k \in |\mathbb{A}|$ for
+	any $k$ and $0 \le k \le n$, $\langle a_0 , \ldots , a_n  \rangle \in
+	R^\mathbb{A}$ implies $\langle h(a_0) , \ldots , h(a_n)  \rangle \in
+	R^\mathbb{B}$.
+	
+	A homomorphism $h$ is also a \emph{strong homomorphism} if, for each
+	relation symbol $R$ and tuple $\langle a_0 , \ldots , a_n \rangle$ where
+	$a_k \in |\mathbb{A}|$ for any $k$ and $0 \le k \le n$, $\langle a_0 ,
+	\ldots , a_n  \rangle \in R^\mathbb{A}$ if and only if $\langle h(a_0) ,
+	\ldots , h(a_n)  \rangle \in R^\mathbb{B}$.
+
+		\subsubsection{Significance}
+
+		\subsubsection{Minimal Models}
+
+		\subsubsection{Relation to the Chase}

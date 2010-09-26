@@ -1,6 +1,6 @@
 task :ruby => ['ruby:lexer','ruby:parser','ruby:test']
 task :haskell => ['haskell:lexer','haskell:parser','haskell:test']
-task :paper => ['paper:pdf','paper:view','paper:clean']
+task :paper => ['paper:pdf','paper:view']
 
 task :clean => ['ruby:clean','haskell:clean','paper:clean']
 
@@ -72,7 +72,7 @@ namespace 'paper' do
 
 	desc 'Clean up unnecessary generated files'
 	task :clean do
-		sh 'rm -f *.log paper/*.{aux,toc,lof,lot,log}'
+		sh 'rm -f *.log paper/*.{aux,toc,lof,lot,log,out}'
 	end
 
 end
