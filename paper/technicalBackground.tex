@@ -52,9 +52,26 @@
 
 			\textbf{explain why GL is useful to us}
 
+		\subsubsection{Variable Binding, Environments}
+
+			A \emph{sentence} is a formula with no free variables.
+
 		\subsubsection{Satisfiability, Entailment}
 
-			\textbf{satisfiability...}
+			A model $\mathbb{M}$ is said to satisfy a sentence $\sigma$ when
+			\begin{itemize}
+			\item if $\sigma$ is a relation, $\mathbb{M}$ contains $\sigma$
+			\item if $\sigma$ is of the form $\neg\alpha$, $\mathbb{M} \not\models \alpha$
+			\item if $\sigma$ is of the form $\alpha\wedge\beta$, $\mathbb{M} \models \alpha$ and $\mathbb{M} \models \beta$
+			\item if $\sigma$ is of the form $\alpha\vee\beta$, $\mathbb{M} \models \alpha$ or $\mathbb{M} \models \beta$
+			\item if $\sigma$ is of the form $\alpha\to\beta$, $\mathbb{M} \not\models \alpha$ or $\mathbb{M} \models \beta$
+			\end{itemize}
+			This is denoted as $\mathbb{M} \models \sigma$ and read "$\sigma$
+			is true in $\mathbb{M}$".  A model $\mathbb{M}$ satisfies a set of
+			formulas $\Sigma$ if for every $\sigma$ such that $\sigma \in
+			\Sigma$, $\mathbb{M} \models \sigma$.  This is denoted as
+			$\mathbb{M} \models \Sigma$ and read "$\mathbb{M}$ is a model of
+			$\Sigma$".
 
 			A set of formulas $\Sigma$ is said to \emph{entail} a formula
 			$\sigma$ ($\Sigma \models \sigma$) if the set of all models
@@ -62,28 +79,22 @@
 			satisfied by $\sigma$.
 
 			The notation used for satisfiability and entailment is very
-			similar, in that the operator used is the same, but they can be
-			distinguished by the type of left operand.
-
-		\subsubsection{Variable Binding, Environments}
-
-			
-
+			similar, in that the operator used ($\models$) is the same, but
+			they can be distinguished by the type of left operand.
 
 	\subsection{Homomorphisms}
 
 		A \emph{homomorphism} from $\mathbb{A}$ to $\mathbb{B}$ is a function
 		$h: |\mathbb{A}|\to|\mathbb{B}|$ such that, for each relation symbol
-		$R$ and tuple $\langle a_0 , \ldots , a_n \rangle$ where $a_k \in
-		|\mathbb{A}|$ for any $k \in \{0 , \ldots , n\}$, $\langle a_0 , \ldots
-		, a_n  \rangle \in R^\mathbb{A}$ implies $\langle h(a_0) , \ldots ,
-		h(a_n)  \rangle \in R^\mathbb{B}$.
+		$R$ and tuple $\langle a_0 , \ldots , a_n \rangle$ where $a \subseteq
+		|\mathbb{A}|$, $\langle a_0 , \ldots , a_n  \rangle \in R^\mathbb{A}$
+		implies $\langle h(a_0) , \ldots , h(a_n) \rangle \in R^\mathbb{B}$.
 
 		A homomorphism $h$ is also a \emph{strong homomorphism} if, for each
 		relation symbol $R$ and tuple $\langle a_0 , \ldots , a_n \rangle$
-		where $a_k \in |\mathbb{A}|$ for any $k \in \{0 , \ldots , n\}$,
-		$\langle a_0 , \ldots , a_n  \rangle \in R^\mathbb{A}$ if and only if
-		$\langle h(a_0) , \ldots , h(a_n)  \rangle \in R^\mathbb{B}$.
+		where $a \subseteq |\mathbb{A}|$, $\langle a_0 , \ldots , a_n  \rangle
+		\in R^\mathbb{A}$ if and only if $\langle h(a_0) , \ldots , h(a_n)
+		\rangle \in R^\mathbb{B}$.
 
 		The notation $\mathbb{M} \preceq \mathbb{N}$ means that there exists a
 		homomorphism $h : \mathbb{M} \to \mathbb{N}$. The identity function is
