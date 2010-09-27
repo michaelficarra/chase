@@ -27,6 +27,7 @@
 		A first-order logic formula is defined inductively by
 		\begin{itemize}
 		\item if $R$ is a relation symbol of arity $k$ and each of $t_0 , \ldots , t_{k-1}$ is a variable, then $R[t_0,\ldots,t_{k-1}]$ is a formula, specifically an \emph{atomic formula}
+		\item $\top$ and $\bot$ are formul{\ae}
 		\item if $\alpha$ is a formula then $(\neg\alpha)$ is a formula
 		\item if $\alpha$ and $\beta$ are formul{\ae} then $(\alpha\wedge\beta)$ is a formula
 		\item if $\alpha$ and $\beta$ are formul{\ae} then $(\alpha\vee\beta)$ is a formula
@@ -56,7 +57,8 @@
 		The set of free variables in a formula is defined inductively as follows
 		\begin{itemize}
 		\item any variable occurance in an atomic formula is a free variable
-		\item the free variables in $\neg\alpha$ are the free variables in $\sigma$
+		\item the free variables in $\top$ and $\bot$ are {\o}
+		\item the free variables in $\neg\alpha$ are the free variables in $\alpha$
 		\item the free variables in $\alpha \wedge \beta$ are the union of the set of free variables in $\alpha$ with the set of free variables in $\beta$
 		\item the free variables in $\alpha \vee   \beta$ are the union of the set of free variables in $\alpha$ with the set of free variables in $\beta$
 		\item the free variables in $\alpha \to    \beta$ are the union of the set of free variables in $\alpha$ with the set of free variables in $\beta$
