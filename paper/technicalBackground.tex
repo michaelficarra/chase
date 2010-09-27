@@ -56,15 +56,22 @@
 
 			A \emph{sentence} is a formula with no free variables.
 
+			An \emph{environment} for a model $\mathbb{M}$ is a function from a
+			variable to an element in $|\mathbb{M}|$. The syntax $l_{[v \mapsto
+			v']}$ defines an environment $l'(x)$ that returns $v'$ when $x=v$
+			and returns $l(x)$ otherwise.
+
 		\subsubsection{Satisfiability, Entailment}
 
-			A model $\mathbb{M}$ is said to satisfy a sentence $\sigma$ when
+			A model $\mathbb{M}$ is said to satisfy a formula $\sigma$ in an environment $l$ when
 			\begin{itemize}
-			\item if $\sigma$ is a relation, $\mathbb{M}$ contains $\sigma$
-			\item if $\sigma$ is of the form $\neg\alpha$, $\mathbb{M} \not\models \alpha$
-			\item if $\sigma$ is of the form $\alpha\wedge\beta$, $\mathbb{M} \models \alpha$ and $\mathbb{M} \models \beta$
-			\item if $\sigma$ is of the form $\alpha\vee\beta$, $\mathbb{M} \models \alpha$ or $\mathbb{M} \models \beta$
-			\item if $\sigma$ is of the form $\alpha\to\beta$, $\mathbb{M} \not\models \alpha$ or $\mathbb{M} \models \beta$
+			\item $\sigma$ is a relation symbol $R$ and $R[l(a_0) , \ldots , l(a_n)] \in \mathbb{M}$ where $a$ is a set of variables
+			\item $\sigma$ is of the form $\neg\alpha$ and $\mathbb{M} \not\models_l \alpha$
+			\item $\sigma$ is of the form $\alpha\wedge\beta$ and both $\mathbb{M} \models_l \alpha$ and $\mathbb{M} \models \beta$
+			\item $\sigma$ is of the form $\alpha\vee\beta$ and either $\mathbb{M} \models_l \alpha$ or $\mathbb{M} \models \beta$
+			\item $\sigma$ is of the form $\alpha\to\beta$ and either $\mathbb{M} \not\models_l \alpha$ or $\mathbb{M} \models \beta$
+			\item $\sigma$ is of the form $\forall x : \alpha$  and $\displaystyle\bigwedge_{x' \in |\mathbb{M}|} \mathbb{M} \models_{l[x \mapsto x']} \alpha$
+			\item $\sigma$ is of the form $\exists x : \alpha$  and $\displaystyle\bigvee_{x' \in |\mathbb{M}|} \mathbb{M} \models_{l[x \mapsto x']} \alpha$
 			\end{itemize}
 			This is denoted as $\mathbb{M} \models \sigma$ and read "$\sigma$
 			is true in $\mathbb{M}$".  A model $\mathbb{M}$ satisfies a set of
@@ -103,6 +110,12 @@
 		\preceq \mathbb{C}$ implies $\mathbb{A} \preceq \mathbb{C}$. However,
 		$\mathbb{M} \preceq \mathbb{N} \wedge \mathbb{N} \preceq \mathbb{M}$
 		does not imply that $\mathbb{M} = \mathbb{N}$.
+
+		Given models $\mathbb{M}$ and $\mathbb{N}$ where $\mathbb{M} \preceq
+		\mathbb{N}$ and a formula in positive-existential form
+		\footnote{geometric formulae are implications of positive-existential
+		formulae} $\sigma$, if $\mathbb{M} \models \sigma$ then $\mathbb{N}
+		\models \sigma$.
 
 		An \emph{isomorphism} is a homomorphism $h : \mathbb{A} \to \mathbb{B}$
 		where $h$ is 1:1 and onto and the inverse function $h^{-1} : \mathbb{B}
