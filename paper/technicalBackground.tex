@@ -1,93 +1,111 @@
 \section{Technical Background}
 
-	\subsection{Definitions}
+	In this paper, possibly ambiguous or uncommon notation will be used and
+	thusly must be clearly defined.  Also, topics that are necessary
+	prerequisites will be summarized.
 
-		In this paper, logic symbols and other possibly ambiguous or uncommon
-		notation will be used extensively, and thusly must be clearly defined.
+	\subsection{Models}
 
-		\subsubsection{Models}
+		A \emph{model} $\mathbb{M}$ is a construct that consists of:
+		\begin{itemize}
+		\item a set, referenced as $|\mathbb{M}|$, called the \emph{universe} or \emph{domain} of $\mathbb{M}$
+		\item a set of pairings of a \emph{predicate} and a non-negative integral arity
+		\item for each predicate $R$ with arity $k$, a relation $R^\mathbb{M}_k \subseteq |\mathbb{M}|$
+		\end{itemize}
+		It is important to distinguish the predicate, which is just a symbol,
+		from the relation that it refers to when paired with its arity. The
+		relation itself is a set of tuples of elements from the universe.
 
-			A \emph{model} $\mathbb{M}$ is a construct that consists of:
-			\begin{itemize}
-			\item a set, referenced as $|\mathbb{M}|$, called the \emph{universe} or \emph{domain} of $\mathbb{M}$
-			\item a set of pairings of a \emph{predicate} and a non-negative integral arity
-			\item for each predicate $R$ with arity $k$, a relation $R^\mathbb{M}_k \subseteq |\mathbb{M}|$
-			\end{itemize}
-			It is important to distinguish the predicate, which is just a symbol,
-			from the relation that it refers to when paired with its arity. The
-			relation itself is a set of tuples of elements from the universe.
+	\subsection{First-order Logic}
 
-		\subsubsection{First-order Logic}
+		\emph{First-order logic}, also called \emph{predicate logic}, is a
+		formula logic system that is an extension of propositional logic. For
+		our purposes, this logic system will not contain any constant symbols
+		or function symbols, which are commonly included in first-order and
+		propositional logic.
 
-			\emph{First-order logic}, also called \emph{predicate logic}, is a
-			formula logic system that is an extension of propositional logic. For
-			our purposes, this logic system will not contain any constant symbols
-			or function symbols, which are commonly included in first-order and
-			propositional logic.
+		A first-order logic formula is defined inductively by
+		\begin{itemize}
+		\item if $R$ is a relation symbol of arity $k$ and each of $t_0 , \ldots , t_{k-1}$ is a variable, then $R[t_0,\ldots,t_{k-1}]$ is a formula, specifically an \emph{atomic formula}
+		\item if $\alpha$ is a formula then $(\neg\alpha)$ is a formula
+		\item if $\alpha$ and $\beta$ are formulas then $(\alpha\wedge\beta)$ is a formula
+		\item if $\alpha$ and $\beta$ are formulas then $(\alpha\vee\beta)$ is a formula
+		\item if $\alpha$ and $\beta$ are formulas then $(\alpha\to\beta)$ is a formula
+		\item if $\alpha$ is a formula and $x$ is a variable then $(\forall x : \alpha)$ is a formula
+		\item if $\alpha$ is a formula and $\vec{x}$ is a set of variables of size $k$ then $(\forall \vec{x} : \alpha)$ is $(\forall x_0 \ldots \forall x_{k-1} : \alpha)$
+		\item if $\alpha$ is a formula and $x$ is a variable then $(\exists x : \alpha)$ is a formula
+		\item if $\alpha$ is a formula and $\vec{x}$ is a set of variables of size $k$ then $(\exists \vec{x} : \alpha)$ is $(\forall x_0 \ldots \forall x_{k-1} : \alpha)$
+		\end{itemize}
 
-			A first-order logic formula is defined inductively by
-			\begin{itemize}
-			\item if $R$ is a relation symbol of arity $k$ and each of $t_0 , \ldots , t_{k-1}$ is a variable, then $R[t_0,\ldots,t_{k-1}]$ is a formula, specifically an \emph{atomic formula}
-			\item if $\alpha$ is a formula then $(\neg\alpha)$ is a formula
-			\item if $\alpha$ and $\beta$ are formulas then $(\alpha\wedge\beta)$ is a formula
-			\item if $\alpha$ and $\beta$ are formulas then $(\alpha\vee\beta)$ is a formula
-			\item if $\alpha$ and $\beta$ are formulas then $(\alpha\to\beta)$ is a formula
-			\item if $\alpha$ is a formula and $x$ is a variable then $(\forall x : \alpha)$ is a formula
-			\item if $\alpha$ is a formula and $\vec{x}$ is a set of variables of size $k$ then $(\forall \vec{x} : \alpha)$ is $(\forall x_0 \ldots \forall x_{k-1} : \alpha)$
-			\item if $\alpha$ is a formula and $x$ is a variable then $(\exists x : \alpha)$ is a formula
-			\item if $\alpha$ is a formula and $\vec{x}$ is a set of variables of size $k$ then $(\exists \vec{x} : \alpha)$ is $(\forall x_0 \ldots \forall x_{k-1} : \alpha)$
-			\end{itemize}
+	\subsection{Geometric Logic}
 
-		\subsubsection{Geometric Logic}
+		\emph{Geometric logic} is first-order logic with constraints on the
+		shape of the expression.  Geometric logic formulas are implicitly
+		universally quantified first-order logic expressions of the form \[A_0
+		\wedge \ldots \wedge A_n \to E_0 \vee \ldots \vee E_m\] where $A_0
+		\ldots A_n$ are atomics, $E_0 \ldots E_m$ are first-order logic
+		expressions of the form $\exists_{x_0 \ldots x_k} A_0 \wedge \ldots
+		\wedge \exists_{x_0 \ldots x_p} A_y$, and $n$, $m$, $k$, $p$, and $y$
+		are integers greater than or equal to $0$. A set of geometric logic
+		formulas is called a \emph{geometric theory}.
 
-			\emph{Geometric logic} is first-order logic with constraints on the
-			shape of the expression.  Geometric logic formulas are implicitly
-			universally quantified first-order logic expressions of the form \[A_0
-			\wedge \ldots \wedge A_n \to E_0 \vee \ldots \vee E_m\] where $A_0
-			\ldots A_n$ are atomics, $E_0 \ldots E_m$ are first-order logic
-			expressions of the form $\exists_{x_0 \ldots x_k} A_0 \wedge \ldots
-			\wedge \exists_{x_0 \ldots x_p} A_y$, and $n$, $m$, $k$, $p$, and $y$
-			are integers greater than or equal to $0$. A set of geometric logic
-			formulas is called a \emph{geometric theory}.
+		\textbf{explain why GL is useful to us}
 
-			\textbf{explain why GL is useful to us}
+	\subsection{Variable Binding}
 
-		\subsubsection{Variable Binding, Environments}
+		The set of free variables in a formula is defined inductively as follows
+		\begin{itemize}
+		\item any variable occurance in an atomic formula is a free variable
+		\item the free variables in $\neg\alpha$ are the free variables in $\sigma$
+		\item the free variables in $\alpha \wedge \beta$ are the union of the set of free variables in $\alpha$ with the set of free variables in $\beta$
+		\item the free variables in $\alpha \vee   \beta$ are the union of the set of free variables in $\alpha$ with the set of free variables in $\beta$
+		\item the free variables in $\alpha \to    \beta$ are the union of the set of free variables in $\alpha$ with the set of free variables in $\beta$
+		\item the free variables in $\forall x : \alpha$ are the free variables in $\alpha$ that are not $x$
+		\item the free variables in $\exists x : \alpha$ are the free variables in $\alpha$ that are not $x$
+		\end{itemize}
+		A \emph{sentence} is a formula with an empty set of free variables.
 
-			A \emph{sentence} is a formula with no free variables.
+	\subsection{Environment}
 
-			An \emph{environment} for a model $\mathbb{M}$ is a function from a
-			variable to an element in $|\mathbb{M}|$. The syntax $l_{[v \mapsto
-			v']}$ defines an environment $l'(x)$ that returns $v'$ when $x=v$
-			and returns $l(x)$ otherwise.
+		An \emph{environment} for a model $\mathbb{M}$ is a function from a
+		variable to an element in $|\mathbb{M}|$. The syntax $l_{[v \mapsto
+		v']}$ defines an environment $l'(x)$ that returns $v'$ when $x=v$
+		and returns $l(x)$ otherwise.
 
-		\subsubsection{Satisfiability, Entailment}
+	\subsection{Satisfiability}
 
-			A model $\mathbb{M}$ is said to satisfy a formula $\sigma$ in an environment $l$ when
-			\begin{itemize}
-			\item $\sigma$ is a relation symbol $R$ and $R[l(a_0) , \ldots , l(a_n)] \in \mathbb{M}$ where $a$ is a set of variables
-			\item $\sigma$ is of the form $\neg\alpha$ and $\mathbb{M} \not\models_l \alpha$
-			\item $\sigma$ is of the form $\alpha\wedge\beta$ and both $\mathbb{M} \models_l \alpha$ and $\mathbb{M} \models \beta$
-			\item $\sigma$ is of the form $\alpha\vee\beta$ and either $\mathbb{M} \models_l \alpha$ or $\mathbb{M} \models \beta$
-			\item $\sigma$ is of the form $\alpha\to\beta$ and either $\mathbb{M} \not\models_l \alpha$ or $\mathbb{M} \models \beta$
-			\item $\sigma$ is of the form $\forall x : \alpha$  and $\displaystyle\bigwedge_{x' \in |\mathbb{M}|} \mathbb{M} \models_{l[x \mapsto x']} \alpha$
-			\item $\sigma$ is of the form $\exists x : \alpha$  and $\displaystyle\bigvee_{x' \in |\mathbb{M}|} \mathbb{M} \models_{l[x \mapsto x']} \alpha$
-			\end{itemize}
-			This is denoted as $\mathbb{M} \models \sigma$ and read "$\sigma$
-			is true in $\mathbb{M}$".  A model $\mathbb{M}$ satisfies a set of
-			formulas $\Sigma$ if for every $\sigma$ such that $\sigma \in
-			\Sigma$, $\mathbb{M} \models \sigma$.  This is denoted as
-			$\mathbb{M} \models \Sigma$ and read "$\mathbb{M}$ is a model of
-			$\Sigma$".
+		A model $\mathbb{M}$ is said to satisfy a formula $\sigma$ in an environment $l$ when
+		\begin{itemize}
+		\item $\sigma$ is a relation symbol $R$ and $R[l(a_0) , \ldots , l(a_n)] \in \mathbb{M}$ where $a$ is a set of variables
+		\item $\sigma$ is of the form $\neg\alpha$ and $\mathbb{M} \not\models_l \alpha$
+		\item $\sigma$ is of the form $\alpha\wedge\beta$ and both $\mathbb{M} \models_l \alpha$ and $\mathbb{M} \models_l \beta$
+		\item $\sigma$ is of the form $\alpha\vee\beta$ and either $\mathbb{M} \models_l \alpha$ or $\mathbb{M} \models_l \beta$
+		\item $\sigma$ is of the form $\alpha\to\beta$ and either $\mathbb{M} \not\models_l \alpha$ or $\mathbb{M} \models_l \beta$
+		\item $\sigma$ is of the form $\forall x : \alpha$  and for every $x' \in |\mathbb{M}|$, $\mathbb{M} \models_{l[x \mapsto x']} \alpha$
+		\item $\sigma$ is of the form $\exists x : \alpha$  and for at least one $x' \in |\mathbb{M}|$, $\mathbb{M} \models_{l[x \mapsto x']} \alpha$
+		\end{itemize}
+		This is denoted as $\mathbb{M} \models_l \sigma$ and read "$\sigma$
+		is true in $\mathbb{M}$". The notation $\mathbb{M} \models \sigma$
+		(no environment specification) means that either, under any
+		environment $l$, $\mathbb{M} \models_l \sigma$ or there exists no
+		environment $l$ such that $\mathbb{M} \models_l \sigma$.
 
-			A set of formulas $\Sigma$ is said to \emph{entail} a formula
-			$\sigma$ ($\Sigma \models \sigma$) if the set of all models
-			satisfied by $\Sigma$ is a subset of the set of all models
-			satisfied by $\sigma$.
+		A model $\mathbb{M}$ satisfies a set of
+		formulas $\Sigma$ if for every $\sigma$ such that $\sigma \in
+		\Sigma$, $\mathbb{M} \models \sigma$.  This is denoted as
+		$\mathbb{M} \models \Sigma$ and read "$\mathbb{M}$ is a model of
+		$\Sigma$".
 
-			The notation used for satisfiability and entailment is very
-			similar, in that the operator used ($\models$) is the same, but
-			they can be distinguished by the type of left operand.
+	\subsection{Entailment}
+
+		A set of formulas $\Sigma$ is said to \emph{entail} a formula
+		$\sigma$ ($\Sigma \models \sigma$) if the set of all models
+		satisfied by $\Sigma$ is a subset of the set of all models
+		satisfied by $\sigma$.
+
+		The notation used for satisfiability and entailment is very
+		similar, in that the operator used ($\models$) is the same, but
+		they can be distinguished by the type of left operand.
 
 	\subsection{Homomorphisms}
 
@@ -121,23 +139,14 @@
 		where $h$ is 1:1 and onto and the inverse function $h^{-1} : \mathbb{B}
 		\to \mathbb{A}$ is a homomorphism.
 
-		\subsubsection{Significance}
+	\subsection{Minimal Models}
 
-			
+		Minimal models, also called \emph{universal} models, are models for a
+		theory with the special property that there exists a homomorphism from
+		the minimal model to any other model satisfied by the theory. Minimal
+		models have no unnecessary entities or relations and thus display the
+		least amount of constraint necessary to satisfy the theory for which
+		they are minimal.
 
-		\subsubsection{Minimal Models}
-
-			Minimal models, also called \emph{universal} models, are models for a
-			theory with the special property that there exists a homomorphism from
-			the minimal model to any other model satisfied by the theory. Minimal
-			models have no unnecessary entities or relations and thus display the
-			least amount of constraint necessary to satisfy the theory for which
-			they are minimal.
-
-			More than one minimal model may exist for a given theory, and not every
-			theory must have a minimal model. \textbf{give examples}
-
-		\subsubsection{Relation to the Chase}
-
-			The chase is a function that, when given a gemoetric theory, will
-			generate all minimal models for that theory.
+		More than one minimal model may exist for a given theory, and not every
+		theory must have a minimal model. \textbf{give examples}
