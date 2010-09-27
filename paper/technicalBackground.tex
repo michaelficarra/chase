@@ -69,12 +69,13 @@
 
 		An \emph{environment} for a model $\mathbb{M}$ is a function from a
 		variable to an element in $|\mathbb{M}|$. The syntax $l_{[v \mapsto
-		v']}$ defines an environment $l'(x)$ that returns $v'$ when $x=v$
-		and returns $l(x)$ otherwise.
+		v']}$ defines an environment $l'(x)$ that returns $v'$ when $x=v$ and
+		returns $l(x)$ otherwise.
 
 	\subsection{Satisfiability}
 
-		A model $\mathbb{M}$ is said to satisfy a formula $\sigma$ in an environment $l$ when
+		A model $\mathbb{M}$ is said to satisfy a formula $\sigma$ in an
+		environment $l$ when
 		\begin{itemize}
 		\item $\sigma$ is a relation symbol $R$ and $R[l(a_0) , \ldots , l(a_n)] \in \mathbb{M}$ where $a$ is a set of variables
 		\item $\sigma$ is of the form $\neg\alpha$ and $\mathbb{M} \not\models_l \alpha$
@@ -84,28 +85,26 @@
 		\item $\sigma$ is of the form $\forall x : \alpha$  and for every $x' \in |\mathbb{M}|$, $\mathbb{M} \models_{l[x \mapsto x']} \alpha$
 		\item $\sigma$ is of the form $\exists x : \alpha$  and for at least one $x' \in |\mathbb{M}|$, $\mathbb{M} \models_{l[x \mapsto x']} \alpha$
 		\end{itemize}
-		This is denoted as $\mathbb{M} \models_l \sigma$ and read "$\sigma$
-		is true in $\mathbb{M}$". The notation $\mathbb{M} \models \sigma$
-		(no environment specification) means that either, under any
-		environment $l$, $\mathbb{M} \models_l \sigma$ or there exists no
-		environment $l$ such that $\mathbb{M} \models_l \sigma$.
+		This is denoted as $\mathbb{M} \models_l \sigma$ and read "$\sigma$ is
+		true in $\mathbb{M}$". The notation $\mathbb{M} \models \sigma$ (no
+		environment specification) means that either, under any environment
+		$l$, $\mathbb{M} \models_l \sigma$ or there exists no environment $l$
+		such that $\mathbb{M} \models_l \sigma$.
 
-		A model $\mathbb{M}$ satisfies a set of
-		formulas $\Sigma$ if for every $\sigma$ such that $\sigma \in
-		\Sigma$, $\mathbb{M} \models \sigma$.  This is denoted as
-		$\mathbb{M} \models \Sigma$ and read "$\mathbb{M}$ is a model of
-		$\Sigma$".
+		A model $\mathbb{M}$ satisfies a set of formulas $\Sigma$ if for every
+		$\sigma$ such that $\sigma \in \Sigma$, $\mathbb{M} \models \sigma$.
+		This is denoted as $\mathbb{M} \models \Sigma$ and read "$\mathbb{M}$
+		is a model of $\Sigma$".
 
 	\subsection{Entailment}
 
-		A set of formulas $\Sigma$ is said to \emph{entail} a formula
-		$\sigma$ ($\Sigma \models \sigma$) if the set of all models
-		satisfied by $\Sigma$ is a subset of the set of all models
-		satisfied by $\sigma$.
+		A set of formulas $\Sigma$ is said to \emph{entail} a formula $\sigma$
+		($\Sigma \models \sigma$) if the set of all models satisfied by
+		$\Sigma$ is a subset of the set of all models satisfied by $\sigma$.
 
-		The notation used for satisfiability and entailment is very
-		similar, in that the operator used ($\models$) is the same, but
-		they can be distinguished by the type of left operand.
+		The notation used for satisfiability and entailment is very similar, in
+		that the operator used ($\models$) is the same, but they can be
+		distinguished by the type of left operand.
 
 	\subsection{Homomorphisms}
 
