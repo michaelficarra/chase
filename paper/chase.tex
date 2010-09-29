@@ -14,10 +14,18 @@
 	\item an infinite run, with possible return dependent on implementation
 	\end{itemize}
 
-	\subsection{Algorithm}
-
 	Recall that geometric formul{\ae} are of the form
-	\[\bigwedge A \to \bigvee \bigwedge \exists \vec{x} A\]
-	where $A$ is an atomic formula and all sets can be zero-length.
+	\[\forall\ (free(F_L) \cup free(F_R)) : F_L \to F_R\]
+	where $free$ is the function that returns the set of all free variables for
+	a given formula and all $F$ are first-order logic formul{\ae} in positive
+	existential form.
+
+	Geometric logic formulas are used by the chase because they have the useful
+	property in that adding any relations or domain members to a model that
+	satisfies a geometric logic formula will never cause the formula to no
+	longer be satisified. This is particularly helpful when trying to create a
+	model that satisifies all formulas in a geometric theory.
+
+	\subsection{Algorithm}
 
 	\subsection{Examples}

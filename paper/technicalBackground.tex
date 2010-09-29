@@ -19,7 +19,7 @@
 	\subsection{First-order Logic}
 
 		\emph{First-order logic}, also called \emph{predicate logic}, is a
-		formula logic system that is an extension of propositional logic. For
+		formal logic system that is an extension of propositional logic. For
 		our purposes, this logic system will not contain any constant symbols
 		or function symbols, which are commonly included in first-order and
 		propositional logic.
@@ -38,17 +38,22 @@
 		\item if $\alpha$ is a formula and $\vec{x}$ is a set of variables of size $k$ then $(\exists \vec{x} : \alpha)$ is $(\exists x_0 \ldots \exists x_{k-1} : \alpha)$
 		\end{itemize}
 
+	\subsection{Positive Existential Form}
+
+		Formulas in \emph{positive existential form} are constrained to using
+		only conjunctions ($\wedge$), disjunctions ($\vee$), existential
+		quantifications ($\exists$), tautologies ($\top$), contradictions
+		($\bot$), and relations to construct logic expressions.
+
+		Though formul{\ae} in positive existential form may at first appear to
+		be quite restrictive, there exists some simple logical tricks to allow
+		the expression of nearly any first-order logic formula. \textbf{explain these}
+
 	\subsection{Geometric Logic}
 
-		\emph{Geometric logic} is first-order logic with constraints on the
-		shape of the expression.  Geometric logic formul{\ae} are implicitly
-		universally quantified first-order logic expressions of the form \[A_0
-		\wedge \ldots \wedge A_n \to E_0 \vee \ldots \vee E_m\] where $A_0
-		\ldots A_n$ are atomics, $E_0 \ldots E_m$ are first-order logic
-		expressions of the form $\exists_{x_0 \ldots x_k} A_0 \wedge \ldots
-		\wedge \exists_{x_0 \ldots x_p} A_y$, and $n$, $m$, $k$, $p$, and $y$
-		are integers greater than or equal to $0$. A set of geometric logic
-		formul{\ae} is called a \emph{geometric theory}.
+		\emph{Geometric logic} formul{\ae} are implicitly universally
+		quantified implications of positive existential formul{\ae}. A set of
+		geometric logic formul{\ae} is called a \emph{geometric theory}.
 
 		\textbf{explain why GL is useful to us}
 
@@ -135,9 +140,9 @@
 		formul{\ae}} $\sigma$, if $\mathbb{M} \models \sigma$ then $\mathbb{N}
 		\models \sigma$.
 
-		An \emph{isomorphism} is a homomorphism $h : \mathbb{A} \to \mathbb{B}$
-		where $h$ is 1:1 and onto and the inverse function $h^{-1} : \mathbb{B}
-		\to \mathbb{A}$ is a homomorphism.
+		A homomorphism $h : \mathbb{A} \to \mathbb{B}$ is also an
+		\emph{isomorphism} when $h$ is 1:1 and onto and the inverse function
+		$h^{-1} : \mathbb{B} \to \mathbb{A}$ is a homomorphism.
 
 	\subsection{Minimal Models}
 
@@ -149,4 +154,8 @@
 		they are minimal.
 
 		More than one minimal model may exist for a given theory, and not every
-		theory must have a minimal model. \textbf{give examples}
+		theory must have a minimal model. \textbf{give examples}.
+
+		A set of models $M$ is said to be \emph{jointly minimal} for a set of
+		formul{\ae} $\Sigma$ when every model $\mu$ such that $\mu \models
+		\Sigma$ has a homomorphism from a model $m \in M$ to $\mu$.
