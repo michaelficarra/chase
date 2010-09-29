@@ -47,7 +47,10 @@
 
 		Though formul{\ae} in positive existential form may at first appear to
 		be quite restrictive, there exists some simple logical tricks to allow
-		the expression of nearly any first-order logic formula. \textbf{explain these}
+		more expressiveness. Negation of a relation $R$ with arity $k$ can be
+		implemented by assuming another relation $R'$ with arity $k$, adding
+		two formul{\ae} to the theory of the form $R \wedge R' \to \bot$ and
+		$\top \to R \vee R'$, and using $R'$ where $\neg R$ would be used.
 
 	\subsection{Geometric Logic}
 
