@@ -1,5 +1,7 @@
 \section{The Chase}
 
+	\textbf{talk about chase as nondeterministic algorithm or deterministic implementation algorithm? or both...}
+
 	The \emph{chase} is a function that, when given a gemoetric theory, will
 	generate a set of jointly minimal models for that theory. More
 	specifically, if $U$ is the set of all models obtained from an execution of
@@ -18,14 +20,51 @@
 	\[\forall\ (free(F_L) \cup free(F_R)) : F_L \to F_R\]
 	where $free$ is the function that returns the set of all free variables for
 	a given formula and all $F$ are first-order logic formul{\ae} in positive
-	existential form.
+	existential form. Also recall that a geometric formula's implication is
+	implicitly universally quantified over all free variables.
 
-	Geometric logic formulas are used by the chase because they have the useful
-	property in that adding any relations or domain members to a model that
-	satisfies a geometric logic formula will never cause the formula to no
+	Geometric logic formul{\ae} are used by the chase because they have the
+	useful property where adding any relations or domain members to a model
+	that satisfies a geometric logic formula will never cause the formula to no
 	longer be satisified. This is particularly helpful when trying to create a
-	model that satisifies all formulas in a geometric theory.
+	model that satisifies all formul{\ae} in a geometric theory.
 
 	\subsection{Algorithm}
 
 	\subsection{Examples}
+
+		Define $\Sigma$ as the following geometric theory
+
+		\begin{eqnarray}
+			\top    &  \to  &  \exists\ y,z : R[y,z]                             \\
+			R[x,w]  &  \to  &  (\exists\ y : Q[x,y]) \vee (\exists\ z : P[x,z])  \\
+			Q[u,v]  &  \to  &  (\exists\ z : R[u,z]) \vee (\exists\ z : R[z,w])  \\
+			P[u,v]  &  \to  &  \bot
+		\end{eqnarray}
+
+		The following three chase runs show the different types of results
+		depending on which disjunct the algorithm attempts to satisfy when a
+		disjunction is encountered
+
+		\textbf{TODO: label these}
+
+		\begin{tabular}{lllllll}
+			$\emptyset$ & $\mapsto$ & \{ & $a,b$   & $|$ & $R[a,b]$         & \} \\
+			{}          & $\mapsto$ & \{ & $a,b,c$ & $|$ & $R[a,b], Q[a,c]$ & \} \\
+		\end{tabular}
+
+		\begin{tabular}{lllllll}
+			$\emptyset$ & $\mapsto$ & \{ & $a,b$   & $|$ & $R[a,b]$               & \} \\
+			{}          & $\mapsto$ & \{ & $a,b,c$ & $|$ & $R[a,b], P[a,c]$       & \} \\
+			{}          & $\mapsto$ & \{ & $a,b,c$ & $|$ & $R[a,b], P[a,c], \bot$ & \} \\
+		\end{tabular}
+
+		\begin{tabular}{lllllll}
+			$\emptyset$ & $\mapsto$ & \{ & $a,b$                & $|$ & $R[a,b]$                                        & \} \\
+			{}          & $\mapsto$ & \{ & $a,b,c$              & $|$ & $R[a,b], Q[a,c]$                                & \} \\
+			{}          & $\mapsto$ & \{ & $a,b,c,d$            & $|$ & $R[a,b], Q[a,c], R[d,c]$                        & \} \\
+			{}          & $\mapsto$ & \{ & $a,b,c,d,e$          & $|$ & $R[a,b], Q[a,c], R[d,c], Q[d,e]$                & \} \\
+			{}          & $\mapsto$ & \{ & $a,b,c,d,e,f$        & $|$ & $R[a,b], Q[a,c], R[d,c], Q[d,e], R[f,e]$        & \} \\
+			{}          & $\mapsto$ & \{ & $a,b,c,d,e,f,\ldots$ & $|$ & $R[a,b], Q[a,c], R[d,c], Q[d,e], R[f,e],\ldots$ & \} \\
+			{}          & $\mapsto$ & \multicolumn{5}{l}{ \ldots } \\
+		\end{tabular}

@@ -38,6 +38,19 @@
 		\item if $\alpha$ is a formula and $\vec{x}$ is a set of variables of size $k$ then $(\exists \vec{x} : \alpha)$ is $(\exists x_0 \ldots \exists x_{k-1} : \alpha)$
 		\end{itemize}
 
+		A shorthand notation may sometimes be used which omits either the left
+		or right side of an implication and implies a tautology ($\top \to
+		\sigma$) and a contradiction ($\sigma \to \bot$) respectively.
+
+		Examples of first-order logic formul{\ae}
+
+		\begin{tabular}{ll}
+		\emph{reflexivity}  \quad  &  $\to R[x,x]$                       \\
+		\emph{symmetry}     \quad  &  $R[x,y] \to R[y,x]$                \\
+		\emph{transitivity} \quad  &  $R[x,y] \wedge R[y,z] \to R[x,z]$  \\
+		                           &  $\forall\ x : R[x] \vee Q[x]$      \\
+		\end{tabular}
+
 	\subsection{Positive Existential Form}
 
 		Formulas in \emph{positive existential form} are constrained to using
@@ -58,14 +71,14 @@
 		quantified implications of positive existential formul{\ae}. A set of
 		geometric logic formul{\ae} is called a \emph{geometric theory}.
 
-		\textbf{explain why GL is useful to us}
+		\textbf{explain why GL is useful to us... maybe?}
 
 	\subsection{Variable Binding}
 
 		The set of free variables in a formula is defined inductively as follows
 		\begin{itemize}
 		\item any variable occurance in an atomic formula is a free variable
-		\item the free variables in $\top$ and $\bot$ are {\o}
+		\item the free variables in $\top$ and $\bot$ are $\emptyset$
 		\item the free variables in $\neg\alpha$ are the free variables in $\alpha$
 		\item the free variables in $\alpha \wedge \beta$ are the union of the set of free variables in $\alpha$ with the set of free variables in $\beta$
 		\item the free variables in $\alpha \vee   \beta$ are the union of the set of free variables in $\alpha$ with the set of free variables in $\beta$

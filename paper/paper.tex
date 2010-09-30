@@ -3,9 +3,18 @@
 \usepackage{amssymb}
 \usepackage{listings}
 \usepackage[nodayofweek]{datetime}
+\usepackage{setspace}
 \usepackage{graphicx}
+\usepackage{amsmath}
 \usepackage[breaklinks]{hyperref}
 \usepackage[all]{hypcap}
+
+\setlength{\textheight}{8.63in}
+\setlength{\textwidth}{5.9in}
+\setlength{\topmargin}{-0.2in}
+\setlength{\oddsidemargin}{0.3in}
+\setlength{\evensidemargin}{0.3in}
+\setlength{\headsep}{0.0in}
 
 \setlength{\parindent}{0cm}
 \setlength{\parskip}{0.4cm}
@@ -15,7 +24,11 @@
 
 \begin{titlepage}
 \begin{center}
-	\textsc{\huge Generating Minimal Models for Geometric Theories}\\[1cm]
+	\textsc{
+			{\huge Generating Minimal Models}\\[0.2cm]
+			{\large for}\\[0.3cm]
+			{\huge Geometric Theories}
+		}\\[1cm]
 	A Major Qualifying Project Report\\
 	submitted to the Faculty of\\[0.7cm]
 	\textsc{ \large Worcester Polytechnic Institute }\\[0.7cm]
@@ -62,6 +75,8 @@ implementation of the chase and its development process and design decisions.
 \pagenumbering{arabic}
 
 
+%\onehalfspacing
+
 % main paper sections
 \include{introduction}
 \include{technicalBackground}
@@ -69,6 +84,7 @@ implementation of the chase and its development process and design decisions.
 \include{application}
 \include{implementation}
 
+\singlespacing
 
 %\section{For later reference:}
 %	\begin{figure}[graphics_test]
