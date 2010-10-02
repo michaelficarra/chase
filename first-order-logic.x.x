@@ -15,6 +15,7 @@ tokens :-
 	[Cc]"ontradiction"              { \p s -> TokenContradiction p }
 	"->"                            { \p s -> TokenImplies p }
 	"!"                             { \p s -> TokenNOT p }
+	"EQ"                            { \p s -> TokenEQ p }
 	"|"                             { \p s -> TokenOR p }
 	"&"                             { \p s -> TokenAND p }
 	"("                             { \p s -> TokenParenOpen p }
@@ -33,6 +34,7 @@ data Token
 	| TokenOR AlexPosn
 	| TokenAND AlexPosn
 	| TokenNOT AlexPosn
+	| TokenEQ AlexPosn
 	| TokenBracketOpen AlexPosn
 	| TokenBracketClose AlexPosn
 	| TokenParenOpen AlexPosn
@@ -53,6 +55,7 @@ tokenPosn :: Token -> AlexPosn
 tokenPosn (TokenOR p) = p
 tokenPosn (TokenAND p) = p
 tokenPosn (TokenNOT p) = p
+tokenPosn (TokenEQ p) = p
 tokenPosn (TokenBracketOpen p) = p
 tokenPosn (TokenBracketClose p) = p
 tokenPosn (TokenParenOpen p) = p
@@ -72,6 +75,7 @@ showToken :: Token -> String
 showToken (TokenOR p) = "OR"
 showToken (TokenAND p) = "AND"
 showToken (TokenNOT p) = "NOT"
+showToken (TokenEQ p) = "EQ"
 showToken (TokenBracketOpen p) = "BracketOpen"
 showToken (TokenBracketClose p) = "BracketClose"
 showToken (TokenParenOpen p) = "ParenOpen"
