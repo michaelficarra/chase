@@ -15,7 +15,7 @@ tokens :-
 	[Cc]"ontradiction"              { \p s -> TokenContradiction p }
 	"->"                            { \p s -> TokenImplies p }
 	"!"                             { \p s -> TokenNOT p }
-	"EQ"                            { \p s -> TokenEQ p }
+	"="                             { \p s -> TokenEQ p }
 	"|"                             { \p s -> TokenOR p }
 	"&"                             { \p s -> TokenAND p }
 	"("                             { \p s -> TokenParenOpen p }
@@ -24,8 +24,8 @@ tokens :-
 	"]"                             { \p s -> TokenBracketClose p }
 	":"                             { \p s -> TokenColon p }
 	","                             { \p s -> TokenComma p }
-	[a-z][a-z0-9_']*                { \p s -> TokenVariable p s }
-	[A-Z][a-z0-9_']*                { \p s -> TokenPredicate p s }
+	[a-z][A-Za-z0-9_']*             { TokenVariable }
+	[A-Z][A-Za-z0-9_']*             { TokenPredicate }
 
 {
 

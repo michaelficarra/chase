@@ -62,6 +62,7 @@ isPEF :: Formula -> Bool
 isPEF formula = case formula of
 	Or a b -> (isPEF a) && (isPEF b)
 	And a b -> (isPEF a) && (isPEF b)
+	Equality v1 v2 -> True
 	ExistentialQuantifier v f -> isPEF f
 	Atomic p v -> True
 	Tautology -> True
@@ -99,6 +100,37 @@ parseModel str =
 	let domainSize = read.head $ fileLines :: DomainElement in
 	let relations = tail fileLines in
 	mkModel (mkDomain domainSize) (parseRelations relations)
+
+factSubstitute :: DomainElement -> DomainElement -> [DomainElement] -> [DomainElement]
+-- takes a list of domainelements, a small domainelement, and a large domainelement
+-- replaces large with small and decremements elements larger than large
+factSubstitute small large [] = []
+factSubstitute small large (d:ds)
+	| d == large = small : rest
+	| d > large = (d-1) : rest
+	| otherwise = d : rest
+	where
+		rest = factSubstitute small large ds
+
+relationSubstitute :: DomainElement -> DomainElement -> Relation -> Relation
+-- replaces instances of the larger of the given domainelements with the smaller one in a relation
+relationSubstitute d1 d2 (predicate,arity,truthTable) =
+	-- coerce a and b into small and large
+	let (small,large) = (min d1 d2, max d1 d2) in
+	let newTruthTable = nub $ map (factSubstitute d1 d2) truthTable in
+	(predicate,arity,newTruthTable)
+
+quotient :: Model -> DomainElement -> DomainElement -> Model
+-- make two domain elements equal in a given model
+quotient model @ (domain,relations) a b
+	| a == b = model
+	| otherwise =
+	let newDomainSize = (length domain) - 1 in
+	let newRelations = map (relationSubstitute a b) relations in
+	mkModel (mkDomain newDomainSize) newRelations
+
+
+-- NON-STANDARD STANDARDS --
 
 split :: Eq a => a -> [a] -> [[a]]
 -- split an array by an element of that array
@@ -379,6 +411,9 @@ holds' model env formula = let (domain,relations) = model in let self = holds' m
 	Or a b -> self env a || self env b
 	And a b -> self env a && self env b
 	Not f -> not $ self env f
+	Equality v1 v2 -> case (lookup v1 env,lookup v2 env) of
+		(Just v1, Just v2) -> v1 == v2
+		_ -> error("Could not look up one of \"" ++ variableName v1 ++ "\" or \"" ++ variableName v2 ++ "\" in environment")
 	Implication a b -> self env b || not (self env a)
 	UniversalQuantifier [] f -> self env f
 	UniversalQuantifier (v:vs) f -> all (\v' -> self (hashSet env v v') (UniversalQuantifier vs f)) domain

@@ -22,8 +22,8 @@ main = do
 
 	-- chase function tests
 	putStrLn "--- chase 0 ---"
-	putStrLn.prettyPrintArray $ map showFormula theory0
-	putStrLn.prettyPrintArray $ map showModel generatedModels0
+	-- putStrLn.prettyPrintArray $ map showFormula theory0
+	-- putStrLn.prettyPrintArray $ map showModel generatedModels0
 
 	let timeStr = formatTime (defaultTimeLocale) "%s" time
 	let modelDir = "models"
@@ -31,7 +31,7 @@ main = do
 	let modelOutputDir = modelDir ++ "/" ++ timeStr
 	unless modelDirExists (createDirectory modelDir)
 	createDirectory modelOutputDir
-	writeModelsToFiles modelOutputDir generatedModels0
+	writeModelsToFiles modelOutputDir generatedModels2
 
 	-- putStrLn "--- chase 1 ---"
 	-- putStrLn.prettyPrintArray $ map showFormula theory1
@@ -54,5 +54,11 @@ main = do
 			"R[a,b] -> (Exists y: Q[a,y]) | (Exists z,b: P[z,b,a])",
 			"Q[a,a] -> Exists z: R[a,z]",
 			"P[a,b,c] -> R[a,a] & Q[b,b]"
+			]
+
+		generatedModels2 = chase theory2
+		theory2 = generate.scanTokens.unlines $ [
+			"-> Exists a,b: R[a,b]",
+			"R[a,b] -> a = b"
 			]
 

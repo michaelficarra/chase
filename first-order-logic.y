@@ -12,6 +12,7 @@ import Word
 	OR                 { TokenOR _ }
 	AND                { TokenAND _ }
 	NOT                { TokenNOT _ }
+	EQ                 { TokenEQ _ }
 	"["                { TokenBracketOpen _ }
 	"]"                { TokenBracketClose _ }
 	"("                { TokenParenOpen _ }
@@ -64,6 +65,7 @@ exprValue
 	| TAUTOLOGY                             { Tautology }
 	| CONTRADICTION                         { Contradiction }
 	| NOT exprValue                         { Not $2 }
+	| VARIABLE EQ VARIABLE                  { Equality (Variable $1) (Variable $3) }
 
 atomic: PREDICATE index                     { Atomic $1 $2 }
 
@@ -89,6 +91,7 @@ data Formula
 	= Or Formula Formula
 	| And Formula Formula
 	| Not Formula
+	| Equality Variable Variable
 	| Implication Formula Formula
 	| UniversalQuantifier ArgList Formula
 	| ExistentialQuantifier ArgList Formula
@@ -106,6 +109,7 @@ type ArgList = [Variable]
 mkOr a b = Or a b
 mkAnd a b = And a b
 mkNot f = Not f
+mkEquality v1 v2 = Equality v1 v2
 mkImplication a b = Implication a b
 decomposeImplication (Implication a b) = (a,b)
 mkUniversalQuantifier v f = UniversalQuantifier v f

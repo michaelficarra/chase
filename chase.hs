@@ -67,12 +67,20 @@ attemptToSatisfy' model env formula =
 		Contradiction -> []
 		Or a b -> union (self env a) (self env b)
 		And a b -> concatMap (\m -> attemptToSatisfy' m env b) (self env a)
+		Equality v1 v2 -> case (lookup v1 env,lookup v2 env) of
+			(Just v1, Just v2) -> [quotient model v1 v2]
+			_ -> error("Could not look up one of \"" ++ variableName v2 ++ "\" or \"" ++ variableName v2 ++ "\" in environment")
 		Implication a b -> if holds' model env a then self env b else []
 		Atomic predicate vars ->
-			let newRelation = mkRelation predicate (length vars) [genNewRelationArgs env vars (fromIntegral (length domain))] in
+			let newRelationArgs = genNewRelationArgs env vars (fromIntegral (length domain)) in
+			let newRelation = mkRelation predicate (length vars) [newRelationArgs] in
 			let newModel = mkModel (mkDomain domainSize) (mergeRelation newRelation relations) in
 			trace ("    adding new relation: " ++ show newRelation) $
 			[newModel]
+		UniversalQuantifier [] f -> self env f
+		UniversalQuantifier (v:vs) f ->
+			let f' = UniversalQuantifier vs f in
+			concatMap (\v' -> self (hashSet env v v') f') domain
 		ExistentialQuantifier [] f -> self env f
 		ExistentialQuantifier (v:vs) f ->
 			let f' = ExistentialQuantifier vs f in
@@ -83,10 +91,6 @@ attemptToSatisfy' model env formula =
 			else
 				trace ("    adding new domain element " ++ show nextDomainElement ++ " for variable " ++ (show$variableName v)) $
 				attemptToSatisfy' (mkDomain nextDomainElement,relations) (hashSet env v nextDomainElement) f'
-		UniversalQuantifier [] f -> self env f
-		UniversalQuantifier (v:vs) f ->
-			let f' = UniversalQuantifier vs f in
-			concatMap (\v' -> self (hashSet env v v') f') domain
 		_ -> error ("formula not in positive existential form: " ++ showFormula formula)
 
 genNewRelationArgs :: Environment -> [Variable] -> DomainElement -> [DomainElement]
