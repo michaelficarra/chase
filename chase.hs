@@ -57,19 +57,19 @@ findFirstBindingFailure model formula (e:es) =
 	if holds' model e formula then self es
 	else
 		trace ("  attempting to satisfy (" ++ showFormula formula ++ ") with env " ++ show e) $
-		attemptToSatisfy model e formula
+		chaseSatisfy model e formula
 
-attemptToSatisfy :: Model -> Environment -> Formula -> [Model]
+chaseSatisfy :: Model -> Environment -> Formula -> [Model]
 -- 
-attemptToSatisfy model env formula =
+chaseSatisfy model env formula =
 	let (domain,relations) = model in
 	let domainSize = length domain in
-	let self = attemptToSatisfy model in
+	let self = chaseSatisfy model in
 	case formula of
 		Tautology -> [model]
 		Contradiction -> []
 		Or a b -> union (self env a) (self env b)
-		And a b -> concatMap (\m -> attemptToSatisfy m env b) (self env a)
+		And a b -> concatMap (\m -> chaseSatisfy m env b) (self env a)
 		Equality v1 v2 -> case (lookup v1 env,lookup v2 env) of
 			(Just v1, Just v2) -> [quotient model v1 v2]
 			_ -> error("Could not look up one of \"" ++ variableName v2 ++ "\" or \"" ++ variableName v2 ++ "\" in environment")
@@ -89,7 +89,7 @@ attemptToSatisfy model env formula =
 				[model]
 			else
 				trace ("    adding new domain element " ++ show nextDomainElement ++ " for variable " ++ (show$variableName v)) $
-				attemptToSatisfy (mkDomain nextDomainElement,relations) (hashSet env v nextDomainElement) f'
+				chaseSatisfy (mkDomain nextDomainElement,relations) (hashSet env v nextDomainElement) f'
 		_ -> error ("formula not in positive existential form: " ++ showFormula formula)
 
 genNewRelationArgs :: Environment -> [Variable] -> DomainElement -> [DomainElement]
