@@ -85,7 +85,7 @@ attemptToSatisfy model env formula =
 		ExistentialQuantifier (v:vs) f ->
 			let f' = ExistentialQuantifier vs f in
 			let nextDomainElement = fromIntegral $ (length domain) + 1 in
-			if any (\v' -> holds' model (hashSet env v v') f') domain then
+			if (length domain > 0) && (any (\v' -> holds' model (hashSet env v v') f') domain) then
 				trace ("    " ++ showFormula formula ++ " already holds") $
 				[model]
 			else
