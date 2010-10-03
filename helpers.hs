@@ -117,7 +117,7 @@ relationSubstitute :: DomainElement -> DomainElement -> Relation -> Relation
 relationSubstitute d1 d2 (predicate,arity,truthTable) =
 	-- coerce a and b into small and large
 	let (small,large) = (min d1 d2, max d1 d2) in
-	let newTruthTable = nub $ map (factSubstitute d1 d2) truthTable in
+	let newTruthTable = nub $ map (factSubstitute small large) truthTable in
 	(predicate,arity,newTruthTable)
 
 quotient :: Model -> DomainElement -> DomainElement -> Model
@@ -360,6 +360,7 @@ showFormula formula = case formula of
 	And a b -> "(" ++ (showFormula a) ++ " & " ++ (showFormula b) ++ ")"
 	Or a b -> "(" ++ (showFormula a) ++ " | " ++ (showFormula b) ++ ")"
 	Not f -> "!" ++ (showFormula f)
+	Equality v1 v2 -> (variableName v1) ++ "=" ++ (variableName v2)
 	Implication a b -> "(" ++ (showFormula a) ++ ")" ++ " -> " ++ "(" ++ (showFormula b) ++ ")"
 	UniversalQuantifier v f -> "ForAll " ++ (intercalate "," (map variableName v)) ++ ": (" ++ (showFormula f) ++ ")"
 	ExistentialQuantifier v f -> "Exists " ++ (intercalate "," (map variableName v)) ++ ": (" ++ (showFormula f) ++ ")"
@@ -383,12 +384,11 @@ writeModelsToFiles :: String -> [Model] -> IO ()
 -- outputs the given list of models to files in the given directory in a format
 -- as defined by `exportModel`
 writeModelsToFiles directory models = do
-	head $
-		map (\(modelNumber,model) ->
-				let file = directory ++ "/" ++ (show modelNumber) in
-				writeFile file (exportModel model)
-			)
-		$ zip (iterate (+1) 0) models
+	mapM (\(modelNumber,model) ->
+			let file = directory ++ "/" ++ (show modelNumber) in
+			writeFile file (exportModel model)
+		) (zip (iterate (+1) 0) models)
+	return ()
 
 
 -- MAIN --

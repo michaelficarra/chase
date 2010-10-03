@@ -21,52 +21,56 @@ chaseVerify formulae =
 chase :: [Formula] -> [Model]
 -- runs the chase algorithm on a given theory and returns a list of models that
 -- satisfy it
-chase formulae = chase' (chaseVerify formulae) ([],[(mkModel [] [])])
+chase formulae = chase' (chaseVerify formulae) [mkModel [] []]
 
-chase' :: [Formula] -> ([Model],[Model]) -> [Model]
+chase' :: [Formula] -> [Model] -> [Model]
 -- used by the chase function to hide the model identity argument
-chase' formulae (done,[]) = done
-chase' formulae (done,pending) =
+chase' formulae [] = []
+chase' formulae pending@(p:ending) =
 	let self = chase' formulae in
-	let (p:ending) = pending in
-	trace ("running chase on " ++ show (done,pending)) $
-	if all (\f -> holds p (UniversalQuantifier (freeVariables f) f)) formulae then
-		trace ("  all formulae in theory hold for model " ++ showModel p) $
-		trace ("  moving model into done list") $
-		self (union done [p],ending)
-	else
-		let possiblySatisfiedModels = attemptToSatisfyFirstFailure p formulae in
-		trace ("  at least one formula does not hold for model " ++ showModel p) $
-		trace ("  unioning " ++ show ending ++ " with [" ++ intercalate ", " (map showModel possiblySatisfiedModels) ++ "]") $
-		self (done, union ending possiblySatisfiedModels)
+	trace ("running chase on " ++ show pending) $
+	case attemptToSatisfyFirstFailure p formulae of
+		Just models ->
+			trace ("  at least one formula does not hold for model " ++ showModel p) $
+			trace ("  unioning " ++ show ending ++ " with [" ++ intercalate ", " (map showModel models) ++ "]") $
+			self (union ending models)
+		Nothing ->
+			trace ("  all formulae in theory hold for model " ++ showModel p) $
+			trace ("  moving model into done list") $
+			p : self ending
 
-attemptToSatisfyFirstFailure :: Model -> [Formula] -> [Model]
--- checks if each formula holds, sequentially, until one does not, then tries
--- to satisfy that formula
-attemptToSatisfyFirstFailure model (f:ormulae) =
+attemptToSatisfyFirstFailure :: Model -> [Formula] -> Maybe [Model]
+attemptToSatisfyFirstFailure model [] = Nothing
+attemptToSatisfyFirstFailure model@(domain,relations) (f:ormulae) =
 	let self = attemptToSatisfyFirstFailure model in
+	let bindings = allBindings (freeVariables f) domain [] in
 	if holds model (UniversalQuantifier (freeVariables f) f) then self ormulae
-	else attemptToSatisfy model f
+	else Just $ attemptToSatisfyFirstBindingFailure model f bindings
 
-attemptToSatisfy :: Model -> Formula -> [Model]
--- returns a model that is altered so that the given formula will hold
-attemptToSatisfy model formula =
-	let f' = UniversalQuantifier (freeVariables formula) formula in
-	trace ("  attempting to satisfy (" ++ showFormula formula ++ ")") $
-	attemptToSatisfy' model [] f'
+attemptToSatisfyFirstBindingFailure :: Model -> Formula -> [Environment] -> [Model]
+attemptToSatisfyFirstBindingFailure model formula (e:es) =
+	let self = attemptToSatisfyFirstBindingFailure model formula in
+	if holds' model e formula then self es
+	else
+		trace ("  attempting to satisfy (" ++ showFormula formula ++ ") with env " ++ show e) $
+		attemptToSatisfy model e formula
 
-attemptToSatisfy' :: Model -> Environment -> Formula -> [Model]
+allBindings :: [Variable] -> Domain -> Environment -> [Environment]
+allBindings [] _ env = [env]
+allBindings (v:vs) domain env =
+	concatMap (allBindings vs domain) (map (hashSet env v) domain)
+
+attemptToSatisfy :: Model -> Environment -> Formula -> [Model]
 -- hides the environment identity in the `attemptToSatisfy` function arguments
-attemptToSatisfy' model env formula =
+attemptToSatisfy model env formula =
 	let (domain,relations) = model in
 	let domainSize = length domain in
-	let self = attemptToSatisfy' model in
-	-- trace ("  attempting to satisfy (" ++ showFormula formula ++ ") with env " ++ show env) $
+	let self = attemptToSatisfy model in
 	case formula of
 		Tautology -> [model]
 		Contradiction -> []
 		Or a b -> union (self env a) (self env b)
-		And a b -> concatMap (\m -> attemptToSatisfy' m env b) (self env a)
+		And a b -> concatMap (\m -> attemptToSatisfy m env b) (self env a)
 		Equality v1 v2 -> case (lookup v1 env,lookup v2 env) of
 			(Just v1, Just v2) -> [quotient model v1 v2]
 			_ -> error("Could not look up one of \"" ++ variableName v2 ++ "\" or \"" ++ variableName v2 ++ "\" in environment")
@@ -77,10 +81,6 @@ attemptToSatisfy' model env formula =
 			let newModel = mkModel (mkDomain domainSize) (mergeRelation newRelation relations) in
 			trace ("    adding new relation: " ++ show newRelation) $
 			[newModel]
-		UniversalQuantifier [] f -> self env f
-		UniversalQuantifier (v:vs) f ->
-			let f' = UniversalQuantifier vs f in
-			concatMap (\v' -> self (hashSet env v v') f') domain
 		ExistentialQuantifier [] f -> self env f
 		ExistentialQuantifier (v:vs) f ->
 			let f' = ExistentialQuantifier vs f in
@@ -90,7 +90,7 @@ attemptToSatisfy' model env formula =
 				[model]
 			else
 				trace ("    adding new domain element " ++ show nextDomainElement ++ " for variable " ++ (show$variableName v)) $
-				attemptToSatisfy' (mkDomain nextDomainElement,relations) (hashSet env v nextDomainElement) f'
+				attemptToSatisfy (mkDomain nextDomainElement,relations) (hashSet env v nextDomainElement) f'
 		_ -> error ("formula not in positive existential form: " ++ showFormula formula)
 
 genNewRelationArgs :: Environment -> [Variable] -> DomainElement -> [DomainElement]

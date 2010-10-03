@@ -31,6 +31,7 @@ main = do
 	let modelOutputDir = modelDir ++ "/" ++ timeStr
 	unless modelDirExists (createDirectory modelDir)
 	createDirectory modelOutputDir
+	putStrLn.prettyPrintArray $ map showFormula theory2
 	writeModelsToFiles modelOutputDir generatedModels2
 
 	-- putStrLn "--- chase 1 ---"
@@ -58,7 +59,9 @@ main = do
 
 		generatedModels2 = chase theory2
 		theory2 = generate.scanTokens.unlines $ [
-			"-> Exists a,b: R[a,b]",
-			"R[a,b] -> a = b"
+			"T[a,a] -> Contradiction",
+			"T[a,b] & T[b,a] -> Contradiction",
+			"-> Exists a,b,c,d,e: T[a,b] & T[b,c] & T[d,e]",
+			"-> T[a,b] | T[b,a] | b=a"
 			]
 
