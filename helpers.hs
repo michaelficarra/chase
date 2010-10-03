@@ -129,6 +129,12 @@ quotient model @ (domain,relations) a b
 	let newRelations = map (relationSubstitute a b) relations in
 	mkModel (mkDomain newDomainSize) newRelations
 
+allBindings :: [Variable] -> Domain -> Environment -> [Environment]
+-- 
+allBindings [] _ env = [env]
+allBindings (v:vs) domain env =
+	concatMap (allBindings vs domain) (map (hashSet env v) domain)
+
 
 -- NON-STANDARD STANDARDS --
 
