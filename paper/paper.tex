@@ -6,6 +6,7 @@
 \usepackage{setspace}
 \usepackage{graphicx}
 \usepackage{amsmath}
+\usepackage[vlined]{algorithm2e}
 \usepackage[breaklinks]{hyperref}
 \usepackage[all]{hypcap}
 
@@ -21,50 +22,12 @@
 
 \begin{document}
 
-
-\begin{titlepage}
-\begin{center}
-	\textsc{
-		{\huge Generating Minimal Models}\\[0.2cm]
-		{\Large for}\\[0.3cm]
-		{\huge Geometric Theories}
-	}\\[1cm]
-	A Major Qualifying Project Report\\
-	submitted to the Faculty of\\[0.7cm]
-	\textsc{ \large Worcester Polytechnic Institute }\\[0.7cm]
-	in partial fulfillment of\\
-	the requirements for the degree of\\
-	Bachelor of Science\\[1cm]
-	by\\[1cm]
-	~\hspace{2cm}\dotfill\hspace{2cm}~\\
-	\textsc{\Large Michael Ficarra}\\[1cm]
-	on\\[1cm]
-	{\Large \today}\\
-	\vfill
-	\begin{flushright}
-		\hspace{8cm}\dotfill \\
-		\textsc{Daniel Dougherty}\\
-		professor, project advisor\\
-	\end{flushright}
-\end{center}
-\end{titlepage}
-
+\include{titlePage}
 
 \pagenumbering{roman}
 
-~\\
-\vfill
-\begin{abstract}
-This paper describes a method, referred to as the chase, for generating jointly
-minimal models for a geometric theory. A minimal model for a theory is a model
-for which there exists a homomorphism to any other model that can satisfy the
-theory. These models are useful in solutions to problems in many practical
-applications, including but not limited to firewall configuration examination,
-protocol analysis, and access control evaluation. Also described is a Haskell
-implementation of the chase and its development process and design decisions.
-\end{abstract}
-\vfill
-~\\
+\include{abstract}
+
 \newpage
 
 \renewcommand{\contentsname}{Table of Contents}
@@ -74,34 +37,22 @@ implementation of the chase and its development process and design decisions.
 
 \pagenumbering{arabic}
 
-
 %\onehalfspacing
 
 % main paper sections
 \include{introduction}
 \include{technicalBackground}
 \include{chase}
-\include{application}
 \include{implementation}
+\include{application}
 
 \singlespacing
-
-%\section{For later reference:}
-%	\begin{figure}[graphics_test]
-%		\begin{center}
-%			\includegraphics[width=0.8\textwidth]{pic1.jpg}
-%		\end{center}
-%		\caption[Caption in List of Figures]{Caption in report}
-%	\end{figure}
-
 
 \appendix
 	\include{appendixSyntaxTable}
 	\include{appendixChase}
 
-
 \addcontentsline{toc}{section}{References}
 \include{references}
-
 
 \end{document}

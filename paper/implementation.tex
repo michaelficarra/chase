@@ -1,3 +1,95 @@
 \section{Haskell Chase Implementation}
 
+	The goal of the implementation of the chase is to deterministically find
+	all possible outcomes of the chase. It does this by forking and taking all
+	paths when encountering a disjunct rather than nondeterministically
+	choosing one disjunct to satisfy.
+
+	The results from the attempts to satisfy each disjunct are returned as a
+	list. The returned list will not contain an entry for runs that return no
+	model, and will merge lists returned from runs that themselves encountered
+	a disjunct. The lazy evaluation of Haskell allows a user to access members
+	of the returned list even though some chase runs have not returned a value.
+
+	Appendix B contains the chase-running portions of the implementation.
+
+	\subsection{Operation}
+
+	The first step of the chase implementation is to verify that each formula
+	of the given theory is an implication of positive-existential formul{\ae}.
+	If a formula $\varphi$ is not an implication, but is in
+	positive-existential form, it is replaced with $\top \to \varphi$.
+
+	After the input verification and coercion step, the $chase$ function begins
+	processing a \emph{pending} list, which is initially populated with a
+	single model that has an empty domain and no facts. In the special case
+	where $chase$ is run on an empty list, an empty list of models is returned.
+
+	For each \emph{pending} model, each formula is evaluated to see if it holds
+	in the model for all bindings.  If a binding is found that does not satisfy
+	the model, the model and binding in which the formula did not hold is
+	passed to the $chaseSatisfy$ function, along with the formula that needs to
+	be satisfied.  The list of models returned from $chaseSatisfy$ is merged
+	into the \emph{pending} list, and the result of running $chase$ on the new
+	\emph{pending} list is returned.  If, however, the model holds for all
+	formul{\ae} in the theory and all possible associated bindings, it is
+	concatenated with the result of running the chase on the rest of the models
+	in the \emph{pending} list.
+
+	The $chaseSatisfy$ function performs a pattern match on the type of formula
+	given. Assuming $chaseSatisfy$ is given a model $\mathbb{M}$, a binding
+	$\lambda$, and a formula $\varphi$, $chaseSatisfy$ will behave as outlined
+	in the following algorithm.
+
+	\begin{algorithm}[H]
+	\DontPrintSemicolon
+	return \Switch{$\varphi$}{
+		\lCase{$\top$}{return a list containing $\mathbb{M}$} \;
+		\lCase{$\bot$}{return an empty list} \;
+		\lCase{$\rho = \tau$}{return a list containing the model returned by applying the \emph{quotient} function to $\mathbb{M}$} \;
+		\lCase{$\alpha \vee \beta$}{return (result of recursion on $\alpha$) $\cup$ (result of recursion on $\beta)$)} \;
+		\Case{$\alpha \wedge \beta$}{
+			create an empty list $r$ \;
+			\ForEach{model $m$ in the result of recursion on $\alpha$}{
+				union $r$ with the result of recursion on $\beta$ \;
+			}
+			return $r$ \;
+		}
+		\Case{$\alpha \to \beta$}{
+			\lIf{$\mathbb{M}_\lambda \models \alpha$}{return the result of recursion on $\beta$ \;}
+			\lElse{return an empty list \;}
+		}
+		\Case{$R[\vec x]$}{
+			define a new model $\mathbb{N}$ where $|\mathbb{N}| = |\mathbb{M}|$ \;
+			add a new element $\omega$ to $|\mathbb{N}|$ \;
+			\lForAll{$P_\mathbb{M}$}{$P_\mathbb{N} = P_\mathbb{M}$ \;}
+			define $R_{\mathbb{N}}[x_0 \ldots x_n]$ as $R_{\mathbb{M}}[\lambda(x_0) \ldots \lambda(x_n)]$ \;
+			\ForEach{$v \in \vec x$}{
+				\lIf{$v \not\in \lambda$}{
+					$\lambda$ becomes $\lambda_{v \mapsto \omega}$ \;
+				}
+			}
+			return a list containing $\mathbb{N}$ \;
+		}
+		\Case{$\exists\ \vec x : \alpha$}{
+			\lIf{$\vec x = \emptyset$}{ recurse on $\alpha$ } \;
+			\eIf{$|\mathbb{M}| \ne \emptyset$ and $\exists\ v' \in |\mathbb{M}| : (\lambda' = \lambda_{x_0 \mapsto v'}$ and $\mathbb{M} \models_{\lambda'} \alpha)$}{
+				return a list containing $\mathbb{M}$ \;
+			}{
+				define a new model $\mathbb{N}$ where $|\mathbb{N}| = |\mathbb{M}|$ \;
+				add an element $\omega$ to $|\mathbb{N}|$ such that $\omega \not\in |\mathbb{N}|$ \;
+				\lForAll{$R_\mathbb{M}$}{$R_\mathbb{N} = R_\mathbb{M}$ \;}
+				define $\kappa = \lambda_{x_0 \mapsto \omega}$ \;
+				return the result of recursion using model $\mathbb{N}$ and binding $\kappa$ on $\exists\ \{x_1 \ldots x_n\} : \alpha$ \;
+			}
+		}
+	}
+	\end{algorithm}
+
+	\subsection{Options}
+
+		\subsubsection{I/O}
+
+		\subsubsection{Tracing}
+
 	\subsection{Future Considerations}

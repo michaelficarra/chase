@@ -46,25 +46,29 @@
 		depending on which disjunct the algorithm attempts to satisfy when a
 		disjunction is encountered
 
-		\textbf{TODO: label these}
+		A non-empty result in finite time:
 
 		\begin{tabular}{lllllll}
 			$\emptyset$ & $\mapsto$ & \{ & $a,b$   & $|$ & $R[a,b]$         & \} \\
 			{}          & $\mapsto$ & \{ & $a,b,c$ & $|$ & $R[a,b], Q[a,c]$ & \} \\
 		\end{tabular}
 
+		An empty result in finite time:
+
 		\begin{tabular}{lllllll}
 			$\emptyset$ & $\mapsto$ & \{ & $a,b$   & $|$ & $R[a,b]$               & \} \\
 			{}          & $\mapsto$ & \{ & $a,b,c$ & $|$ & $R[a,b], P[a,c]$       & \} \\
 			{}          & $\mapsto$ & \{ & $a,b,c$ & $|$ & $R[a,b], P[a,c], \bot$ & \} \\
+			{}          & $\mapsto$ & \multicolumn{5}{l}{ $\varepsilon$ } \\
 		\end{tabular}
 
+		An infinite run:
+
 		\begin{tabular}{lllllll}
-			$\emptyset$ & $\mapsto$ & \{ & $a,b$                & $|$ & $R[a,b]$                                        & \} \\
-			{}          & $\mapsto$ & \{ & $a,b,c$              & $|$ & $R[a,b], Q[a,c]$                                & \} \\
-			{}          & $\mapsto$ & \{ & $a,b,c,d$            & $|$ & $R[a,b], Q[a,c], R[d,c]$                        & \} \\
-			{}          & $\mapsto$ & \{ & $a,b,c,d,e$          & $|$ & $R[a,b], Q[a,c], R[d,c], Q[d,e]$                & \} \\
-			{}          & $\mapsto$ & \{ & $a,b,c,d,e,f$        & $|$ & $R[a,b], Q[a,c], R[d,c], Q[d,e], R[f,e]$        & \} \\
-			{}          & $\mapsto$ & \{ & $a,b,c,d,e,f,\ldots$ & $|$ & $R[a,b], Q[a,c], R[d,c], Q[d,e], R[f,e],\ldots$ & \} \\
-			{}          & $\mapsto$ & \multicolumn{5}{l}{ \ldots } \\
+			$\emptyset$ & $\mapsto$ & \{ & $a,b$         & $|$ & $R[a,b]$                                 & \} \\
+			{}          & $\mapsto$ & \{ & $a,b,c$       & $|$ & $R[a,b], Q[a,c]$                         & \} \\
+			{}          & $\mapsto$ & \{ & $a,b,c,d$     & $|$ & $R[a,b], Q[a,c], R[d,c]$                 & \} \\
+			{}          & $\mapsto$ & \{ & $a,b,c,d,e$   & $|$ & $R[a,b], Q[a,c], R[d,c], Q[d,e]$         & \} \\
+			{}          & $\mapsto$ & \{ & $a,b,c,d,e,f$ & $|$ & $R[a,b], Q[a,c], R[d,c], Q[d,e], R[f,e]$ & \} \\
+			{}          & $\mapsto$ & \multicolumn{5}{l}{ $\ldots$ } \\
 		\end{tabular}

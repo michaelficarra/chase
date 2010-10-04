@@ -8,6 +8,7 @@
 		$R[a_0,a_1,a_2]$                 &  a \emph{relation} of: relation symbol $R$, arity $3$, and tuple $\langle a_0,a_1,a_2 \rangle$  \\
 		$\top$                           &  a \emph{tautological formula}; one that will always hold                \\
 		$\bot$                           &  a \emph{contradictory formula}; one that will never hold                \\
+		$\rho = \tau$                    &  given assumed environment $\lambda$, $\lambda(\rho) = \lambda(\tau)$    \\
 		$\neg \alpha$                    &  $\alpha$ does not hold                                                  \\
 		$\alpha \wedge \beta$            &  both $\alpha$ and $\beta$ hold                                          \\
 		$\alpha \vee \beta$              &  either $\alpha$ or $\beta$ hold                                         \\
@@ -17,7 +18,7 @@
 		$\exists x : \alpha$             &  for each at least one element of the domain as $x$, $\alpha$ holds      \\
 		$\exists \vec{x} : \alpha$       &  for each $x_i \in x$, $\exists x_i : \alpha$ holds                      \\
 		\hline
-		$l[x \mapsto y]$                 &  the environment $l$ with variable $x$ mapped to domain member $y$       \\
+		$\lambda[x \mapsto y]$           &  the environment $\lambda$ with variable $x$ mapped to domain member $y$ \\
 		\hline
 		$\mathbb{M} \models_l \sigma$    &  $\mathbb{M}$ \emph{is a model of} $\sigma$ under environment $l$        \\
 		$\mathbb{M} \models \sigma$      &  $\mathbb{M} \models_l \sigma$ given any environment $l$                 \\
