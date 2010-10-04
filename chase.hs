@@ -1,8 +1,10 @@
 module Chase where
 import Parser
 import Helpers
-import Debug.Trace
+import qualified Debug.Trace
 import Data.List
+
+trace x = id
 
 chaseVerify :: Formula -> Formula
 -- verifies that a formula is in positive existential form and performs some

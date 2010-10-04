@@ -21,7 +21,7 @@ data Options = Options  {
 defaultOptions :: Options
 defaultOptions = Options {
     optInput  = getContents,
-    optOutput = putStrLn.(intercalate "\n\n").(map exportModel)
+    optOutput = putStrLn.(intercalate "\n").(map showModel)
   }
 
 options :: [OptDescr (Options -> IO Options)]
