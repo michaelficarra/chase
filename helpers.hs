@@ -386,14 +386,20 @@ exportModel (domain,relations) =
 		) truthTable
 	) relations
 
+
+writeModelToFile :: String -> Model -> IO ()
+writeModelToFile file model = do
+	writeFile file (exportModel model)
+	return ()
+
 writeModelsToFiles :: String -> [Model] -> IO ()
 -- outputs the given list of models to files in the given directory in a format
 -- as defined by `exportModel`
 writeModelsToFiles directory models = do
 	mapM (\(modelNumber,model) ->
 			let file = directory ++ "/" ++ (show modelNumber) in
-			writeFile file (exportModel model)
-		) (zip (iterate (+1) 0) models)
+			writeModelToFile file model
+		) $ zip (iterate (+1) 0) models
 	return ()
 
 
