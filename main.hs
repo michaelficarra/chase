@@ -13,27 +13,32 @@ import System.Console.GetOpt
 import Data.Maybe( fromMaybe )
 import Control.Monad
 
-data Options = Options  {
-    optInput  :: IO String,
-    optOutput :: [Model] -> IO ()
-  }
+data Options = Options
+	{ optInput  :: IO String
+	, optOutput :: [Model] -> IO ()
+	}
 
 defaultOptions :: Options
-defaultOptions = Options {
-    optInput  = getContents,
-    optOutput = putStrLn.(intercalate "\n").(map showModel)
-  }
+defaultOptions = Options
+	{ optInput  = getContents
+	, optOutput = putStrLn.(intercalate "\n").(map showModel)
+	}
 
 options :: [OptDescr (Options -> IO Options)]
-options = [
-    Option ['V'] ["version"] (NoArg showVersion)         "show version number",
-    Option ['i'] ["input"]   (ReqArg readInput "FILE")   "input file to read",
-    Option ['o'] ["output"]  (OptArg writeOutput "FILE") "output file to write"
-  ]
+options =
+	[ Option ['V'] ["version"] (NoArg showVersion)         "show version number"
+	, Option ['?'] ["help"]    (NoArg showHelp)            "show usage"
+	, Option ['i'] ["input"]   (ReqArg readInput "FILE")   "input file to read"
+	, Option ['o'] ["output"]  (OptArg writeOutput "FILE") "output file to write"
+	]
 
 showVersion _ = do
-  putStrLn "0.1.12"
-  exitWith ExitSuccess
+	putStrLn "0.1.12"
+	exitWith ExitSuccess
+
+showHelp _ = do
+	putStrLn "help contents"
+	exitWith ExitSuccess
 
 readInput arg opt = return opt { optInput = readFile arg }
 writeOutput arg opt = do
