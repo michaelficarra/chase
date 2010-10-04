@@ -1,0 +1,4 @@
+-> Exists a,b: P[a,b,b]
+R[a,b] -> (Exists y: Q[a,y]) | (Exists z,b: P[z,b,a])
+Q[a,a] -> Exists z: R[a,z]
+P[a,b,c] -> R[a,a] & Q[b,b]

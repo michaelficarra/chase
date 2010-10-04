@@ -8,60 +8,54 @@ import Data.Time
 import Data.Time.Clock
 import System.Locale
 import System.Directory
+import System
+import System.Console.GetOpt
+import Data.Maybe( fromMaybe )
 import Control.Monad
 
-main = do
-	formulae <- getContents
-	let parseTrees = generate (scanTokens formulae)
+data Options = Options  {
+    optInput  :: IO String,
+    optOutput :: [Model] -> IO ()
+  }
+
+defaultOptions :: Options
+defaultOptions = Options {
+    optInput  = getContents,
+    optOutput = putStrLn.(intercalate "\n\n").(map exportModel)
+  }
+
+options :: [OptDescr (Options -> IO Options)]
+options = [
+    Option ['V'] ["version"] (NoArg showVersion)         "show version number",
+    Option ['i'] ["input"]   (ReqArg readInput "FILE")   "input file to read",
+    Option ['o'] ["output"]  (OptArg writeOutput "FILE") "output file to write"
+  ]
+
+showVersion _ = do
+  putStrLn "0.1.12"
+  exitWith ExitSuccess
+
+readInput arg opt = return opt { optInput = readFile arg }
+writeOutput arg opt = do
 	time <- getCurrentTime
-	-- putStrLn $ prettyPrintArray (map showFormula parseTrees)
-
-	-- modelAStr <- loadModel "A"
-	-- let modelA = parseModel modelAStr
-	-- putStrLn $ "model A: " ++ showModel modelA
-
-	-- chase function tests
-	putStrLn "--- chase 0 ---"
-	-- putStrLn.prettyPrintArray $ map showFormula theory0
-	-- putStrLn.prettyPrintArray $ map showModel generatedModels0
-
 	let timeStr = formatTime (defaultTimeLocale) "%s" time
-	let modelDir = "models"
-	modelDirExists <- doesDirectoryExist modelDir
+	let modelDir = fromMaybe "models" arg
 	let modelOutputDir = modelDir ++ "/" ++ timeStr
+	modelDirExists <- doesDirectoryExist modelDir
 	unless modelDirExists (createDirectory modelDir)
 	createDirectory modelOutputDir
-	putStrLn.prettyPrintArray $ map showFormula theory2
-	writeModelsToFiles modelOutputDir generatedModels2
+	return opt { optOutput = writeModelsToFiles modelOutputDir }
 
-	-- putStrLn "--- chase 1 ---"
-	-- putStrLn.prettyPrintArray $ map showFormula theory1
-	-- putStrLn.prettyPrintArray $ map showModel generatedModels1
+
+main = do
+	let parse = generate.scanTokens
+	args <- getArgs
+	let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
+	opts <- foldl (>>=) (return defaultOptions) actions
+	let Options { optInput = wrappedInput, optOutput = output } = opts
+	input <- wrappedInput
+	putStrLn input
+	output (chase $ parse $ input)
 
 	where
 		prettyPrintArray arr = if length arr == 1 then "[ " ++ (head arr) ++ " ]" else "[ " ++ (intercalate "\n, " arr) ++ "\n]"
-
-		generatedModels0 = chase theory0
-		theory0 = generate.scanTokens.unlines $ [
-			"-> Exists y,z: R[y,z]",
-			"R[x,w] -> (Exists y: Q[x,y]) | (Exists z: P[x,z])",
-			"Q[u,v] -> (Exists z: R[u,z]) | (Exists z: R[z,w])",
-			"P[u,v] -> Contradiction"
-			]
-
-		generatedModels1 = chase theory1
-		theory1 = generate.scanTokens.unlines $ [
-			"-> Exists a,b: P[a,b,b]",
-			"R[a,b] -> (Exists y: Q[a,y]) | (Exists z,b: P[z,b,a])",
-			"Q[a,a] -> Exists z: R[a,z]",
-			"P[a,b,c] -> R[a,a] & Q[b,b]"
-			]
-
-		generatedModels2 = chase theory2
-		theory2 = generate.scanTokens.unlines $ [
-			"T[a,a] -> Contradiction",
-			"T[a,b] & T[b,a] -> Contradiction",
-			"-> Exists a,b,c,d,e: T[a,b] & T[b,c] & T[d,e]",
-			"-> T[a,b] | T[b,a] | b=a"
-			]
-
