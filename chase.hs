@@ -4,7 +4,8 @@ import Helpers
 import qualified Debug.Trace
 import Data.List
 
-trace x = id
+-- trace x = id
+trace = Debug.Trace.trace
 
 chaseVerify :: Formula -> Formula
 -- verifies that a formula is in positive existential form and performs some
@@ -24,7 +25,7 @@ chaseVerify formula =
 chase :: [Formula] -> [Model]
 -- a wrapper for the chase' function to hide the model identity and theory
 -- manipulation
-chase formulae = chase' (map chaseVerify formulae) [([],[])]
+chase formulae = nub $ chase' (map chaseVerify formulae) [([],[])]
 
 chase' :: [Formula] -> [Model] -> [Model]
 -- runs the chase algorithm on a given theory, manipulating the given list of
