@@ -1,19 +1,19 @@
 task :ruby => ['ruby:lexer','ruby:parser','ruby:test']
-task :haskell => ['haskell:lexer','haskell:parser','haskell:test']
+task :build => [:lexer,:parser]
+task :default => [:build,:test]
 task :paper => ['paper:pdf','paper:view']
 
-task :clean => ['ruby:clean','haskell:clean','paper:clean']
 
 namespace 'ruby' do
 
 	desc 'Generate lexer with rexical'
 	task :lexer do
-		sh 'rex *.rex --stub'
+		sh 'rex chase.rex --stub'
 	end
 
 	desc 'Generate parser with racc'
 	task :parser do
-		sh 'racc -SEv -e "/usr/bin/env ruby" *.racc'
+		sh 'racc -SEv -e "/usr/bin/env ruby" chase.racc'
 	end
 
 	desc 'Clean up generated files and files output during debugging'
@@ -23,36 +23,33 @@ namespace 'ruby' do
 
 	desc 'Test the generated parser against the sample program'
 	task :test do
-		sh 'ruby -Ku *.tab.rb simple-grammar-sample-unicode.fol'
+		sh 'ruby -Ku *.tab.rb theories/trichotomy'
 	end
 
 end
 
 
-namespace 'haskell' do
+desc 'Generate lexer with alex'
+task :lexer do
+	sh 'alex lexer.x'
+end
 
-	desc 'Generate lexer with alex'
-	task :lexer do
-		sh 'alex *.x.x'
-	end
+desc 'Generate parser with happy'
+task :parser do
+	sh 'happy -i parser.y'
+end
 
-	desc 'Generate parser with happy'
-	task :parser do
-		sh 'happy -i *.y'
-	end
+desc 'Clean up generated files and files output during debugging'
+task :clean do
+	sh 'rm -rf chase {lexer,parser}.hs a.out *.{hi,info,o} models'
+end
 
-	desc 'Clean up generated files and files output during debugging'
-	task :clean do
-		sh 'rm -rf first-order-logic{,.x.hs,.hs} a.out *.{hi,info,o} models/*'
-	end
-
-	desc 'Test the generated parser against the sample program'
-	task :test do
-		sh 'ghc -o first-order-logic first-order-logic{.x,}.hs helpers.hs chase.hs main.hs'
-		sh 'chmod u+x first-order-logic'
-		sh 'cat theories/trichotomy | ./first-order-logic'
-	end
-
+desc 'Test the generated parser against the sample program'
+task :test, [:theory] do |task,args|
+	args.with_defaults :theory => 'trichotomy'
+	sh 'ghc -o chase lexer.hs parser.hs helpers.hs chase.hs main.hs'
+	sh 'chmod u+x chase'
+	sh "cat theories/#{args[:theory]} | ./chase"
 end
 
 

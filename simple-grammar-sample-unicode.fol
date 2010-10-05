@@ -1,6 +1,0 @@
-∃ a,b Z[c,d]
-∀e: B[f]
-∀ g,h : C[i,j] ∧ D[k,l] → (∀m,n,o,p: P[m,n] ∧ Q[o,p])
-∀ q,r,s E[t,u] ∧ F[v,w] → G(x)
-∃y: ∀z: ∀a: ¬(H[b,c] ∨ I[d,e]) ∧ Jklmn[fghi,ghij]
-∀ h ∃ i K[j,k] ∧ ¬L(l,m) ∨ M[n,o] ∧ N[p,q] → O[r,s]

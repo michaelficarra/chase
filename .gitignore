@@ -5,9 +5,9 @@ a.out
 *.hi
 *.info
 *.o
-first-order-logic
-first-order-logic.hs
-first-order-logic.x.hs
+chase
+parser.hs
+lexer.hs
 models
 *.aux
 *.log

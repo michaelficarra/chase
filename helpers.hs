@@ -386,7 +386,7 @@ showFormula formula = case formula of
 	Atomic p v -> p ++ "[" ++ (intercalate "," (map variableName v)) ++ "]"
 	Tautology -> "True"
 	Contradiction -> "False"
-	_ -> "[?]"
+	-- _ -> "[?]"
 
 exportModel :: Model -> String
 -- converts a model to a String that is in an easily parseable, yet
