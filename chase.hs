@@ -17,6 +17,10 @@ verify formula =
 			if isNotPEF a || isNotPEF b then
 				error ("implication must be in positive existential form: " ++ showFormula formula)
 			else formula
+		Not f ->
+			if isNotPEF f then
+				error ("formula must be in positive existential form: " ++ showFormula formula)
+			else (Implication f Contradiction)
 		_ ->
 			if isNotPEF formula then
 				error ("formula must be in positive existential form: " ++ showFormula formula)
