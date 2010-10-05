@@ -14,30 +14,36 @@ import Data.Maybe( fromMaybe )
 import Control.Monad
 
 data Options = Options
-	{ optInput  :: IO String
+	{ optDebug  :: Bool
+	, optInput  :: IO String
 	, optOutput :: [Model] -> IO ()
 	}
 
 defaultOptions :: Options
 defaultOptions = Options
-	{ optInput  = getContents
+	{ optDebug  = False
+	, optInput  = getContents
 	, optOutput = putStrLn.(intercalate "\n").(map showModel)
 	}
 
 options :: [OptDescr (Options -> IO Options)]
 options =
-	[ Option ['V'] ["version"] (NoArg showVersion)         "show version number"
-	, Option ['?'] ["help"]    (NoArg showHelp)            "show usage"
-	, Option ['i'] ["input"]   (ReqArg readInput "FILE")   "input file to read"
-	, Option ['o'] ["output"]  (OptArg writeOutput "FILE") "output file to write"
+	[ Option ['i'] ["input"]           (ReqArg readInput "FILE")   "input file containing geometric theory; stdin if omitted"
+	, Option ['o'] ["output"]          (OptArg writeOutput "FILE") "output directory; defaults to \"models\"; stdout if omitted"
+	, Option ['d'] ["debug","trace"]   (NoArg enableDebug)         "enable tracing output (not yet implemented)"
+	, Option ['V'] ["version"]         (NoArg showVersion)         "show version number and exit"
+	, Option ['?'] ["help"]            (NoArg showHelp)            "show this usage text and exit"
 	]
 
 showVersion _ = do
-	putStrLn "0.1.12"
+	putStrLn "0.1.13"
 	exitWith ExitSuccess
 
+enableDebug opt = do
+	return opt { optDebug = True }
+
 showHelp _ = do
-	putStrLn "help contents"
+	putStrLn $ usageInfo "\n  Usage: chase [option...] \n" options
 	exitWith ExitSuccess
 
 readInput arg opt = return opt { optInput = readFile arg }
