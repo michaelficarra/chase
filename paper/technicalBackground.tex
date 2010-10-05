@@ -1,9 +1,5 @@
 \section{Technical Background}
 
-	In this paper, possibly ambiguous or uncommon notation will be used and
-	thusly must be clearly defined.  Also, topics that are necessary
-	prerequisites will be summarized.
-
 	\subsection{Models}
 
 		A \emph{model} $\mathbb{M}$ is a construct that consists of:
@@ -19,112 +15,88 @@
 	\subsection{First-order Logic}
 
 		\emph{First-order logic}, also called \emph{predicate logic}, is a
-		formal logic system that is an extension of propositional logic. For
-		our purposes, this logic system will not contain any constant symbols
-		or function symbols, which are commonly included in first-order and
-		propositional logic. We will see that these can be removed without loss
-		of generality.
+		formal logic system. For our purposes, this logic system will not
+		contain any constant symbols or function symbols, which are commonly
+		included in first-order and propositional logic. We will see that these
+		can be removed without loss of expressiveness in \textbf{reference to GL section}.
 
 		A first-order logic formula is defined inductively by
 		\begin{itemize}
-		\item if $R$ is a relation symbol of arity $k$ and each of $t_0 , \ldots , t_{k-1}$ is a variable, then $R[t_0,\ldots,t_{k-1}]$ is a formula, specifically an \emph{atomic formula}
-		\item if $\rho$ and $\tau$ are variables, then $\rho = \tau$ is a formula
+		\item if $R$ is a relation symbol of arity $k$ and each of $x_0 \ldots x_{k-1} \in \vec{x}$ is a variable, then $R[\vec{x}]$ is a formula, specifically an \emph{atomic formula}
+		\item if $x$ and $y$ are variables, then $x = y$ is a formula
 		\item $\top$ and $\bot$ are formul{\ae}
 		\item if $\alpha$ is a formula, then $(\neg\alpha)$ is a formula
 		\item if $\alpha$ and $\beta$ are formul{\ae}, then $(\alpha \wedge \beta)$ is a formula
 		\item if $\alpha$ and $\beta$ are formul{\ae}, then $(\alpha \vee \beta)$ is a formula
 		\item if $\alpha$ and $\beta$ are formul{\ae}, then $(\alpha \to \beta)$ is a formula
 		\item if $\alpha$ is a formula and $x$ is a variable, then $(\forall x : \alpha)$ is a formula
-		\item if $\alpha$ is a formula and $\vec{x}$ is a set of variables of size $k$, then $(\forall \vec{x} : \alpha)$ is $(\forall x_0 \ldots \forall x_{k-1} : \alpha)$
 		\item if $\alpha$ is a formula and $x$ is a variable, then $(\exists x : \alpha)$ is a formula
-		\item if $\alpha$ is a formula and $\vec{x}$ is a set of variables of size $k$, then $(\exists \vec{x} : \alpha)$ is $(\exists x_0 \ldots \exists x_{k-1} : \alpha)$
 		\end{itemize}
 
 		A shorthand notation may sometimes be used which omits either the left
-		or right side of an implication and implies a tautology ($\top \to
-		\sigma$) and a contradiction ($\sigma \to \bot$) respectively.
-
-		Examples of first-order logic formul{\ae}
-
-		\begin{tabular}{ll}
-		\emph{reflexivity}  \quad  &  $\to R[x,x]$                         \\
-		\emph{symmetry}     \quad  &  $R[x,y] \to R[y,x]$                  \\
-		\emph{transitivity} \quad  &  $R[x,y] \wedge R[y,z] \to R[x,z]$    \\
-		                           &  $\forall\ r,u : R[r,r,r] \vee Q[u]$  \\
-		\end{tabular}
-
-	\subsection{Positive Existential Form}
-
-		Formul{\ae} in \emph{positive existential form} are constrained to using
-		only conjunctions ($\wedge$), disjunctions ($\vee$), existential
-		quantifications ($\exists$), tautologies ($\top$), contradictions
-		($\bot$), equalities, and relations to construct logic expressions.
-
-		Though formul{\ae} in positive existential form may at first appear to
-		be quite restrictive, there exists some simple logical tricks to allow
-		more expressiveness. Negation of a relation $R$ with arity $k$ can be
-		implemented by assuming another relation $R'$ with arity $k$, adding
-		two formul{\ae} to the theory of the form $R \wedge R' \to \bot$ and
-		$\top \to R \vee R'$, and using $R'$ where $\neg R$ would be used.
-
-	\subsection{Geometric Logic}
-
-		\emph{Geometric logic} formul{\ae} are implicitly universally
-		quantified implications of positive existential formul{\ae}. A set of
-		geometric logic formul{\ae} is called a \emph{geometric theory}.
+		or right side of an implication and denotes ($\top \to \sigma$) and
+		($\sigma \to \bot$) respectively.  If $\alpha$ is a formula and
+		$\vec{x}$ is a set of variables of size $k$, then $(\forall \vec{x} :
+		\alpha)$ is $(\forall x_0 \ldots \forall x_{k-1} : \alpha)$.  If
+		$\alpha$ is a formula and $\vec{x}$ is a set of variables of size $k$,
+		then $(\exists \vec{x} : \alpha)$ is $(\exists x_0 \ldots \exists
+		x_{k-1} : \alpha)$.
 
 	\subsection{Variable Binding}
 
-		The set of free variables in a formula is defined inductively as follows
+		Given a function $free$ that returns the set of free variables in a
+		formula, the set of free variables in a formula is defined inductively
+		as follows
 		\begin{itemize}
-		\item any variable occurance in an atomic formula is a free variable
-		\item the free variables in $\top$ and $\bot$ are $\emptyset$
-		\item the free variables in $\rho = \tau$ are $\{\rho,\tau\}$
-		\item the free variables in $\neg\alpha$ are the free variables in $\alpha$
-		\item the free variables in $\alpha \wedge \beta$ are the union of the set of free variables in $\alpha$ with the set of free variables in $\beta$
-		\item the free variables in $\alpha \vee   \beta$ are the union of the set of free variables in $\alpha$ with the set of free variables in $\beta$
-		\item the free variables in $\alpha \to    \beta$ are the union of the set of free variables in $\alpha$ with the set of free variables in $\beta$
-		\item the free variables in $\forall x : \alpha$ are the free variables in $\alpha$ that are not $x$
-		\item the free variables in $\exists x : \alpha$ are the free variables in $\alpha$ that are not $x$
+		\item any variable occuring in an atomic formula is a free variable
+		\item the set of free variables in $\top$ and $\bot$ is $\emptyset$
+		\item the set of free variables in $x = y$ is $\{x,y\}$
+		\item the set of free variables in $\neg\alpha$ is $free(\alpha)$
+		\item the set of free variables in $\alpha \wedge \beta$ is $free(\alpha) \cup free(\beta)$
+		\item the set of free variables in $\alpha \vee   \beta$ is $free(\alpha) \cup free(\beta)$
+		\item the set of free variables in $\alpha \to    \beta$ is $free(\alpha) \cup free(\beta)$
+		\item the set of free variables in $\forall x : \alpha$ is $free(\alpha) - \{x\}$
+		\item the set of free variables in $\exists x : \alpha$ is $free(\alpha) - \{x\}$
 		\end{itemize}
-		A \emph{sentence} is a formula with an empty set of free variables.
+		A formula $\alpha$ is a \emph{sentence} if $free(\alpha) = \emptyset$.
 
 	\subsection{Environment}
 
-		An \emph{environment} for a model $\mathbb{M}$, sometimes referred to
-		as a \emph{binding}, is a function from a variable to an element in
-		$|\mathbb{M}|$. The syntax $\lambda_{[v \mapsto v']}$ defines an
-		environment $\lambda'(x)$ that returns $v'$ when $x=v$ and returns
-		$\lambda(x)$ otherwise.
+		An \emph{environment} $\lambda$ for a model $\mathbb{M}$ is a function
+		from a variable $v$ to a domain element $e$ where $e \in |\mathbb{M}|$.
+		The syntax $\lambda_{[v \mapsto a]}$ denotes the environment
+		$\lambda'(x)$ that returns $a$ when $x=v$ and returns $\lambda(x)$
+		otherwise.
 
 	\subsection{Satisfiability}
 
 		A model $\mathbb{M}$ is said to satisfy a formula $\sigma$ in an
-		environment $l$ when
+		environment $\lambda$, denoted $\mathbb{M} \models_\lambda \sigma$ and
+		read ``under $\lambda$, $\sigma$ is true in $\mathbb{M}$", when
 		\begin{itemize}
-		\item $\sigma$ is a relation symbol $R$ and $R[l(a_0) , \ldots , l(a_n)] \in \mathbb{M}$ where $a$ is a set of variables
-		\item $\sigma$ is of the form $\neg\alpha$ and $\mathbb{M} \not\models_l \alpha$
-		\item $\sigma$ is of the form $\alpha\wedge\beta$ and both $\mathbb{M} \models_l \alpha$ and $\mathbb{M} \models_l \beta$
-		\item $\sigma$ is of the form $\alpha\vee\beta$ and either $\mathbb{M} \models_l \alpha$ or $\mathbb{M} \models_l \beta$
-		\item $\sigma$ is of the form $\alpha\to\beta$ and either $\mathbb{M} \not\models_l \alpha$ or $\mathbb{M} \models_l \beta$
-		\item $\sigma$ is of the form $\forall x : \alpha$  and for every $x' \in |\mathbb{M}|$, $\mathbb{M} \models_{l[x \mapsto x']} \alpha$
-		\item $\sigma$ is of the form $\exists x : \alpha$  and for at least one $x' \in |\mathbb{M}|$, $\mathbb{M} \models_{l[x \mapsto x']} \alpha$
+		\item $\sigma$ is a relation symbol $R$ and $R[\lambda(a_0) , \ldots , \lambda(a_n)] \in \mathbb{M}$ where $a$ is a set of variables
+		\item $\sigma$ is of the form $\neg\alpha$ and $\mathbb{M} \not\models_\lambda \alpha$
+		\item $\sigma$ is of the form $\alpha\wedge\beta$ and both $\mathbb{M} \models_\lambda \alpha$ and $\mathbb{M} \models_\lambda \beta$
+		\item $\sigma$ is of the form $\alpha\vee\beta$ and either $\mathbb{M} \models_\lambda \alpha$ or $\mathbb{M} \models_\lambda \beta$
+		\item $\sigma$ is of the form $\alpha\to\beta$ and either $\mathbb{M} \not\models_\lambda \alpha$ or $\mathbb{M} \models_\lambda \beta$
+		\item $\sigma$ is of the form $\forall x : \alpha$  and for every $x' \in |\mathbb{M}|$, $\mathbb{M} \models_{\lambda[x \mapsto x']} \alpha$
+		\item $\sigma$ is of the form $\exists x : \alpha$  and for at least one $x' \in |\mathbb{M}|$, $\mathbb{M} \models_{\lambda[x \mapsto x']} \alpha$
 		\end{itemize}
-		This is denoted as $\mathbb{M} \models_l \sigma$ and read "$\sigma$ is
-		true in $\mathbb{M}$". The notation $\mathbb{M} \models \sigma$ (no
-		environment specification) means that either, under any environment
-		$l$, $\mathbb{M} \models_l \sigma$.
+		The notation $\mathbb{M} \models \sigma$ (no environment specification)
+		means that, under any environment $l$, $\mathbb{M} \models_l \sigma$.
 
-		A model $\mathbb{M}$ satisfies a set of formul{\ae} $\Sigma$ if for every
-		$\sigma$ such that $\sigma \in \Sigma$, $\mathbb{M} \models \sigma$.
-		This is denoted as $\mathbb{M} \models \Sigma$ and read "$\mathbb{M}$
-		is a model of $\Sigma$".
+		A model $\mathbb{M}$ satisfies a set of formul{\ae} $\Sigma$ for an
+		environment $\lambda$ if for every $\sigma$ such that $\sigma \in
+		\Sigma$, $\mathbb{M} \models_\lambda \sigma$. This is denoted as
+		$\mathbb{M} \models_\lambda \Sigma$ and read "$\mathbb{M}$ is a model
+		of $\Sigma$".
 
 	\subsection{Entailment}
 
-		A set of formulan $\Sigma$ is said to \emph{entail} a formula $\sigma$
-		($\Sigma \models \sigma$) if the set of all models satisfied by
-		$\Sigma$ is a subset of the set of all models satisfied by $\sigma$.
+		Given an environment $\lambda$, a set of formul{\ae} $\Sigma$ is said
+		to \emph{entail} a formula $\sigma$ ($\Sigma \models_\lambda \sigma$)
+		if the set of all models satisfied by $\Sigma$ under $\lambda$ is a
+		subset of the set of all models satisfied by $\sigma$ under $\lambda$.
 
 		The notation used for satisfiability and entailment is very similar, in
 		that the operator used ($\models$) is the same, but they can be
@@ -147,16 +119,22 @@
 		The notation $\mathbb{M} \preceq \mathbb{N}$ means that there exists a
 		homomorphism $h : \mathbb{M} \to \mathbb{N}$. The identity function is
 		a homomorphism from any model $\mathbb{M}$ to itself.  Homomorphisms
-		are transitive, so $\mathbb{A} \preceq \mathbb{B} \wedge \mathbb{B}
-		\preceq \mathbb{C}$ implies $\mathbb{A} \preceq \mathbb{C}$. However,
-		$\mathbb{M} \preceq \mathbb{N} \wedge \mathbb{N} \preceq \mathbb{M}$
-		does not imply that $\mathbb{M} = \mathbb{N}$.
+		have the property that $\mathbb{A} \preceq \mathbb{B} \wedge \mathbb{B}
+		\preceq \mathbb{C}$ implies $\mathbb{A} \preceq \mathbb{C}$.
+
+		However, $\mathbb{M} \preceq \mathbb{N} \wedge \mathbb{N} \preceq
+		\mathbb{M}$ does not imply that $\mathbb{M} = \mathbb{N}$, but instead
+		that $\mathbb{M}$ and $\mathbb{N}$ are \emph{homomorphically
+		equivalent}.  For example, fix two models $\mathbb{M}$ and $\mathbb{N}$
+		that are equivalent except that $\mathbb{N}$ has one more domain
+		element than $\mathbb{M}$. Both $\mathbb{M} \preceq \mathbb{N}$ and
+		$\mathbb{N} \preceq \mathbb{M}$ are true, yet $\mathbb{M} \neq
+		\mathbb{N}$. Homomorphic Equivalence between a model $\mathbb{M}$ and a
+		model $\mathbb{N}$ is denoted $\mathbb{M} \simeq \mathbb{N}$.
 
 		Given models $\mathbb{M}$ and $\mathbb{N}$ where $\mathbb{M} \preceq
-		\mathbb{N}$ and a formula in positive-existential form
-		\footnote{geometric formul{\ae} are implications of positive-existential
-		formul{\ae}} $\sigma$, if $\mathbb{M} \models \sigma$ then $\mathbb{N}
-		\models \sigma$.
+		\mathbb{N}$ and a formula in positive-existential form $\sigma$, if
+		$\mathbb{M} \models \sigma$ then $\mathbb{N} \models \sigma$.
 
 		A homomorphism $h : \mathbb{A} \to \mathbb{B}$ is also an
 		\emph{isomorphism} when $h$ is 1:1 and onto and the inverse function
@@ -166,14 +144,53 @@
 
 		Minimal models, also called \emph{universal} models, are models for a
 		theory with the special property that there exists a homomorphism from
-		the minimal model to any other model satisfied by the theory. Minimal
-		models have no unnecessary entities or relations and thus display the
-		least amount of constraint necessary to satisfy the theory for which
-		they are minimal.
+		the minimal model to any other model that satisfies the theory.
+		Intuitively, minimal models have no unnecessary entities or relations
+		and thus display the least amount of constraint necessary to satisfy
+		the theory for which they are minimal.
 
 		More than one minimal model may exist for a given theory, and not every
 		theory must have a minimal model. \textbf{give examples}.
 
-		A set of models $M$ is said to be \emph{jointly minimal} for a set of
-		formul{\ae} $\Sigma$ when every model $\mu$ such that $\mu \models
-		\Sigma$ has a homomorphism from a model $m \in M$ to $\mu$.
+		A set of models $\mathcal{M}$ is said to be \emph{jointly minimal} for
+		a set of formul{\ae} $\Sigma$ when every model $\mathbb{N}$ such that
+		$\mathbb{N} \models \Sigma$ has a homomorphism from a model $\mathbb{M}
+		\in \mathcal{M}$ to $\mathbb{N}$.
+
+	\subsection{Positive Existential Form}
+
+		Formul{\ae} in \emph{positive existential form} are constructed using
+		only conjunctions ($\wedge$), disjunctions ($\vee$), existential
+		quantifications ($\exists$), tautologies ($\top$), contradictions
+		($\bot$), equalities, and relations.
+
+		Negation of a relation $R$ with arity $k$ can be implemented by
+		assuming another relation $R'$ with arity $k$, adding two formul{\ae}
+		to the theory of the form $R \wedge R' \to \bot$ and $\top \to R \vee
+		R'$, and using $R'$ where $\neg R$ would be used.
+
+	\subsection{Geometric Logic}
+
+		\emph{Geometric logic} formul{\ae} are implicitly universally
+		quantified implications between positive existential formul{\ae}. More
+		specifically, a geometric logic formula is of the form
+		\[\forall\ (free(F_L) \cup free(F_R)) : F_L \to F_R\]
+		where $free$ is the function that returns the set of all free variables
+		for a given formula and both $F_L$ and $F_R$ are are first-order logic
+		formul{\ae} in positive existential form.
+
+		A set
+		of geometric logic formul{\ae} is called a \emph{geometric theory}.
+
+		It is convention to treat a positive existential formula $\sigma$ as
+		$\top \to \sigma$ when expecting a geometric logic formula. It is also
+		convention to treat a negated positive existential formula $\neg\sigma$
+		as $\sigma \to \bot$.
+
+		Examples of geometric logic formul{\ae}
+
+		\begin{tabular}{ll}
+		\emph{reflexivity}  \quad  &  $\top \to R[x,x]$                  \\
+		\emph{symmetry}     \quad  &  $R[x,y] \to R[y,x]$                \\
+		\emph{transitivity} \quad  &  $R[x,y] \wedge R[y,z] \to R[x,z]$  \\
+		\end{tabular}

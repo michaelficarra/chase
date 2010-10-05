@@ -16,47 +16,70 @@
 	\subsection{Operation}
 
 	The first step of the chase implementation is to verify that each formula
-	of the given theory is an implication of positive-existential formul{\ae}.
-	If a formula $\varphi$ is not an implication, but is in
-	positive-existential form, it is replaced with $\top \to \varphi$.
+	of the given theory is a geometric logic formula. If a formula $\varphi$ is not a geometric logic formula, the chase
+	tries to coerce it into one using the following algorithm:
+	
+	\begin{algorithm}[H]
+	\DontPrintSemicolon
+	\Switch{$\varphi$}{
+		\Case{$\neg\alpha$}{
+			\If{$\alpha$ is in positive existential form}{
+				$\varphi$ is replaced with $\alpha \to \bot$ \;
+			}
+			\lElse{error \;}
+		}
+		\Other{
+			\If{$\varphi$ is in positive existential form}{
+				$\varphi$ is replaced with $\top \to \varphi$ \;
+			}
+			\lElse{error \;}
+		}
+	}
+	\end{algorithm}
 
-	After the input verification and coercion step, the $chase$ function begins
+	After the input verification and coercion step, the $chase$ function sorts
+	the input formul{\ae} by the number of disjuncts on the right side of the
+	implication. This step will cause each fork of the algorithm to finish in
+	less time, as they are likely to halt before forking yet again.
+
+	Once the input formul{\ae} are sorted, the $chase$ function begins
 	processing a \emph{pending} list, which is initially populated with a
 	single model that has an empty domain and no facts. In the special case
 	where $chase$ is run on an empty list, an empty list of models is returned.
 
 	For each \emph{pending} model, each formula is evaluated to see if it holds
-	in the model for all bindings.  If a binding is found that does not satisfy
-	the model, the model and binding in which the formula did not hold is
-	passed to the $chaseSatisfy$ function, along with the formula that needs to
-	be satisfied.  The list of models returned from $chaseSatisfy$ is merged
+	in the model for all environments.  If an envionment is found that does not satisfy
+	the model, the model and environment in which the formula did not hold is
+	passed to the $satisfy$ function, along with the formula that needs to
+	be satisfied.  The list of models returned from $satisfy$ is merged
 	into the \emph{pending} list, and the result of running $chase$ on the new
 	\emph{pending} list is returned.  If, however, the model holds for all
-	formul{\ae} in the theory and all possible associated bindings, it is
+	formul{\ae} in the theory and all possible associated environments, it is
 	concatenated with the result of running the chase on the rest of the models
 	in the \emph{pending} list.
 
-	The $chaseSatisfy$ function performs a pattern match on the type of formula
-	given. Assuming $chaseSatisfy$ is given a model $\mathbb{M}$, a binding
-	$\lambda$, and a formula $\varphi$, $chaseSatisfy$ will behave as outlined
+	The $satisfy$ function performs a pattern match on the type of formula
+	given. Assuming $satisfy$ is given a model $\mathbb{M}$, an environment
+	$\lambda$, and a formula $\varphi$, $satisfy$ will behave as outlined
 	in the following algorithm.
 
 	\begin{algorithm}[H]
 	\DontPrintSemicolon
+	\TitleOfAlgo{satisfy :: Model $\to$ Environment $\to$ Formula $\to$ [Model]}
 	return \Switch{$\varphi$}{
 		\lCase{$\top$}{return a list containing $\mathbb{M}$} \;
 		\lCase{$\bot$}{return an empty list} \;
-		\lCase{$\rho = \tau$}{return a list containing the model returned by applying the \emph{quotient} function to $\mathbb{M}$} \;
-		\lCase{$\alpha \vee \beta$}{return (result of recursion on $\alpha$) $\cup$ (result of recursion on $\beta)$)} \;
+		\lCase{$x=y$}{return a list containing $quotient(\mathbb{M})$} \;
+		\lCase{$\alpha \vee \beta$}{return $satisfy(\alpha) \cup satisfy(\beta)$} \;
 		\Case{$\alpha \wedge \beta$}{
 			create an empty list $r$ \;
-			\ForEach{model $m$ in the result of recursion on $\alpha$}{
-				union $r$ with the result of recursion on $\beta$ \;
+			\ForEach{model $m$ in $satisfy(\alpha)$}{
+				union $r$ with $satisfy(\beta)$ \;
 			}
 			return $r$ \;
 		}
 		\Case{$\alpha \to \beta$}{
-			\lIf{$\mathbb{M}_\lambda \models \alpha$}{return the result of recursion on $\beta$ \;}
+			\lIf{$\mathbb{M}_\lambda \models \alpha$}{return $satisfy(\beta)$ \;}
 			\lElse{return an empty list \;}
 		}
 		\Case{$R[\vec x]$}{
@@ -80,7 +103,7 @@
 				add an element $\omega$ to $|\mathbb{N}|$ such that $\omega \not\in |\mathbb{N}|$ \;
 				\lForAll{$R_\mathbb{M}$}{$R_\mathbb{N} = R_\mathbb{M}$ \;}
 				define $\kappa = \lambda_{x_0 \mapsto \omega}$ \;
-				return the result of recursion using model $\mathbb{N}$ and binding $\kappa$ on $\exists\ \{x_1 \ldots x_n\} : \alpha$ \;
+				using model $\mathbb{N}$ and environment $\kappa$, return $satisfy(\exists\ \{x_1 \ldots x_n\} : \alpha)$ \;
 			}
 		}
 	}

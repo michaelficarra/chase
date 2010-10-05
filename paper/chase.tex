@@ -1,13 +1,17 @@
 \section{The Chase}
 
-	\textbf{talk about chase as nondeterministic algorithm or deterministic implementation algorithm? or both...}
-
 	The \emph{chase} is a function that, when given a gemoetric theory, will
 	generate a set of jointly minimal models for that theory. More
-	specifically, if $U$ is the set of all models obtained from an execution of
-	the chase over a geometric theory $T$, for any model $\mathbb{M}$ such that
-	$\mathbb{M} \models T$, there is a homomorphism from some $u \in U$ to
-	$\mathbb{M}$.
+	specifically, if $\mathcal{U}$ is the set of all models obtained from an
+	execution of the chase over a geometric theory $T$, for any model
+	$\mathbb{M}$ such that $\mathbb{M} \models T$, there is a homomorphism from
+	some model $\mathbb{U} \in \mathcal{U}$ to $\mathbb{M}$.
+
+	Geometric logic formul{\ae} are used by the chase because they have the
+	useful property where adding any relations or domain members to a model
+	that satisfies a geometric logic formula will never cause the formula to no
+	longer be satisified. This is particularly helpful when trying to create a
+	model that satisifies all formul{\ae} in a geometric theory.
 
 	There are three types of runs of the chase:
 	\begin{itemize}
@@ -15,19 +19,6 @@
 	\item an empty result in finite time
 	\item an infinite run, with possible return dependent on implementation
 	\end{itemize}
-
-	Recall that geometric formul{\ae} are of the form
-	\[\forall\ (free(F_L) \cup free(F_R)) : F_L \to F_R\]
-	where $free$ is the function that returns the set of all free variables for
-	a given formula and all $F$ are first-order logic formul{\ae} in positive
-	existential form. Also recall that a geometric formula's implication is
-	implicitly universally quantified over all free variables.
-
-	Geometric logic formul{\ae} are used by the chase because they have the
-	useful property where adding any relations or domain members to a model
-	that satisfies a geometric logic formula will never cause the formula to no
-	longer be satisified. This is particularly helpful when trying to create a
-	model that satisifies all formul{\ae} in a geometric theory.
 
 	\subsection{Algorithm}
 
