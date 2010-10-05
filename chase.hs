@@ -4,13 +4,13 @@ import Helpers
 import qualified Debug.Trace
 import Data.List
 
--- trace x = id
-trace = Debug.Trace.trace
+trace x = id
+-- trace = Debug.Trace.trace
 
-chaseVerify :: Formula -> Formula
+verify :: Formula -> Formula
 -- verifies that a formula is in positive existential form and performs some
 -- normalization on implied/constant implications
-chaseVerify formula =
+verify formula =
 	let isNotPEF = not.isPEF in
 	case formula of
 		Implication a b ->
@@ -22,10 +22,22 @@ chaseVerify formula =
 				error ("formula must be in positive existential form: " ++ showFormula formula)
 			else (Implication Tautology formula)
 
+order :: [Formula] -> [Formula]
+-- 
+order formulae = sortBy (\a b ->
+	let extractRHS = (\(Implication lhs rhs) -> rhs) in
+	let (rhsA,rhsB) = (extractRHS a, extractRHS b) in
+	let (lenA,lenB) = (numDisjuncts rhsA, numDisjuncts rhsB) in
+	if lenA == lenB then EQ
+	else
+		if lenA < lenB then LT
+		else GT
+	) formulae
+
 chase :: [Formula] -> [Model]
 -- a wrapper for the chase' function to hide the model identity and theory
 -- manipulation
-chase formulae = nub $ chase' (map chaseVerify formulae) [([],[])]
+chase formulae = nub $ chase' (order $ map verify formulae) [([],[])]
 
 chase' :: [Formula] -> [Model] -> [Model]
 -- runs the chase algorithm on a given theory, manipulating the given list of
@@ -60,19 +72,19 @@ findFirstBindingFailure model formula (e:es) =
 	if holds' model e formula then self es
 	else
 		trace ("  attempting to satisfy (" ++ showFormula formula ++ ") with env " ++ show e) $
-		chaseSatisfy model e formula
+		satisfy model e formula
 
-chaseSatisfy :: Model -> Environment -> Formula -> [Model]
+satisfy :: Model -> Environment -> Formula -> [Model]
 -- 
-chaseSatisfy model env formula =
+satisfy model env formula =
 	let (domain,relations) = model in
 	let domainSize = length domain in
-	let self = chaseSatisfy model in
+	let self = satisfy model in
 	case formula of
 		Tautology -> [model]
 		Contradiction -> []
 		Or a b -> union (self env a) (self env b)
-		And a b -> concatMap (\m -> chaseSatisfy m env b) (self env a)
+		And a b -> concatMap (\m -> satisfy m env b) (self env a)
 		Equality v1 v2 -> case (lookup v1 env,lookup v2 env) of
 			(Just v1, Just v2) -> [quotient model v1 v2]
 			_ -> error("Could not look up one of \"" ++ variableName v2 ++ "\" or \"" ++ variableName v2 ++ "\" in environment")
@@ -92,7 +104,7 @@ chaseSatisfy model env formula =
 				[model]
 			else
 				trace ("    adding new domain element " ++ show nextDomainElement ++ " for variable " ++ (show$variableName v)) $
-				chaseSatisfy (mkDomain nextDomainElement,relations) (hashSet env v nextDomainElement) f'
+				satisfy (mkDomain nextDomainElement,relations) (hashSet env v nextDomainElement) f'
 		_ -> error ("formula not in positive existential form: " ++ showFormula formula)
 
 genNewRelationArgs :: Environment -> [Variable] -> DomainElement -> [DomainElement]

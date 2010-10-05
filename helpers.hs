@@ -57,6 +57,19 @@ len formula = case formula of
 	ExistentialQuantifier vars f -> len f
 	_ -> 1
 
+numDisjuncts :: Formula -> Integer
+-- calculates a "length" of a formula
+numDisjuncts formula =
+	let self = numDisjuncts in
+	case formula of
+		Or a b -> 1 + (self a) + (self b)
+		And a b -> (self a) + (self b)
+		Not f -> self f
+		Implication a b -> (self a) + (self b)
+		UniversalQuantifier vars f -> self f
+		ExistentialQuantifier vars f -> self f
+		_ -> 0
+
 isPEF :: Formula -> Bool
 -- determines whether a given formula is in positive existential form
 isPEF formula = case formula of
