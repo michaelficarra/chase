@@ -1,8 +1,6 @@
 Term(x) | Node(x)
 Term(x) & Node(x) -> Contradiction
 
-
-
 Send(n, t) -> Node(n) & Term(t)
 Recv(n, t) -> Node(n) & Term(t)
 
@@ -13,109 +11,60 @@ Recv(n, s) & Recv(n, t) -> s = t
 
 Send(n, s) & Recv(n, t) -> Contradiction
 
-
-
 Inverse(k, k') -> Term(k) & Term(k') & Inverse(k', k)
 Inverse(k, k1) & Inverse(k, k2) -> k1 = k2
 
 Inverse(k, k') & Basic(k) -> Basic(k')
 
-
-
 Basic(t) -> Term(t)
-
-
 
 Concat(g, h, t) -> Term(g) & Term(h) & Term(t)
 Concat(g, h, s) & Concat(g, h, t) -> s = t
 Concat(g1, h1, t) & Concat(g2, h2, t) -> g1 = g2 & h1 = h2
 
-
-
 Encrypt(g, k, t) -> Term(g) & Term(k) & Term(t)
 Encrypt(g, k, s) & Encrypt(g, k, t) -> s = t
 Encrypt(g1, k1, t) & Encrypt(g2, k2, t) -> g1 = g2 & k1 = k2
-
-
 
 Basic(t) & Encrypt(g, k, t) -> Contradiction
 Basic(t) & Concat(g, h, t) -> Contradiction
 Encrypt(g, k, t) & Concat(u, v, t) -> Contradiction
 
-
-
 Link(n, m) -> Exists t : Send(n, t) & Recv(m, t)
-Link(n, m) & Link(p, m) -> n = p 
-
-
+Link(n, m) & Link(p, m) -> n = p
 
 Parent(n, m) -> Node(n) & Node(m)
 Parent(n, m) & Parent(n, p) -> m = p
 Parent(n, m) & Parent(p, m) -> n = p
 
-
-
 UniqOrig(t, n) -> Basic(t) & Node(n)
 
-
-
 NonOrig(t) -> Basic(t)
-
-
-
-
-
-
-
 
 Parent(n, m) -> Precedes(n, m)
 Link(n, m, t) -> Precedes(n, m)
 
 Precedes(n, m) & Precedes(m, p) -> Precedes(n, p)
 
-
-
 Term(t) -> Ingredient(t, t)
 Concat(g, h, s) & Ingredient(s, t) -> Ingredient(g, t) & Ingredient(h, t)
 Encrypt(g, k, s) & Ingredient(s, t) -> Ingredient(g, t)
 
-
-
-
-
-
-
-
 Precedes(m, n) & Link(n, p, t) & Recv(m, t) -> Contradiction
-
-
 
 UniqOrig(t, n) & Orig(t, n') -> n = n'
 
-
-
 NonOrig(t) & Orig(t, n) -> Contradiction
-
-
 
 NonOrig(t) & Ingredient(t, s) & Send(n, s) -> Contradiction
 NonOrig(t) & Ingredient(t, s) & Recv(n, s) -> Contradiction
 
-
-
 Precedes(n, n) -> Contradiction
-
-
-
-
-
 
 Node(n) -> Regular(n) | Advesary(n)
 Regular(n) & Advesary(n) -> Contradiction
 
 Regular(n) -> Exists m, k : [A1(n, m, k) | A2(n, m, k) | B1(n, m, k) | B2(n, m, k)]
-
-
 
 A1(n1, m, k) -> Exists t, k' : [Regular(n1) & Encrypt(m, k, t) & Send(n1, t) & UniqOrig(m, n1) & Inv(k, k') & NonOrig(k') & Orig(m, n1)]
 
@@ -125,8 +74,6 @@ A1(n1, m, k) & Parent(x, n1) -> Contradiction
 A2(n2, m, k) & Parent(n2, x) -> Contradiction
 A2(n2, m, k) & Parent(n1, n2) -> A1(n1, m, k)
 
-
-
 B1(n1, m, k) -> Exists t, k' : [Regular(n1) & Encrypt(m, k, t) & Recv(n1, t) & Inv(k, k') & NonOrig(k')]
 
 B2(n2, m, k) -> Exists n1 : [Regular(n2) & Parent(n1, n2) & B1(n1, m, k) & Send(n2, m)]
@@ -134,14 +81,6 @@ B2(n2, m, k) -> Exists n1 : [Regular(n2) & Parent(n1, n2) & B1(n1, m, k) & Send(
 B1(n1, m, k) & Parent(x, n1) -> Contradiction
 B2(n2, m, k) & Parent(n2, x) -> Contradiction
 B2(n2, m, k) & Parent(n1, n2) -> B1(n1, m, k)
-
-
-
-
-
-
-
-
 
 Chain(m, s, r, t) -> Link(m, r) | AdvUnpairLeft(m, s, r, t) | AdvUnpairRight(m, s, r, t) | AdvDecrypt(m, s, r, t)
 
@@ -151,7 +90,6 @@ AdvDecrypt(m, s, r, t) -> Exists g, k, n1, n2, n3: [Encrypt(g, k, s) & D1(n1, g,
 
 Recv(n, t) -> Constructed(t, n)
 
-
 Constructed(t, r) ->  AdvGenerated(t, r) | AdvConcatenated(t, r) | AdvEncrypted(t, r) | AdvDeConstructed(t, r)
 
 AdvGenerated(t, r) -> Exists n: G1(n, t) & Link(n, r)
@@ -159,23 +97,14 @@ AdvConcatenated(t, r) -> Exists g, h, n: Concat(g, h, t) & C3(n, g, h) & Link(n,
 AdvEncrypted(t, r) -> Exists g, k, n: Encrypt(g, k, t) & E3(n, g, k) & Link(n, r)
 AdvDeConstructed(t, r) -> Exists m, s: Regular(m) & Send(m, s) & Precedes(m, r) & Chain(m, s, r, t)
 
-
-
-
-
-
 ThreeStrand(n1, n2, n3) & Parent(x, n1) -> Contradiction
 ThreeStrand(n1, n2, n3) & Parent(n3, x) -> Contradiction
 ThreeStrand(n1, n2, n3) -> Parent(n1, n2) & Parent(n2, n3) & Advesary(n1) & Advesary(n2) & Advesary(n3)
-
-
 
 G1(n, t) & Parent(x, n) -> Contradiction
 G1(n, t) & Parent(n, x) -> Contradiction
 
 G1(n, t) -> Send(n, t) & Basic(t) & Orig(t, n) & Advesary(n)
-
-
 
 C1(n1, g, h) -> Exists n2, n3 : C2(n2, g, h) & C3(n3, g, h) & ThreeStrand(n1, n2, n3)
 C2(n2, g, h) -> Exists n1, n3 : C1(n1, g, h) & C3(n3, g, h) & ThreeStrand(n1, n2, n3)
@@ -185,8 +114,6 @@ C1(n1, g, h) -> Recv(n1, g)
 C2(n2, g, h) -> Recv(n2, h)
 C3(n3, g, h) -> Exists t : Concat(g, h, t) & Send(n3, t) & Orig(t, n3)
 
-
-
 E1(n1, g, k) -> Exists n2, n3: E2(n2, g, k) & E3(n3, g, k) & ThreeStrand(n1, n2, n3)
 E2(n2, g, k) -> Exists n1, n3: E1(n1, g, k) & E3(n3, g, k) & ThreeStrand(n1, n2, n3)
 E3(n3, g, k) -> Exists n1, n2: E1(n1, g, k) & E2(n2, g, k) & ThreeStrand(n1, n2, n3)
@@ -194,8 +121,6 @@ E3(n3, g, k) -> Exists n1, n2: E1(n1, g, k) & E2(n2, g, k) & ThreeStrand(n1, n2,
 E1(n1, g, k) -> Recv(n1, g)
 E2(n2, g, k) -> Recv(n2, k)
 E3(n3, g, k) -> Exists t: Encrypt(g, k, t) & Send(n3, t) & Orig(t, n3)
-
-
 
 U1(n1, g, h) -> Exists n2, n3: U2(n2, g, h) & U3(n3, g, h) & ThreeStrand(n1, n2, n3)
 U2(n2, g, h) -> Exists n1, n3: U1(n1, g, h) & U3(n3, g, h) & ThreeStrand(n1, n2, n3)
@@ -205,8 +130,6 @@ U1(n1, g, h) -> Exists t: Concat(g, h, t) & Recv(n1, t)
 U2(n2, g, h) -> Send(n2, g)
 U3(n3, g, h) -> Send(n3, h)
 
-
-
 D1(n1, g, k) -> Exists n2, n3: D2(n2, g, k) & D3(n3, g, k) & ThreeStrand(n1, n2, n3)
 D2(n2, g, k) -> Exists n1, n3: D1(n1, g, k) & D3(n3, g, k) & ThreeStrand(n1, n2, n3)
 D3(n3, g, k) -> Exists n1, n2: D1(n1, g, k) & D2(n2, g, k) & ThreeStrand(n1, n2, n3)
@@ -214,8 +137,5 @@ D3(n3, g, k) -> Exists n1, n2: D1(n1, g, k) & D2(n2, g, k) & ThreeStrand(n1, n2,
 D1(n1, g, k) -> Exists t: Encrypt(g, k, t) & Recv(n1, t)
 D2(n2, g, k) -> Exists k': Inv(k, k') & Recv(n2, k')
 D3(n3, g, k) -> Send(n3, g)
-
-
-
 
 Exists n, m, k : A2(n, m, k)
