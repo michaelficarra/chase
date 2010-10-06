@@ -4,8 +4,8 @@ import Helpers
 import qualified Debug.Trace
 import Data.List
 
-trace x = id
--- trace = Debug.Trace.trace
+-- trace x = id
+trace = Debug.Trace.trace
 
 verify :: Formula -> Formula
 -- verifies that a formula is in positive existential form and performs some
@@ -32,7 +32,7 @@ order formulae = sortBy (\a b ->
 	let extractRHS = (\(Implication lhs rhs) -> rhs) in
 	let (rhsA,rhsB) = (extractRHS a, extractRHS b) in
 	let (lenA,lenB) = (numDisjuncts rhsA, numDisjuncts rhsB) in
-	if lenA == lenB then EQ
+	if lenA == lenB || lenA > 1 && lenB > 1 then EQ
 	else
 		if lenA < lenB then LT
 		else GT
@@ -67,13 +67,12 @@ findFirstFailure model@(domain,relations) (f:ormulae) =
 	let self = findFirstFailure model in
 	let bindings = allBindings (freeVariables f) domain [] in
 	if holds model (UniversalQuantifier (freeVariables f) f) then self ormulae
-	else Just $ findFirstBindingFailure 0 model f bindings
+	else Just $ findFirstBindingFailure model f bindings
 
 findFirstBindingFailure :: Int -> Model -> Formula -> [Environment] -> [Model]
 -- 
-findFirstBindingFailure counter model formula (e:es) =
+findFirstBindingFailure model formula (e:es) =
 	let self = findFirstBindingFailure (counter+1) model formula in
-	if counter > 100000000 then error "firstBindingFailure is looping" else
 	if holds' model e formula then self es
 	else
 		trace ("  attempting to satisfy (" ++ showFormula formula ++ ") with env " ++ show e) $
