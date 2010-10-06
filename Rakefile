@@ -1,7 +1,7 @@
 task :ruby => ['ruby:lexer','ruby:parser','ruby:test']
 task :build => [:lexer,:parser]
 task :default => [:build,:test]
-task :paper => ['paper:pdf','paper:view']
+task :paper => ['paper:pdf','paper:clean','paper:view']
 
 
 namespace 'ruby' do
@@ -58,6 +58,7 @@ namespace 'paper' do
 	desc 'Generate PDF from latex document'
 	task :pdf do
 		Dir.chdir 'paper' do
+			sh 'pdflatex paper.tex'
 			sh 'pdflatex paper.tex'
 		end
 	end

@@ -16,9 +16,10 @@
 	\subsection{Operation}
 
 	The first step of the chase implementation is to verify that each formula
-	of the given theory is a geometric logic formula. If a formula $\varphi$ is not a geometric logic formula, the chase
-	tries to coerce it into one using the following algorithm:
-	
+	of the given theory is a geometric logic formula. If a formula $\varphi$ is
+	not a geometric logic formula, the chase tries to coerce it into one using
+	the following algorithm:
+
 	\begin{algorithm}[H]
 	\DontPrintSemicolon
 	\Switch{$\varphi$}{
@@ -48,11 +49,11 @@
 	where $chase$ is run on an empty list, an empty list of models is returned.
 
 	For each \emph{pending} model, each formula is evaluated to see if it holds
-	in the model for all environments.  If an envionment is found that does not satisfy
-	the model, the model and environment in which the formula did not hold is
-	passed to the $satisfy$ function, along with the formula that needs to
-	be satisfied.  The list of models returned from $satisfy$ is merged
-	into the \emph{pending} list, and the result of running $chase$ on the new
+	in the model for all environments.  If an envionment is found that does not
+	satisfy the model, the model and environment in which the formula did not
+	hold is passed to the $satisfy$ function, along with the formula that needs
+	to be satisfied.  The list of models returned from $satisfy$ is merged into
+	the \emph{pending} list, and the result of running $chase$ on the new
 	\emph{pending} list is returned.  If, however, the model holds for all
 	formul{\ae} in the theory and all possible associated environments, it is
 	concatenated with the result of running the chase on the rest of the models
@@ -61,7 +62,7 @@
 	The $satisfy$ function performs a pattern match on the type of formula
 	given. Assuming $satisfy$ is given a model $\mathbb{M}$, an environment
 	$\lambda$, and a formula $\varphi$, $satisfy$ will behave as outlined
-	in the following algorithm.
+	in the fllowing algorithm.
 
 	\begin{algorithm}[H]
 	\DontPrintSemicolon
@@ -109,10 +110,99 @@
 	}
 	\end{algorithm}
 
+	\subsection{Input Format}
+
+		Input to the parser must be in a form parsable by the following
+		context-free grammar. Terminals are denoted by a {\tt monospace style}
+		and nonterminals are denoted by an $oblique style$. The greek letter
+		$\varepsilon$ matches a zero-length list of tokens. Patterns that match
+		non-literal terminals are defined in the table following the grammar.
+
+		\begin{tabular}{ll}
+		$program$ & :    $\varepsilon$ \\
+		{} & $\mid$      $exprList$ $optNEWLINE$ \\
+		\\
+
+		$exprList$ & :   $expr$ \\
+		{} & $\mid$      $exprList$ \tt{NEWLINE} $expr$ \\
+		\\
+
+		$expr$ & :       \tt{TAUTOLOGY} \\
+		{} & $\mid$      \tt{CONTRADICTION} \\
+		{} & $\mid$      $expr$ \tt{OR} $expr$ \\
+		{} & $\mid$      $expr$ \tt{AND} $expr$ \\
+		{} & $\mid$      \tt{NOT} $expr$ \\
+		{} & $\mid$      $expr$ \tt{->} $expr$ \\
+		{} & $\mid$      \tt{->} $expr$ \\
+		{} & $\mid$      $atomic$ \\
+		{} & $\mid$      \tt{VARIABLE EQ VARIABLE} \\
+		{} & $\mid$      \tt{FOR\_ALL} $argList$ $optCOLON$ $expr$ \\
+		{} & $\mid$      \tt{THERE\_EXISTS} $argList$ $optCOLON$ $expr$ \\
+		{} & $\mid$      \tt{(} $expr$ \tt{)} \\
+		{} & $\mid$      \tt{[} $expr$ \tt{]} \\
+		\\
+
+		$atomic$ & :     \tt{PREDICATE} $index$ \\
+		\\
+
+		$index$ & :      \tt{(} $argList$ \tt{)} \\
+		{} & $\mid$      \tt{[} $argList$ \tt{]} \\
+		\\
+
+		$argList$ & :    $arg$ \\
+		{} & $\mid$      $argList$ \tt{,} $arg$ \\
+		\\
+
+		$arg$ & :        \tt{VARIABLE} \\
+		\\
+
+		$optCOLON$ & :   $\varepsilon$ \\
+		{} & $\mid$      \tt{:} \\
+		\\
+
+		$optNEWLINE$ & : $\varepsilon$ \\
+		{} & $\mid$      \tt{NEWLINE} \\
+		\end{tabular}
+
+		{\tt \begin{tabular}{|l|l|}
+			\hline
+			\textbf{Input Pattern} & \textbf{Terminal} \\
+			\hline
+			|                    & OR  \\
+			\&                   & AND \\
+			!                    & NOT \\
+			=                    & EQ  \\
+			$[$Tt$]$autology     & TAUTOLOGY \\
+			$[$Cc$]$ontradiction & CONTRADICTION \\
+			$[\backslash$r$\backslash$n$]$+ & NEWLINE \\
+			$[$a-z$][$A-Za-z0-9\_'$]$* & VARIABLE \\
+			$[$A-Z$][$A-Za-z0-9\_'$]$* & PREDICATE \\
+			For$[$Aa$]$ll        & FOR\_ALL \\
+			Exists               & THERE\_EXISTS \\
+			\hline
+		\end{tabular} }
+
+		Comments are removed at the lexical analysis step and have no effect on
+		the input to the parser.  Single-line comments begin with either a hash
+		({\tt \#}) or double-dash ({\tt --}). Multiline comments begin with
+		{\tt /*} and are terminated by {\tt */}.
+
 	\subsection{Options}
 
 		\subsubsection{I/O}
 
+		When no options are given to the executable output by Haskell, it
+		expects input from stdin and outputs models in a human-readable format
+		to stdout. To take input from a file instead, pass the executable the
+		{\tt -i} or {\tt --input} option followed by the filename.
+
+		To output models to numbered files in a directory, pass the {\tt -o} or
+		{\tt --output} option along with an optional directory name. The given
+		directory does not have to exist. If the output directory is omitted,
+		it defaults to ``{\tt ./models}".
+
 		\subsubsection{Tracing}
+
+		\textbf{not yet implemented}
 
 	\subsection{Future Considerations}
