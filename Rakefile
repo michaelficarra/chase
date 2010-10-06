@@ -41,7 +41,7 @@ end
 
 desc 'Compile using GHC'
 task :compile do
-	sh 'ghc -o chase lexer.hs parser.hs helpers.hs chase.hs main.hs'
+	sh 'ghc -threaded -o chase lexer.hs parser.hs helpers.hs chase.hs main.hs'
 	sh 'chmod u+x chase'
 end
 
@@ -53,7 +53,7 @@ end
 desc 'Test the generated parser against the sample program'
 task :test, [:theory] do |task,args|
 	args.with_defaults :theory => 'trichotomy'
-	sh "cat theories/#{args[:theory]} | ./chase"
+	sh "cat theories/#{args[:theory]} | ./chase +RTS -N8"
 end
 
 

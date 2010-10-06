@@ -3,6 +3,7 @@ import Parser
 import Helpers
 import qualified Debug.Trace
 import Data.List
+import Control.Concurrent
 
 -- trace x = id
 trace = Debug.Trace.trace
@@ -38,27 +39,32 @@ order formulae = sortBy (\a b ->
 		else GT
 	) formulae
 
-chase :: [Formula] -> [Model]
+chase :: [Formula] -> IO [Model]
 -- a wrapper for the chase' function to hide the model identity and theory
 -- manipulation
-chase formulae = nub $ chase' (order $ map verify formulae) [([],[])]
+chase formulae = do
+	models <- chase' (order $ map verify formulae) [([],[])]
+	return $ nub models
 
-chase' :: [Formula] -> [Model] -> [Model]
+chase' :: [Formula] -> [Model] -> IO [Model]
 -- runs the chase algorithm on a given theory, manipulating the given list of
 -- models, and returning a list of models that satisfy the theory
-chase' formulae [] = []
-chase' formulae pending@(m:rest) =
-	let self = chase' formulae in
-	trace ("running chase on " ++ show pending) $
-	case findFirstFailure m formulae of
-		Just newPending ->
-			trace ("  at least one formula does not hold for model " ++ showModel m) $
-			trace ("  unioning " ++ show rest ++ " with [" ++ intercalate ", " (map showModel newPending) ++ "]") $
-			self (union rest newPending)
-		Nothing -> -- represents no failures
-			trace ("  all formulae in theory hold for model " ++ showModel m) $
-			trace ("  moving model into done list") $
-			m : self rest
+chase' formulae pending = do
+	putStrLn ("running chase on " ++ show pending)
+	modelLists <- sequence $ map (runInBoundThread.branch formulae) pending
+	return $ concat modelLists
+
+branch :: [Formula] -> Model -> IO [Model]
+branch theory model = do
+	let reBranch = chase' theory
+	case findFirstFailure model theory of
+		Just newModels -> do
+			putStrLn ("  at least one formula does not hold for model " ++ showModel model)
+			reBranch newModels
+		Nothing -> do -- represents no failures
+			putStrLn ("  all formulae in theory hold for model " ++ showModel model)
+			putStrLn ("  moving model into done list")
+			return [model]
 
 findFirstFailure :: Model -> [Formula] -> Maybe [Model]
 -- 
@@ -84,7 +90,6 @@ satisfy model env formula =
 	let (domain,relations) = model in
 	let domainSize = length domain in
 	let self = satisfy model in
-	trace ("satisfy " ++ show formula ++ " : " ++ show env) $
 	case formula of
 		Tautology -> [model]
 		Contradiction -> []

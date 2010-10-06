@@ -75,7 +75,7 @@ main = do
 	input <- optInput opts
 	let outputDir = optOutputDir opts
 	putStrLn input
-	let models = chase $ parse $ input
+	models <- chase $ parse $ input
 	let formatter = case optOutputFormat opts of
 		HumanReadable -> showModel
 		MachineReadable -> exportModel
