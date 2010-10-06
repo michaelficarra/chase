@@ -67,12 +67,13 @@ findFirstFailure model@(domain,relations) (f:ormulae) =
 	let self = findFirstFailure model in
 	let bindings = allBindings (freeVariables f) domain [] in
 	if holds model (UniversalQuantifier (freeVariables f) f) then self ormulae
-	else Just $ findFirstBindingFailure model f bindings
+	else Just $ findFirstBindingFailure 0 model f bindings
 
-findFirstBindingFailure :: Model -> Formula -> [Environment] -> [Model]
+findFirstBindingFailure :: Int -> Model -> Formula -> [Environment] -> [Model]
 -- 
-findFirstBindingFailure model formula (e:es) =
-	let self = findFirstBindingFailure model formula in
+findFirstBindingFailure counter model formula (e:es) =
+	let self = findFirstBindingFailure (counter+1) model formula in
+	if counter > 100000000 then error "firstBindingFailure is looping" else
 	if holds' model e formula then self es
 	else
 		trace ("  attempting to satisfy (" ++ showFormula formula ++ ") with env " ++ show e) $

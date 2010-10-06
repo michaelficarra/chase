@@ -1,5 +1,5 @@
 task :ruby => ['ruby:lexer','ruby:parser','ruby:test']
-task :build => [:lexer,:parser]
+task :build => [:lexer,:parser,:compile]
 task :default => [:build,:test]
 task :paper => ['paper:pdf','paper:clean','paper:view']
 
@@ -39,6 +39,12 @@ task :parser do
 	sh 'happy -i parser.y'
 end
 
+desc 'Compile using GHC'
+task :compile do
+	sh 'ghc -o chase lexer.hs parser.hs helpers.hs chase.hs main.hs'
+	sh 'chmod u+x chase'
+end
+
 desc 'Clean up generated files and files output during debugging'
 task :clean do
 	sh 'rm -rf chase {lexer,parser}.hs a.out *.{hi,info,o} models'
@@ -47,8 +53,6 @@ end
 desc 'Test the generated parser against the sample program'
 task :test, [:theory] do |task,args|
 	args.with_defaults :theory => 'trichotomy'
-	sh 'ghc -o chase lexer.hs parser.hs helpers.hs chase.hs main.hs'
-	sh 'chmod u+x chase'
 	sh "cat theories/#{args[:theory]} | ./chase"
 end
 

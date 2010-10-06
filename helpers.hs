@@ -400,18 +400,18 @@ exportModel (domain,relations) =
 	) relations
 
 
-writeModelToFile :: String -> Model -> IO ()
-writeModelToFile file model = do
-	writeFile file (exportModel model)
+writeModelToFile :: (Model -> String) -> String -> Model -> IO ()
+writeModelToFile formatter file model = do
+	writeFile file (formatter model)
 	return ()
 
-writeModelsToFiles :: String -> [Model] -> IO ()
+writeModelsToFiles :: (Model -> String) -> String -> [Model] -> IO ()
 -- outputs the given list of models to files in the given directory in a format
 -- as defined by `exportModel`
-writeModelsToFiles directory models = do
+writeModelsToFiles formatter directory models = do
 	mapM (\(modelNumber,model) ->
 			let file = directory ++ "/" ++ (show modelNumber) in
-			writeModelToFile file model
+			writeModelToFile formatter file model
 		) $ zip (iterate (+1) 0) models
 	return ()
 
