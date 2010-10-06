@@ -84,9 +84,9 @@ B2(n2, m, k) & Parent(n1, n2) -> B1(n1, m, k)
 
 Chain(m, s, r, t) -> Link(m, r) | AdvUnpairLeft(m, s, r, t) | AdvUnpairRight(m, s, r, t) | AdvDecrypt(m, s, r, t)
 
-AdvUnpairLeft(m, s, r, t) -> Exists x, y, n1, n2, n3: [Concat(x, y, s) & U1(n1, x, y) & U2(n2, x, y) & U3(n3, x, y) & Link(m, n1) & Chain(n2, x, r, t)]
-AdvUnpairRight(m, s, r, t) -> Exists x, y, n1, n2, n3: [Concat(x, y, s) & U1(n1, x, y) & U2(n2, x, y) & U3(n3, x, y) & Link(m, n1) & Chain(n3, y, r, t)]
-AdvDecrypt(m, s, r, t) -> Exists g, k, n1, n2, n3: [Encrypt(g, k, s) & D1(n1, g, k) & D2(n2, g, k) & D3(n3, g, k) & Link(m, n1) & Chain(n3, g, r, t)]
+AdvUnpairLeft(m, s, r, t) -> Exists x, y: [Concat(x, y, s) & [Exists n1 : U1(n1, x, y) & Link(m, n1)] & [Exists n2: U2(n2, x, y) & Chain(n2, x, r, t)] & [Exists n3: U3(n3, x, y)]]
+AdvUnpairRight(m, s, r, t) -> Exists x, y: [Concat(x, y, s) & [Exists n1 : U1(n1, x, y) & Link(m, n1)] & [Exists n2: U2(n2, x, y)] & [Exists n3: U3(n3, x, y) & Chain(n3, y, r, t)]]
+AdvDecrypt(m, s, r, t) -> Exists g, k, n1, n2, n3: [Encrypt(g, k, s) & [Exists n1 : D1(n1, g, k) & Link(m, n1)] & [Exists n2: D2(n2, g, k)] & [Exists n3: D3(n3, g, k) & Chain(n3, g, r, t)]]
 
 Recv(n, t) -> Constructed(t, n)
 

@@ -98,11 +98,11 @@ data Formula
 	| Tautology
 	| Contradiction
 	| Atomic String ArgList
-	deriving (Show, Eq)
+	deriving (Eq)
 
 data Variable
 	= Variable String
-	deriving (Show, Eq)
+	deriving (Eq)
 
 type ArgList = [Variable]
 

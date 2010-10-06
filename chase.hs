@@ -15,15 +15,15 @@ verify formula =
 	case formula of
 		Implication a b ->
 			if isNotPEF a || isNotPEF b then
-				error ("implication must be in positive existential form: " ++ showFormula formula)
+				error ("implication must be in positive existential form: " ++ show formula)
 			else formula
 		Not f ->
 			if isNotPEF f then
-				error ("formula must be in positive existential form: " ++ showFormula formula)
+				error ("formula must be in positive existential form: " ++ show formula)
 			else (Implication f Contradiction)
 		_ ->
 			if isNotPEF formula then
-				error ("formula must be in positive existential form: " ++ showFormula formula)
+				error ("formula must be in positive existential form: " ++ show formula)
 			else (Implication Tautology formula)
 
 order :: [Formula] -> [Formula]
@@ -75,7 +75,7 @@ findFirstBindingFailure model formula (e:es) =
 	let self = findFirstBindingFailure model formula in
 	if holds' model e formula then self es
 	else
-		trace ("  attempting to satisfy (" ++ showFormula formula ++ ") with env " ++ show e) $
+		trace ("  attempting to satisfy (" ++ show formula ++ ") with env " ++ show e) $
 		satisfy model e formula
 
 satisfy :: Model -> Environment -> Formula -> [Model]
@@ -84,6 +84,7 @@ satisfy model env formula =
 	let (domain,relations) = model in
 	let domainSize = length domain in
 	let self = satisfy model in
+	trace ("satisfy " ++ show formula ++ " : " ++ show env) $
 	case formula of
 		Tautology -> [model]
 		Contradiction -> []
@@ -91,7 +92,7 @@ satisfy model env formula =
 		And a b -> concatMap (\m -> satisfy m env b) (self env a)
 		Equality v1 v2 -> case (lookup v1 env,lookup v2 env) of
 			(Just v1, Just v2) -> [quotient model v1 v2]
-			_ -> error("Could not look up one of \"" ++ variableName v2 ++ "\" or \"" ++ variableName v2 ++ "\" in environment")
+			_ -> error("Could not look up one of \"" ++ show v2 ++ "\" or \"" ++ show v2 ++ "\" in environment")
 		Implication a b -> if holds' model env a then self env b else []
 		Atomic predicate vars ->
 			let newRelationArgs = genNewRelationArgs env vars (fromIntegral (length domain)) in
@@ -104,12 +105,12 @@ satisfy model env formula =
 			let f' = ExistentialQuantifier vs f in
 			let nextDomainElement = fromIntegral $ (length domain) + 1 in
 			if (domain /= []) && (any (\v' -> holds' model (hashSet env v v') f') domain) then
-				trace ("    " ++ showFormula formula ++ " already holds") $
+				trace ("    " ++ show formula ++ " already holds") $
 				[model]
 			else
-				trace ("    adding new domain element " ++ show nextDomainElement ++ " for variable " ++ (show$variableName v)) $
+				trace ("    adding new domain element " ++ show nextDomainElement ++ " for variable " ++ (show v)) $
 				satisfy (mkDomain nextDomainElement,relations) (hashSet env v nextDomainElement) f'
-		_ -> error ("formula not in positive existential form: " ++ showFormula formula)
+		_ -> error ("formula not in positive existential form: " ++ show formula)
 
 genNewRelationArgs :: Environment -> [Variable] -> DomainElement -> [DomainElement]
 -- for each Variable in the given list of Variables, retrieves the value

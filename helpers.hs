@@ -2,6 +2,7 @@ module Helpers where
 import Parser
 import Data.List
 import Data.Maybe
+import Debug.Trace (trace)
 
 -- HELPERS --
 
@@ -33,10 +34,6 @@ boundVariables :: Formula -> [Variable]
 -- return an array of all bound variables in given formula
 boundVariables formula = variables formula \\ freeVariables formula
 
-variableName :: Variable -> String
--- returns the internal string value of a given variable
-variableName v = (\(Variable v') -> v') v
-
 isSentence :: Formula -> Bool
 -- returns true if all variables in the given formula are bound, false otherwise
 isSentence f = case (freeVariables f) of; [] -> True; _ -> False
@@ -44,7 +41,7 @@ isSentence f = case (freeVariables f) of; [] -> True; _ -> False
 variant :: Variable -> [Variable] -> Variable
 -- takes a variable and a blacklist of variables and returns a variable that is
 -- not in the blacklist
-variant x vars = if x `elem` vars then variant (Variable ((variableName x) ++ "'")) vars else x
+variant x vars = if x `elem` vars then variant (Variable ((show x) ++ "'")) vars else x
 
 len :: Formula -> Integer
 -- calculates a "length" of a formula
@@ -373,20 +370,21 @@ showModel (domain,relations) = "( domain: 1.." ++ (show.length $ domain) ++ ", r
 				map (\vars -> predicate ++ "[" ++ intercalate "," (map show vars) ++ "]") arrVars
 			) relations
 
-showFormula :: Formula -> String
+instance Show Variable where
+	show (Variable v) = v
+
 -- builds a human-readable string representation of a formula
-showFormula formula = case formula of
-	And a b -> "(" ++ (showFormula a) ++ " & " ++ (showFormula b) ++ ")"
-	Or a b -> "(" ++ (showFormula a) ++ " | " ++ (showFormula b) ++ ")"
-	Not f -> "!" ++ (showFormula f)
-	Equality v1 v2 -> (variableName v1) ++ "=" ++ (variableName v2)
-	Implication a b -> "(" ++ (showFormula a) ++ ")" ++ " -> " ++ "(" ++ (showFormula b) ++ ")"
-	UniversalQuantifier v f -> "ForAll " ++ (intercalate "," (map variableName v)) ++ ": (" ++ (showFormula f) ++ ")"
-	ExistentialQuantifier v f -> "Exists " ++ (intercalate "," (map variableName v)) ++ ": (" ++ (showFormula f) ++ ")"
-	Atomic p v -> p ++ "[" ++ (intercalate "," (map variableName v)) ++ "]"
-	Tautology -> "True"
-	Contradiction -> "False"
-	-- _ -> "[?]"
+instance Show Formula where
+	show (And a b) = "(" ++ (show a) ++ " & " ++ (show b) ++ ")"
+	show (Or a b) = "(" ++ (show a) ++ " | " ++ (show b) ++ ")"
+	show (Not f) = "!" ++ (show f)
+	show (Equality v1 v2) = show v1 ++ "=" ++ show v2
+	show (Implication a b) = "(" ++ (show a) ++ ")" ++ " -> " ++ "(" ++ (show b) ++ ")"
+	show (UniversalQuantifier v f) = "ForAll " ++ (intercalate "," (map show v)) ++ ": (" ++ (show f) ++ ")"
+	show (ExistentialQuantifier v f) = "Exists " ++ (intercalate "," (map show v)) ++ ": (" ++ (show f) ++ ")"
+	show (Atomic p v) = p ++ "[" ++ (intercalate "," (map show v)) ++ "]"
+	show Tautology = "True"
+	show Contradiction = "False"
 
 exportModel :: Model -> String
 -- converts a model to a String that is in an easily parseable, yet
@@ -426,22 +424,24 @@ holds model formula = holds' model [] formula
 
 holds' :: Model -> Environment -> Formula -> Bool
 -- used by `holds` to hide the environment identity argument
-holds' model env formula = let (domain,relations) = model in let self = holds' model in case formula of
-	Contradiction -> False
-	Tautology -> True
-	Atomic predicate vars -> (map (\v -> case lookup v env of
-		Just v' -> v'
-		Nothing -> error ("Could not look up variable \"" ++ variableName v ++ "\" in environment " ++ show env ++ " for atomic " ++ showFormula formula)
-		) vars) `elem` (fromMaybe [] (lookup2 predicate (length vars) relations))
-	Or a b -> self env a || self env b
-	And a b -> self env a && self env b
-	Not f -> not $ self env f
-	Equality v1 v2 -> case (lookup v1 env,lookup v2 env) of
-		(Just v1, Just v2) -> v1 == v2
-		_ -> error("Could not look up one of \"" ++ variableName v1 ++ "\" or \"" ++ variableName v2 ++ "\" in environment")
-	Implication a b -> self env b || not (self env a)
-	UniversalQuantifier [] f -> self env f
-	UniversalQuantifier (v:vs) f -> all (\v' -> self (hashSet env v v') (UniversalQuantifier vs f)) domain
-	ExistentialQuantifier [] f -> self env f
-	ExistentialQuantifier (v:vs) f -> any (\v' -> self (hashSet env v v') (ExistentialQuantifier vs f)) domain
+holds' model@(domain,relations) env formula =
+	let self = holds' model in
+	case formula of
+		Contradiction -> False
+		Tautology -> True
+		Atomic predicate vars -> (map (\v -> case lookup v env of
+			Just v' -> v'
+			Nothing -> error ("Could not look up variable \"" ++ show v ++ "\" in environment " ++ show env ++ " for atomic " ++ show formula)
+			) vars) `elem` (fromMaybe [] (lookup2 predicate (length vars) relations))
+		Or a b -> self env a || self env b
+		And a b -> self env a && self env b
+		Not f -> not $ self env f
+		Equality v1 v2 -> case (lookup v1 env,lookup v2 env) of
+			(Just v1, Just v2) -> v1 == v2
+			_ -> error("Could not look up one of \"" ++ show v1 ++ "\" or \"" ++ show v2 ++ "\" in environment")
+		Implication a b -> self env b || not (self env a)
+		UniversalQuantifier [] f -> self env f
+		UniversalQuantifier (v:vs) f -> all (\v' -> self (hashSet env v v') (UniversalQuantifier vs f)) domain
+		ExistentialQuantifier [] f -> self env f
+		ExistentialQuantifier (v:vs) f -> any (\v' -> self (hashSet env v v') (ExistentialQuantifier vs f)) domain
 
