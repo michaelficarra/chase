@@ -181,6 +181,7 @@ recursivelyApply fn formula = case formula of
 	Implication a b -> fn $ Implication (recursivelyApply fn a) (recursivelyApply fn b)
 	UniversalQuantifier v f -> fn $ UniversalQuantifier v (recursivelyApply fn f)
 	ExistentialQuantifier v f -> fn $ ExistentialQuantifier v (recursivelyApply fn f)
+	Equality a b -> fn $ Equality a b
 	Atomic p v -> fn $ Atomic p v
 	Tautology -> fn $ Tautology
 	Contradiction -> fn $ Contradiction
@@ -286,6 +287,7 @@ pef formula = uselessQuantifiers.pullQuantifiers $ recursivelyApply (\formula ->
 	ExistentialQuantifier v f -> ExistentialQuantifier v f
 	And a b -> And a b
 	Or a b -> Or a b
+	Equality a b -> Equality a b
 	Atomic p v -> Atomic p v
 	Contradiction -> Contradiction
 	Tautology -> Tautology
