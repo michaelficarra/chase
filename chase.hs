@@ -3,7 +3,6 @@ import Parser
 import Helpers
 import qualified Debug.Trace
 import Data.List
-import Control.Concurrent
 
 -- trace x = id
 trace = Debug.Trace.trace
@@ -11,21 +10,10 @@ trace = Debug.Trace.trace
 verify :: Formula -> Formula
 -- verifies that a formula is in positive existential form and performs some
 -- normalization on implied/constant implications
-verify formula =
-	let isNotPEF = not.isPEF in
-	case formula of
-		Implication a b ->
-			if isNotPEF a || isNotPEF b then
-				error ("implication must be in positive existential form: " ++ show formula)
-			else formula
-		Not f ->
-			if isNotPEF f then
-				error ("formula must be in positive existential form: " ++ show formula)
-			else (Implication f Contradiction)
-		_ ->
-			if isNotPEF formula then
-				error ("formula must be in positive existential form: " ++ show formula)
-			else (Implication Tautology formula)
+verify formula = case formula of
+	Implication a b -> Implication (pef a) (pef b)
+	Not f -> Implication (pef f) Contradiction
+	_ -> Implication Tautology (pef formula)
 
 order :: [Formula] -> [Formula]
 -- 
@@ -39,32 +27,29 @@ order formulae = sortBy (\a b ->
 		else GT
 	) formulae
 
-chase :: [Formula] -> IO [Model]
+chase :: [Formula] -> [Model]
 -- a wrapper for the chase' function to hide the model identity and theory
 -- manipulation
-chase formulae = do
-	models <- chase' (order $ map verify formulae) [([],[])]
-	return $ nub models
+chase theory = nub $ chase' (order $ map verify theory) [([],[])]
 
-chase' :: [Formula] -> [Model] -> IO [Model]
+chase' :: [Formula] -> [Model] -> [Model]
 -- runs the chase algorithm on a given theory, manipulating the given list of
 -- models, and returning a list of models that satisfy the theory
-chase' formulae pending = do
-	putStrLn ("running chase on " ++ show pending)
-	modelLists <- sequence $ map (runInBoundThread.branch formulae) pending
-	return $ concat modelLists
+chase' theory pending = concatMap (branch theory) pending
 
-branch :: [Formula] -> Model -> IO [Model]
-branch theory model = do
-	let reBranch = chase' theory
+branch :: [Formula] -> Model -> [Model]
+-- 
+branch theory model =
+	let reBranch = chase' theory in
 	case findFirstFailure model theory of
-		Just newModels -> do
-			putStrLn ("  at least one formula does not hold for model " ++ showModel model)
+		Just newModels ->
+			trace ("  at least one formula does not hold for model " ++ showModel model) $
+			trace ("running chase on " ++ show newModels) $
 			reBranch newModels
-		Nothing -> do -- represents no failures
-			putStrLn ("  all formulae in theory hold for model " ++ showModel model)
-			putStrLn ("  moving model into done list")
-			return [model]
+		Nothing -> -- represents no failures
+			trace ("  all formulae in theory hold for model " ++ showModel model) $
+			trace ("  moving model into done list") $
+			[model]
 
 findFirstFailure :: Model -> [Formula] -> Maybe [Model]
 -- 
