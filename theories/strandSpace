@@ -66,7 +66,7 @@ Regular(n) & Advesary(n) -> Contradiction
 
 Regular(n) -> Exists m, k : [A1(n, m, k) | A2(n, m, k) | B1(n, m, k) | B2(n, m, k)]
 
-A1(n1, m, k) -> Exists t, k' : [Regular(n1) & Encrypt(m, k, t) & Send(n1, t) & UniqOrig(m, n1) & Inv(k, k') & NonOrig(k') & Orig(m, n1)]
+A1(n1, m, k) -> Exists t, k' : [Regular(n1) & Encrypt(m, k, t) & Send(n1, t) & UniqOrig(m, n1) & Inverse(k, k') & NonOrig(k') & Orig(m, n1)]
 
 A2(n2, m, k) -> Exists n1 : [Regular(n2) & Parent(n1, n2) & A1(n1, m, k) & Recv(n2, m)]
 
@@ -74,7 +74,7 @@ A1(n1, m, k) & Parent(x, n1) -> Contradiction
 A2(n2, m, k) & Parent(n2, x) -> Contradiction
 A2(n2, m, k) & Parent(n1, n2) -> A1(n1, m, k)
 
-B1(n1, m, k) -> Exists t, k' : [Regular(n1) & Encrypt(m, k, t) & Recv(n1, t) & Inv(k, k') & NonOrig(k')]
+B1(n1, m, k) -> Exists t, k' : [Regular(n1) & Encrypt(m, k, t) & Recv(n1, t) & Inverse(k, k') & NonOrig(k')]
 
 B2(n2, m, k) -> Exists n1 : [Regular(n2) & Parent(n1, n2) & B1(n1, m, k) & Send(n2, m)]
 
@@ -135,7 +135,7 @@ D2(n2, g, k) -> Exists n1, n3: D1(n1, g, k) & D3(n3, g, k) & ThreeStrand(n1, n2,
 D3(n3, g, k) -> Exists n1, n2: D1(n1, g, k) & D2(n2, g, k) & ThreeStrand(n1, n2, n3)
 
 D1(n1, g, k) -> Exists t: Encrypt(g, k, t) & Recv(n1, t)
-D2(n2, g, k) -> Exists k': Inv(k, k') & Recv(n2, k')
+D2(n2, g, k) -> Exists k': Inverse(k, k') & Recv(n2, k')
 D3(n3, g, k) -> Send(n3, g)
 
 Exists n, m, k : A2(n, m, k)
