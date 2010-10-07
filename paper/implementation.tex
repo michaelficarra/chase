@@ -92,7 +92,7 @@
 		}
 		\Case{$R[\vec x]$}{
 			define a new model $\mathbb{N}$ where $|\mathbb{N}| = |\mathbb{M}|$ \;
-			add a new element $\omega$ to $|\mathbb{N}|$ \;
+			add a new member $\omega$ to $|\mathbb{N}|$ \;
 			\lForAll{$P_\mathbb{M}$}{$P_\mathbb{N} = P_\mathbb{M}$ \;}
 			define $R_{\mathbb{N}}[x_0 \ldots x_n]$ as $R_{\mathbb{M}}[\lambda(x_0) \ldots \lambda(x_n)]$ \;
 			\ForEach{$v \in \vec x$}{
@@ -108,7 +108,7 @@
 				return a list containing $\mathbb{M}$ \;
 			}{
 				define a new model $\mathbb{N}$ where $|\mathbb{N}| = |\mathbb{M}|$ \;
-				add an element $\omega$ to $|\mathbb{N}|$ such that $\omega \not\in |\mathbb{N}|$ \;
+				add a member $\omega$ to $|\mathbb{N}|$ such that $\omega \not\in |\mathbb{N}|$ \;
 				\lForAll{$R_\mathbb{M}$}{$R_\mathbb{N} = R_\mathbb{M}$ \;}
 				define $\kappa = \lambda_{x_0 \mapsto \omega}$ \;
 				using model $\mathbb{N}$ and environment $\kappa$, return $satisfy(\exists\ \{x_1 \ldots x_n\} : \alpha)$ \;
