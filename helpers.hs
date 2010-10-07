@@ -107,11 +107,11 @@ parseModel :: String -> Model
 -- returns a model when given a string representation of a model
 parseModel str =
 	let fileLines = lines $ str in
-	let domainSize = read.head $ fileLines :: DomainElement in
+	let domainSize = read.head $ fileLines :: DomainMember in
 	let relations = tail fileLines in
 	mkModel (mkDomain domainSize) (parseRelations relations)
 
-factSubstitute :: DomainElement -> DomainElement -> [DomainElement] -> [DomainElement]
+factSubstitute :: DomainMember -> DomainMember -> [DomainMember] -> [DomainMember]
 -- takes a list of domainelements, a small domainelement, and a large domainelement
 -- replaces large with small and decremements elements larger than large
 factSubstitute small large [] = []
@@ -122,7 +122,7 @@ factSubstitute small large (d:ds)
 	where
 		rest = factSubstitute small large ds
 
-relationSubstitute :: DomainElement -> DomainElement -> Relation -> Relation
+relationSubstitute :: DomainMember -> DomainMember -> Relation -> Relation
 -- replaces instances of the larger of the given domainelements with the smaller one in a relation
 relationSubstitute d1 d2 (predicate,arity,truthTable) =
 	-- coerce a and b into small and large
@@ -130,7 +130,7 @@ relationSubstitute d1 d2 (predicate,arity,truthTable) =
 	let newTruthTable = nub $ map (factSubstitute small large) truthTable in
 	(predicate,arity,newTruthTable)
 
-quotient :: Model -> DomainElement -> DomainElement -> Model
+quotient :: Model -> DomainMember -> DomainMember -> Model
 -- make two domain elements equal in a given model
 quotient model @ (domain,relations) a b
 	| a == b = model

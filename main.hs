@@ -20,7 +20,7 @@ data Options = Options
 	, optInput  :: IO String
 	, optOutputDir :: Maybe String
 	, optOutputFormat :: OutputFormat
-	}
+	} deriving Show
 
 defaultOptions :: Options
 defaultOptions = Options

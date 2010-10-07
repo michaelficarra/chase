@@ -93,16 +93,16 @@ satisfy model env formula =
 		ExistentialQuantifier [] f -> self env f
 		ExistentialQuantifier (v:vs) f ->
 			let f' = ExistentialQuantifier vs f in
-			let nextDomainElement = fromIntegral $ (length domain) + 1 in
+			let nextDomainMember = fromIntegral $ (length domain) + 1 in
 			if (domain /= []) && (any (\v' -> holds' model (hashSet env v v') f') domain) then
 				trace ("    " ++ show formula ++ " already holds") $
 				[model]
 			else
-				trace ("    adding new domain element " ++ show nextDomainElement ++ " for variable " ++ (show v)) $
-				satisfy (mkDomain nextDomainElement,relations) (hashSet env v nextDomainElement) f'
+				trace ("    adding new domain element " ++ show nextDomainMember ++ " for variable " ++ (show v)) $
+				satisfy (mkDomain nextDomainMember,relations) (hashSet env v nextDomainMember) f'
 		_ -> error ("formula not in positive existential form: " ++ show formula)
 
-genNewRelationArgs :: Environment -> [Variable] -> DomainElement -> [DomainElement]
+genNewRelationArgs :: Environment -> [Variable] -> DomainMember -> [DomainMember]
 -- for each Variable in the given list of Variables, retrieves the value
 -- assigned to it in the given environment, or the next domain element if it
 -- does not exist

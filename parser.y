@@ -119,15 +119,15 @@ mkContradiction = Contradiction
 mkAtomic p v = Atomic p v
 mkVariable v = Variable v
 
-type DomainElement = Word
-type Domain = [DomainElement]
-type Relation = (String, Int, [[DomainElement]])
+type DomainMember = Word
+type Domain = [DomainMember]
+type Relation = (String, Int, [[DomainMember]])
 type Model = (Domain,[Relation])
-type Environment = [(Variable,DomainElement)]
+type Environment = [(Variable,DomainMember)]
 
 mkDomain :: Integral i => i -> Domain
 mkDomain size = [1..(fromIntegral size)]
-mkRelation :: Integral a => String -> a -> [[DomainElement]] -> Relation
+mkRelation :: Integral a => String -> a -> [[DomainMember]] -> Relation
 mkRelation name arity truthTable = (name,(fromIntegral arity),truthTable)
 mkModel domain relations = (domain,relations)
 
