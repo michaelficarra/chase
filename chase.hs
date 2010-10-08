@@ -21,7 +21,12 @@ order formulae = sortBy (\a b ->
 	let extractRHS = (\(Implication lhs rhs) -> rhs) in
 	let (rhsA,rhsB) = (extractRHS a, extractRHS b) in
 	let (lenA,lenB) = (numDisjuncts rhsA, numDisjuncts rhsB) in
-	if lenA == lenB || lenA > 1 && lenB > 1 then EQ
+	let (vA,vB) = (length (variables a), length (variables b)) in
+	if lenA == lenB || lenA > 1 && lenB > 1 then
+		if vA == vB then EQ
+		else
+			if vA < vB then LT
+			else GT
 	else
 		if lenA < lenB then LT
 		else GT
@@ -35,7 +40,10 @@ chase theory = nub $ chase' (order $ map verify theory) [([],[])]
 chase' :: [Formula] -> [Model] -> [Model]
 -- runs the chase algorithm on a given theory, manipulating the given list of
 -- models, and returning a list of models that satisfy the theory
-chase' theory pending = concatMap (branch theory) pending
+chase' _ [] = []
+chase' theory pending =
+	trace ("running chase on " ++ show pending) $
+	concatMap (branch theory) pending
 
 branch :: [Formula] -> Model -> [Model]
 -- 
@@ -44,7 +52,6 @@ branch theory model =
 	case findFirstFailure model theory of
 		Just newModels ->
 			trace ("  at least one formula does not hold for model " ++ showModel model) $
-			trace ("running chase on " ++ show newModels) $
 			reBranch newModels
 		Nothing -> -- represents no failures
 			trace ("  all formulae in theory hold for model " ++ showModel model) $
@@ -57,17 +64,19 @@ findFirstFailure model [] = Nothing -- no failure found
 findFirstFailure model@(domain,relations) (f:ormulae) =
 	let self = findFirstFailure model in
 	let bindings = allBindings (freeVariables f) domain [] in
+	trace ("  checking formula: (v:" ++ show (length$variables f) ++ ") (fv:" ++ show (length$freeVariables f) ++ ") " ++ show f) $
 	if holds model (UniversalQuantifier (freeVariables f) f) then self ormulae
 	else Just $ findFirstBindingFailure model f bindings
 
 findFirstBindingFailure :: Model -> Formula -> [Environment] -> [Model]
 -- 
-findFirstBindingFailure model formula (e:es) =
+findFirstBindingFailure _ (Implication a Contradiction) _ = []
+findFirstBindingFailure model formula@(Implication a b) (e:es) =
 	let self = findFirstBindingFailure model formula in
 	if holds' model e formula then self es
 	else
-		trace ("  attempting to satisfy (" ++ show formula ++ ") with env " ++ show e) $
-		satisfy model e formula
+		trace ("  attempting to satisfy (" ++ show b ++ ") with env " ++ show e) $
+		satisfy model e b
 
 satisfy :: Model -> Environment -> Formula -> [Model]
 -- 
@@ -83,7 +92,6 @@ satisfy model env formula =
 		Equality v1 v2 -> case (lookup v1 env,lookup v2 env) of
 			(Just v1, Just v2) -> [quotient model v1 v2]
 			_ -> error("Could not look up one of \"" ++ show v2 ++ "\" or \"" ++ show v2 ++ "\" in environment")
-		Implication a b -> if holds' model env a then self env b else []
 		Atomic predicate vars ->
 			let newRelationArgs = genNewRelationArgs env vars (fromIntegral (length domain)) in
 			let newRelation = mkRelation predicate (length vars) [newRelationArgs] in
@@ -94,7 +102,7 @@ satisfy model env formula =
 		ExistentialQuantifier (v:vs) f ->
 			let f' = ExistentialQuantifier vs f in
 			let nextDomainMember = fromIntegral $ (length domain) + 1 in
-			if (domain /= []) && (any (\v' -> holds' model (hashSet env v v') f') domain) then
+			if (domain /= []) && (any (\d -> holds' model (hashSet env v d) f') domain) then
 				trace ("    " ++ show formula ++ " already holds") $
 				[model]
 			else
