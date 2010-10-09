@@ -18,7 +18,7 @@ verify formula = case formula of
 order :: [Formula] -> [Formula]
 -- 
 order formulae = sortBy (\a b ->
-	let extractRHS = (\(Implication lhs rhs) -> rhs) in
+	let extractRHS = (\f -> case f of; (Implication lhs rhs) -> rhs; _ -> f) in
 	let (rhsA,rhsB) = (extractRHS a, extractRHS b) in
 	let (lenA,lenB) = (numDisjuncts rhsA, numDisjuncts rhsB) in
 	let (vA,vB) = (length (variables a), length (variables b)) in

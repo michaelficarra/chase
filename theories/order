@@ -1,0 +1,3 @@
+-> Exists x,y: Q[x,y]
+Q[x,y] -> Exists z: Q[y,z]
+Q[x,y] -> Exists z: Q[y,x] & P[z]

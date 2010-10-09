@@ -447,3 +447,8 @@ holds' model@(domain,relations) env formula =
 		ExistentialQuantifier [] f -> self env f
 		ExistentialQuantifier (v:vs) f -> any (\v' -> self (hashSet env v v') (ExistentialQuantifier vs f)) domain
 
+bind :: Model -> Formula -> [Environment]
+bind m f = bind' m [] f
+
+bind' :: Model -> Environment -> Formula -> [Environment]
+bind' = []
