@@ -1,4 +1,4 @@
 -> Exists y,z: R[y,z]
-R[x,w] -> (Exists y: Q[x,y]) | (Exists z: P[x,z])
+R[x,w] -> (Exists y: Q[x,y]) | P
 Q[u,v] -> (Exists z: R[u,z]) | (Exists z: R[z,w])
-P[u,v] -> Contradiction
+P      -> Contradiction

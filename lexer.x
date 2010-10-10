@@ -8,7 +8,7 @@ tokens :-
 	[\ \t]+                         ; -- ignore whitespace
 	"-- "[^\r\n]*[\r\n]*            ; -- ignore comments
 	"#"[^\r\n]*[\r\n]*              ; -- ignore comments
-	"/*"([^\*]|"*"[^\/])*"*/"       ; -- ignore comments
+	"/*"([^\*]|"*"[^\/])*"*/"[\r\n]*    ; -- ignore comments
 	"Exists"                        { \p s -> TokenExists p }
 	"For"[Aa]"ll"                   { \p s -> TokenForAll p }
 	[Tt]"autology"                  { \p s -> TokenTautology p }

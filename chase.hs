@@ -40,22 +40,21 @@ chase theory = nub $ chase' (order $ map verify theory) [([],[])]
 chase' :: [Formula] -> [Model] -> [Model]
 -- runs the chase algorithm on a given theory, manipulating the given list of
 -- models, and returning a list of models that satisfy the theory
-chase' _ [] = []
-chase' theory pending =
-	trace ("running chase on " ++ show pending) $
-	concatMap (branch theory) pending
+chase' _ [] = trace "  but it is impossible to make the model satisfy the theory by adding to it" []
+chase' theory pending = concatMap (branch theory) pending
 
 branch :: [Formula] -> Model -> [Model]
 -- 
 branch theory model =
 	let reBranch = chase' theory in
+	trace ("running chase on " ++ show model) $
 	case findFirstFailure model theory of
 		Just newModels ->
 			trace ("  at least one formula does not hold for model " ++ showModel model) $
 			reBranch newModels
 		Nothing -> -- represents no failures
-			trace ("  all formulae in theory hold for model " ++ showModel model) $
-			trace ("  moving model into done list") $
+			trace ("all formulae in theory hold for current  model") $
+			trace ("returning model " ++ showModel model) $
 			[model]
 
 findFirstFailure :: Model -> [Formula] -> Maybe [Model]

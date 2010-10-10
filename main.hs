@@ -74,7 +74,7 @@ main = do
 	opts <- foldl (>>=) (return defaultOptions) actions
 	input <- optInput opts
 	let outputDir = optOutputDir opts
-	putStrLn.show.order $ parse input
+	putStrLn.prettyPrintArray.(map show).order $ parse input
 	let models = chase $ parse input
 	let formatter = case optOutputFormat opts of
 		HumanReadable -> showModel
