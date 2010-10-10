@@ -4,11 +4,11 @@
 
 tokens :-
 
-	[\r\n]+                         { \p s -> TokenNewline p }
 	[\ \t]+                         ; -- ignore whitespace
-	"-- "[^\r\n]*[\r\n]*            ; -- ignore comments
-	"#"[^\r\n]*[\r\n]*              ; -- ignore comments
-	"/*"([^\*]|"*"[^\/])*"*/"[\r\n]*    ; -- ignore comments
+	"-- "[^\r\n]*                   ; -- ignore comments
+	"#"[^\r\n]*                     ; -- ignore comments
+	"/*"([^\*]|"*"[^\/])*"*/"       ; -- ignore comments
+	[\r\n]+                         { \p s -> TokenNewline p }
 	"Exists"                        { \p s -> TokenExists p }
 	"For"[Aa]"ll"                   { \p s -> TokenForAll p }
 	[Tt]"autology"                  { \p s -> TokenTautology p }
