@@ -6,23 +6,104 @@
 	analagous to minimal models.  When a protocol is described using
 	first-order logic, the chase can find such minimal models.
 
-	The protocol can then be analysed for any properties such as the existence
-	of security violations or other unexpected behaviour.
+	The protocol can then be analysed for any characteristics such as the
+	existence of security violations or other unexpected behaviour.
 
 	\subsection{Background}
 
-		\subsubsection{Strand Spaces}
+		\subsubsection{Strand Space}
+
+			Strand space was developed as a method of formally reasoning about
+			cryptographic protocols.  Participants in a protocol run are
+			represented by strands. A single physical entity can be
+			respresented as multiple strands if they play many roles in the
+			protocol. A strand is made up of a sequence of nodes where every
+			node either sends or receives a message.
+
+			Adversary strands represent the actions of a participant that
+			attempts to use the protocol for a purpose other than the one for
+			which it was originally intended. Adversary strands are not bound
+			by the rules defined by the protocol; they manipulate messages
+			being sent and received by non-adversarial strands.
+
+			The capabilities of the adversary strands are given by the
+			Dolev-Yao Threat Model \textbf{references}. Adversary Strands are
+			able to perform precisely five operations:
+
+			\begin{enumerate}
+			\item Pairing: The pairing of two terms
+			\item Unpairing: The extraction of a term from a pair
+			\item Encryption: Given a key $k$ and a plaintext $m$, the construction of the ciphertext $\{|m|\}_k$ by encrypting $m$ with $k$
+			\item Decryption: Given a ciphertext $\{|m|\}_k$ and its decryption key $k^{-1}$, the extraction of the plaintext $m$ by decryping $\{|m|\}_k$ with $k^{-1}$.
+			\item Generation: The generation of an original term; not assumed to be secure
+			\end{enumerate}
+
+			Pairing, encryption, and generation are construction operations.
+			Decryption and unpairing are deconstruction operations.
 
 		\subsubsection{Cremer's Algorithm}
 
+			Cremer's Algorithm adds constraints to strand spaces to allow one
+			to infer the possible shapes of protocol runs. A major constraint
+			added by Cremer forces messages constructed by an adversary to be
+			traced back to messages sent by non-adversarial strands.
+
+			Two other constraints are normalisation and efficiency. A protocol
+			is efficient an adversary always takes a messages from the earliest
+			point at which they appear. A protocol is normal when the adversary
+			always performs zero or more deconstruction operations followed by
+			zero or more construction operations, except in the case of
+			constructing decryption keys.
+
+			Cremer proved that these constraints do not limit the capabilties
+			of an adversary \textbf{reference}.
+
 		\subsubsection{CPSA Algorithm}
+
+			\textbf{ don't know yet }
 
 	\subsection{The Problem}
 
-		
+		Protocol reasearchers want to be able to programmatically reason about
+		cryptographic protocols. A common technique for this is to find a set of
+		essentially different clsses of protocol runs. This can be accomplished by
+		finding minimal models of a geometric logic representation of the protocol.
+		This is precisely the problem the chase solves.
 
 	\subsection{The Solution: Minimal Models}
 
+		The minimal models $\mathcal{M}$ that the chase outputs are
+		representative of all models because there always exists a homomorphism
+		from some model $\mathbb{M} \in \mathcal{M}$ to any model that
+		satisfies the theory. Models that satisfy the theory given to the chase
+		in this use case represent classes of runs of the protocol. In this
+		way, a set of jointly minimal models represents every possible run of
+		the protocol. Finding every possible run of the protocol is prohibitive
+		because there are infinitely many. Because the set of models is
+		countably infinite, they can be enumerated, but can not be listed.
+
 	\subsection{Designing An Analagous Theory}
 
+		In order to create a geometric theory describing a protocol, the
+		formul{\ae} that define strand spaces, normilisation, efficiency, and
+		Cremer's algorithm must be derived. The formul{\ae} defining the
+		protocol must be combined with the scaffolding to create a theory that
+		can be used to infer the possible runs of the protocol.
+
+		The half-duplex protocol was chosen to be used as an example.  This
+		protocol involves two participants, Alice and Bob. Alice sends Bob a
+		nonce that she generated, encrypted with Bob's public key. Bob receives
+		the nonce encrypted with his public key. Bob replies to Alice with the
+		decypted nonce. Alice receives Bob's message.
+
+		These rules were generated manually by direct translation into
+		geometric logic. Ideally, the process of generating geometric logic
+		formul{\ae} from protocols should be done automatically.
+
 	\subsection{The Results}
+
+		The chase was run on the logic representation of the half-duplex protocol.
+		A single model was returned during the execution of the algorithm,
+		which was manually stopped before natural completion. This model, like
+		all models returned by the chase, satisfies the input theory and
+		belongs to a set of jointly minimal models for the theory.
