@@ -67,7 +67,7 @@ exprValue
 	| NOT exprValue                         { Not $2 }
 	| VARIABLE EQ VARIABLE                  { Equality (Variable $1) (Variable $3) }
 
-atomic: PREDICATE index                     { Atomic $1 $2 }
+atomic: PREDICATE optIndex                  { Atomic $1 $2 }
 
 index
 	: "(" argList ")"                       { $2 }
@@ -79,6 +79,7 @@ argList
 
 arg: VARIABLE                               { Variable $1 }
 
+optIndex:   { []  } | index   { $1 }
 optCOLON:   { Nil } | ":"     { $1 }
 optNEWLINE: { Nil } | NEWLINE { $1 }
 

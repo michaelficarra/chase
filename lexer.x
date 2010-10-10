@@ -6,8 +6,8 @@ tokens :-
 
 	[\r\n]+                         { \p s -> TokenNewline p }
 	[\ \t]+                         ; -- ignore whitespace
-	"-- "[^\r\n]*                   ; -- ignore comments
-	"#"[^\r\n]*                     ; -- ignore comments
+	"-- "[^\r\n]*[\r\n]*            ; -- ignore comments
+	"#"[^\r\n]*[\r\n]*              ; -- ignore comments
 	"/*"([^\*]|"*"[^\/])*"*/"       ; -- ignore comments
 	"Exists"                        { \p s -> TokenExists p }
 	"For"[Aa]"ll"                   { \p s -> TokenForAll p }

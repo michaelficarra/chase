@@ -451,4 +451,4 @@ bind :: Model -> Formula -> [Environment]
 bind m f = bind' m [] f
 
 bind' :: Model -> Environment -> Formula -> [Environment]
-bind' = []
+bind' model@(domain,relations) env formula = []

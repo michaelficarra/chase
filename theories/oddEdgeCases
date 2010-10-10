@@ -1,0 +1,6 @@
+-> C' & (Exists x,z: F[x,z,z])
+C' & C -> Contradiction
+#-> !C | !C'
+-> C | C'
+F[x,z,z] & C' -> Exists y: F[x,y,z] & F
+F[x,z,z] & F -> Exists y: F[x,y,z]
