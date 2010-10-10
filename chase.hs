@@ -53,7 +53,7 @@ branch theory model =
 			trace ("  at least one formula does not hold for model " ++ showModel model) $
 			reBranch newModels
 		Nothing -> -- represents no failures
-			trace ("all formulae in theory hold for current  model") $
+			trace ("all formulae in theory hold for current model") $
 			trace ("returning model " ++ showModel model) $
 			[model]
 
