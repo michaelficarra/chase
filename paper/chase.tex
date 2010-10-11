@@ -22,30 +22,25 @@
 
 	\subsection{Algorithm}
 
-		The chase algorithm begins by defining an empty list of models to
-		return $\mathcal{D}$ and a list of pending models $\mathcal{P}$
-		containing a model with an empty domain and an empty set of facts. A
-		single input is provided to the chase: the geometric theory $\Sigma$.
+		The chase starts with a model $\mathbb{M}$ that has an empty domain and
+		an empty set of facts. While there is a formula $\sigma$ in the input
+		theory $T$ such that $\mathbb{M} \not\models \sigma$, perform a
+		\emph{chase correction}.
 
-		Before anything else, the chase algorithm sorts $\Sigma$ by the
-		number of disjunctions on the right side of each formula's implication.
-		Formul{\ae} with zero disjunctions will be ordered first, followed by
-		those with one disjunction, and finally those with more than one
-		disjunction. Within each sorting classification, formul{\ae} should
-		remain in their original order.
+		A \emph{chase correction} performs the following steps:
+		\begin{enumerate}
+		\item choose formula $\sigma \in T$ such that $\mathbb{M} \not\models \sigma$
+		\item split this formula into the left and right sides of its implication, $\alpha$ and $\beta$
+		\item if $\beta$ is a contradiction, halt with failure
+		\item a binding $\lambda$ is chosen such that $\mathbb{M} \models_\lambda \alpha$
+		\item if $\beta$ contains a disjunction, choose a disjunct and assign it to $\beta$
+		\item add a new domain member to the domain for every unbound variable
+		\item for every new domain element $e$ and the variable $v$ for which it was added, redefine $\lambda$ as $\lambda_{v \mapsto e}$
+		\item for every atomic $R$, replace each variable $v$ with $\lambda(v)$ and add it to the model
+		\end{enumerate}
 
-		For every model $\mathbb{M} \in \mathcal{P}$, the chase loops through
-		every formula $\sigma \in \Sigma$. For any $\sigma$ and environment
-		$\lambda$ such that $\mathbb{M} \not\models_\lambda \sigma$,
-		$\mathbb{M}$ has domain members and facts added to it \textbf{as
-		described in <algorithm below>}. If $\mathbb{M} \models \Sigma$
-		instead, remove $\mathbb{M}$ from $\mathcal{P}$ and add it to
-		$\mathcal{D}$.
-
-		\textbf{algorithm for how to make a model satisfy a formula}
-
-		Finally, the chase algorithm returns $\mathcal{D}$, a list of jointly
-		minimal models for its input theory $\Sigma$.
+		If no formula $\sigma$ exists such that $\mathbb{M} \not\models
+		\sigma$, halt with result $\mathbb{M}$.
 
 	\subsection{Examples}
 
