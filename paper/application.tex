@@ -30,13 +30,13 @@
 			Dolev-Yao Threat Model \textbf{references}. Adversary strands are
 			able to perform precisely five operations:
 
-			\begin{enumerate}
-			\item pairing: the pairing of two terms
-			\item unpairing: the extraction of a term from a pair
-			\item encryption: given a key $k$ and a plaintext $m$, the construction of the ciphertext $\{|m|\}_k$ by encrypting $m$ with $k$
-			\item decryption: given a ciphertext $\{|m|\}_k$ and its decryption key $k^{-1}$, the extraction of the plaintext $m$
-			\item generation: the generation of an original term, which is not assumed to be secure
-			\end{enumerate}
+			\begin{description}
+			\item [pairing] the pairing of two terms
+			\item [unpairing] the extraction of a term from a pair
+			\item [encryption] given a key $k$ and a plaintext $m$, the construction of the ciphertext $\{|m|\}_k$ by encrypting $m$ with $k$
+			\item [decryption] given a ciphertext $\{|m|\}_k$ and its decryption key $k^{-1}$, the extraction of the plaintext $m$
+			\item [generation] the generation of an original term, which is not assumed to be secure
+			\end{description}
 
 			Pairing, encryption, and generation are construction operations.
 			Decryption and unpairing are deconstruction operations.

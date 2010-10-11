@@ -15,31 +15,26 @@
 
 	\subsection{Operation}
 
-	The first step of the chase implementation is to make sure that each formula
-	of the given theory can be represented as a geometric logic formula. If a formula $\varphi$ can
-	not be coerced to a geometric logic formula, the chase tries to coerce it into one using
-	the following algorithm:
+	The first step of the chase implementation is to make sure that each
+	formula of the given theory can be represented as a geometric logic
+	formula. If a formula $\varphi$ can not be coerced to a geometric logic
+	formula, the chase tries to coerce it into one by applying following rules
+	recursively:
 
-	\begin{algorithm}[H]
-	\DontPrintSemicolon
-	\Switch{$\varphi$}{
-		\Case{$\neg\alpha$}{
-			\If{$\alpha$ is in positive existential form}{
-				$\varphi$ is replaced with $\alpha \to \bot$ \;
-			}
-			\lElse{error \;}
-		}
-		\Other{
-			\If{$\varphi$ is in positive existential form}{
-				$\varphi$ is replaced with $\top \to \varphi$ \;
-			}
-			\lElse{error \;}
-		}
-	}
-	\end{algorithm}
+	\begin{itemize}
+	\item $\neg\alpha \wedge \neg\beta \mapsto \alpha \vee \beta$
+	\item $\neg\alpha \vee \neg\beta \mapsto \alpha \wedge \beta$
+	\item $\neg\neg\alpha \mapsto \alpha$
+	\item $\neg\alpha \to \beta \mapsto \alpha \vee \beta$
+	\item $\alpha \to \neg\beta \mapsto \alpha \wedge \beta$
+	\item $\neg(\forall\ \vec{x} : \neg\alpha) \mapsto \exists \vec{x} : \alpha$
+	\end{itemize}
+
+	All other constructs are preserved. If this transformed formula is still
+	not in positive existential form, an error is thrown.
 
 	The chase function then sorts the input formul{\ae} by the number of
-	disjunctions on the right side of the implication. it allows branches to
+	disjunctions on the right side of the implication. It allows branches to
 	terminate without growing to an unnecessarily (and possibly infinitely)
 	large size. This step will cause each branch of the algorithm to finish in
 	less time, as they are likely to halt before branching yet again. The
@@ -49,7 +44,9 @@
 	with no disjunctions or only a single disjunct on the right side are more
 	likely to cause a branch to stop growing than one with many disjunctions.
 	Likewise, formul{\ae} with zero disjunctions are more likely to cause a
-	branch to halt than those with one or more disjunctions.
+	branch to halt than those with one or more disjunctions. A secondary sort
+	also occurs within these classifications that orders formul{\ae} by the
+	number of variables to reduce the number of bindings generated.
 
 	Once the input formul{\ae} are sorted, the $chase$ function begins
 	processing a \emph{pending} list, which is initially populated with a
@@ -64,7 +61,7 @@
 	\emph{pending} list is returned. If, however, the model holds for all
 	formul{\ae} in the theory and all possible associated environments, it is
 	concatenated with the result of running the chase on the rest of the models
-	in the \emph{pending} list.
+	in the \emph{pending} list and returned.
 
 	The $satisfy$ function performs a pattern match on the type of formula
 	given. Assuming $satisfy$ is given a model $\mathbb{M}$, an environment
@@ -121,7 +118,7 @@
 
 		Input to the parser must be in a form parsable by the following
 		context-free grammar. Terminals are denoted by a {\tt monospace style}
-		and nonterminals are denoted by an $oblique style$. The greek letter
+		and nonterminals are denoted by an $oblique\ style$. The greek letter
 		$\varepsilon$ matches a zero-length list of tokens. Patterns that match
 		non-literal terminals are defined in the table following the grammar.
 
@@ -149,7 +146,7 @@
 		{} & $\mid$      \tt{[} $expr$ \tt{]} \\
 		\\
 
-		$atomic$ & :     \tt{PREDICATE} $index$ \\
+		$atomic$ & :     \tt{PREDICATE} $optIndex$ \\
 		\\
 
 		$index$ & :      \tt{(} $argList$ \tt{)} \\
@@ -161,6 +158,10 @@
 		\\
 
 		$arg$ & :        \tt{VARIABLE} \\
+		\\
+
+		$optIndex$ & :   $\varepsilon$ \\
+		{} & $\mid$      $index$ \\
 		\\
 
 		$optCOLON$ & :   $\varepsilon$ \\
@@ -225,17 +226,63 @@
 
 		\subsubsection{Better Data Structures}
 
-			This project was started with no knowledge of the most desirable
-			implementation language, Haskell. Because of this, some
-			less-than-optimal data structures were used to hold data that
-			should really be in a Data.Map or Data.Set. One such example of this
-			is with the truth table contained in relations. This truth table
-			should probably be implemented as a Data.Map. Also, instead of
-			Domains being a list of DomainMember, it would probably be better
-			if a Domain was a Data.Set.
+			Some less-than-optimal data structures are being used to hold data
+			that should really be in a Data.Map or Data.Set. One such example
+			of this is with the truth table holding the relation information of
+			a model. This truth table should probably be implemented as a
+			Data.Map. Also, instead of Domains being a list of DomainMember, it
+			would probably be better if a Domain was a Data.Set.
 
 		\subsubsection{Broader use of the Maybe Monad}
 
-		\subsubsection{Advanced Rewriters / Simplifiers}
+			In several helper functions, the program's execution is halted and
+			an error is output when the function receives certain invalid
+			inputs. These functions should take advantage of the Maybe Monad
+			and return \tt{Maybe a} where they return \tt{a}. One particular
+			example of this is the \tt{pef} function. When \tt{pef} takes a
+			function as input that can not be converted to postive-existential
+			form, it causes the program to produce an error and exit.  Instead,
+			\tt{pef} should return \tt{Maybe Formula} and the places where it
+			is used should handle the error condition however they choose.
 
-			\textbf{talk about purple book and a reverse pullquants}
+		\subsubsection{Binding Search Approach for Satisfaction Checking}
+
+			
+
+		\subsubsection{Avoid Isomorphic Model Generation}
+
+			By taking different paths to arrive at the same model, the chase
+			often creates equivalent models that satisfy its given theory.
+			These duplicate models are already being filtered from the output.
+			However, another problem exists when the chase returns isomorphic
+			models. Given two models, it is very computationally expensive to
+			determine if there exists an isomorphism between them. If a fast
+			method of determining if two models are isomorphic is found,
+			including an implementation of it would provide more valuable
+			results to the user.
+
+		\subsubsection{Improve Efficiency}
+
+			The main goals of this project were to write a correct chase
+			implementation and apply it in a real-world situation. While
+			reasonable and obvious optimizations were made, there is still
+			plenty of room for optimization.
+
+			In Harrison's Practical Logic and Automated Reasoning
+			\textbf{reference}, Harrison mentions a large number of formula
+			rewriting and simplification algorithms, many of which are already
+			implemented in the Helpers module. Those functions that are
+			written, however, are not currently being used by the chase
+			functions, and there are surely other functions that Harrison
+			mentions that have not yet been written.
+
+			One specific example of a function that Harrison mentions is
+			\tt{pullQuants} \textbf{reference}, which pulls all quantifiers in
+			a formula to the outside. This results in a formula with no
+			conjunctions or disjunctions of quantified subformul{\ae}. This
+			function is implemented, but a function that does exactly the
+			opposite of this will help speed up satisfaction checking when
+			using the traditional looping method. This will minimize the number
+			of times bindings need to be generated for all permutations of the
+			current model's domain because the number of quantified variables
+			will be reduced.

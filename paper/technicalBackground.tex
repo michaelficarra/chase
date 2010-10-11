@@ -15,15 +15,7 @@
 	\subsection{First-order Logic}
 
 		\emph{First-order logic}, also called \emph{predicate logic}, is a
-		formal logic system. For our purposes, this logic system will not
-		contain any constant symbols or function symbols, which are commonly
-		included in first-order and propositional logic. We will see that these
-		can be removed without loss of expressiveness in section
-		\ref{sec:technical_background.geometric_logic}.
-
-		\textbf{TODO: add those $\Uparrow$ to GL section}
-
-		A first-order logic formula is defined inductively by
+		formal logic system. A first-order logic formula is defined inductively by
 		\begin{itemize}
 		\item if $R$ is a relation symbol of arity $k$ and each of $x_0 \ldots x_{k-1} \in \vec{x}$ is a variable, then $R[\vec{x}]$ is a formula, specifically an \emph{atomic formula}
 		\item if $x$ and $y$ are variables, then $x = y$ is a formula
@@ -36,6 +28,12 @@
 		\item if $\alpha$ is a formula and $x$ is a variable, then $(\exists x : \alpha)$ is a formula
 		\end{itemize}
 
+		For our purposes, this logic system will not contain any constant
+		symbols or function symbols, which are commonly included in first-order
+		logic. A function $f(x,y)$ can be encoded as the geometric logic
+		formula $F[x,y,z1] \wedge F[x,y,z2] -> z1 = z2$.  Constant symbols can
+		be encoded as relations with an arity of zero, for example $C[]$.
+
 		A shorthand notation may sometimes be used which omits either the left
 		or right side of an implication and denotes ($\top \to \sigma$) and
 		($\sigma \to \bot$) respectively.  If $\alpha$ is a formula and
@@ -47,9 +45,7 @@
 
 	\subsection{Variable Binding}
 
-		Given a function $free$ that returns the set of free variables in a
-		formula, the set of free variables in a formula is defined inductively
-		as follows
+		The set of free variables in a formula is defined inductively as follows
 		\begin{itemize}
 		\item any variable occuring in an atomic formula is a free variable
 		\item the set of free variables in $\top$ and $\bot$ is $\emptyset$
@@ -86,12 +82,12 @@
 		\item $\sigma$ is of the form $\exists x : \alpha$  and for at least one $x' \in |\mathbb{M}|$, $\mathbb{M} \models_{\lambda[x \mapsto x']} \alpha$
 		\end{itemize}
 		The notation $\mathbb{M} \models \sigma$ (no environment specification)
-		means that, under any environment $l$, $\mathbb{M} \models_l \sigma$.
+		means that, under the empty environment $l$, $\mathbb{M} \models_l \sigma$.
 
-		A model $\mathbb{M}$ satisfies a set of formul{\ae} $\Sigma$ for an
+		A model $\mathbb{M}$ satisfies a set of formul{\ae} $\Sigma$ under an
 		environment $\lambda$ if for every $\sigma$ such that $\sigma \in
 		\Sigma$, $\mathbb{M} \models_\lambda \sigma$. This is denoted as
-		$\mathbb{M} \models_\lambda \Sigma$ and read "$\mathbb{M}$ is a model
+		$\mathbb{M} \models_\lambda \Sigma$ and read ``$\mathbb{M}$ is a model
 		of $\Sigma$".
 
 	\subsection{Entailment}
@@ -99,7 +95,7 @@
 		Given an environment $\lambda$, a set of formul{\ae} $\Sigma$ is said
 		to \emph{entail} a formula $\sigma$ ($\Sigma \models_\lambda \sigma$)
 		if the set of all models satisfied by $\Sigma$ under $\lambda$ is a
-		subset of the set of all models satisfied by $\sigma$ under $\lambda$.
+		subset of the set of all models satisfying $\sigma$ under $\lambda$.
 
 		The notation used for satisfiability and entailment is very similar, in
 		that the operator used ($\models$) is the same, but they can be
@@ -168,8 +164,8 @@
 		($\bot$), equalities, and relations.
 
 		Negation of a relation $R$ with arity $k$ can be implemented by
-		assuming another relation $R'$ with arity $k$, adding two formul{\ae}
-		to the theory of the form $R \wedge R' \to \bot$ and $\top \to R \vee
+		introducing another relation $R'$ with arity $k$, adding two
+		formul{\ae} of the form $R \wedge R' \to \bot$ and $\top \to R \vee
 		R'$, and using $R'$ where $\neg R$ would be used.
 
 	\subsection{Geometric Logic}
@@ -191,10 +187,10 @@
 		convention to treat a negated positive existential formula $\neg\sigma$
 		as $\sigma \to \bot$.
 
-		Examples of geometric logic formul{\ae}
+		Examples of geometric logic formul{\ae}:
 
-		\begin{tabular}{ll}
-		\emph{reflexivity}  \quad  &  $\top \to R[x,x]$                  \\
-		\emph{symmetry}     \quad  &  $R[x,y] \to R[y,x]$                \\
-		\emph{transitivity} \quad  &  $R[x,y] \wedge R[y,z] \to R[x,z]$  \\
+		\begin{tabular}{lll}
+		\emph{reflexivity}   & \qquad  &  $\top \to R[x,x]$                  \\
+		\emph{symmetry}      & \qquad  &  $R[x,y] \to R[y,x]$                \\
+		\emph{transitivity}  & \qquad  &  $R[x,y] \wedge R[y,z] \to R[x,z]$  \\
 		\end{tabular}
