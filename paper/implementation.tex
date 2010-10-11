@@ -53,7 +53,7 @@
 	single model that has an empty domain and no facts.
 
 	For each \emph{pending} model, each formula is evaluated to see if it holds
-	in the model for all environments. If an envionment is found that does not
+	in the model for all environments. If an environment is found that does not
 	satisfy the model, the model and environment in which the formula did not
 	hold is passed to the $satisfy$ function, along with the formula that needs
 	to be satisfied. The list of models returned from $satisfy$ is merged into
@@ -102,7 +102,7 @@
 			return a list containing $\mathbb{N}$ \;
 		}
 		\Case{$\exists\ \vec x : \alpha$}{
-			\lIf{$\vec x = \emptyset$}{ recurse on $\alpha$ } \;
+			\lIf{$\vec x = \emptyset$}{ $satisfy(\alpha)$ } \;
 			\eIf{$|\mathbb{M}| \ne \emptyset$ and $\exists\ v' \in |\mathbb{M}| : (\lambda' = \lambda_{x_0 \mapsto v'}$ and $\mathbb{M} \models_{\lambda'} \alpha)$}{
 				return a list containing $\mathbb{M}$ \;
 			}{
@@ -120,7 +120,7 @@
 
 		Input to the parser must be in a form parsable by the following
 		context-free grammar. Terminals are denoted by a {\tt monospace style}
-		and nonterminals are denoted by an $oblique\ style$. The greek letter
+		and nonterminals are denoted by an $oblique\ style$. The Greek letter
 		$\varepsilon$ matches a zero-length list of tokens. Patterns that match
 		non-literal terminals are defined in the table following the grammar.
 
@@ -196,7 +196,7 @@
 
 		Comments are removed at the lexical analysis step and have no effect on
 		the input to the parser.  Single-line comments begin with either a hash
-		({\tt \#}) or double-dash ({\tt --}). Multiline comments begin with
+		({\tt \#}) or double-dash ({\tt --}). Multi-line comments begin with
 		{\tt /*} and are terminated by {\tt */}.
 
 	\subsection{Options}
@@ -215,7 +215,7 @@
 		it defaults to ``{\tt ./models}".
 
 		Using the {\tt -o} or {\tt --output} options will change the selection
-		for output format to a machine-readable format. To switch ouput formats
+		for output format to a machine-readable format. To switch output formats
 		at any time, pass the {\tt -h} or {\tt -m} flags for human-readable and
 		machine-readable formats respectively.
 
@@ -240,7 +240,7 @@
 			inputs. These functions should take advantage of the Maybe Monad
 			and return {\tt Maybe a} where they return {\tt a}. One particular
 			example of this is the {\tt pef} function. When {\tt pef} takes a
-			formula as input that can not be converted to postive-existential
+			formula as input that can not be converted to positive-existential
 			form, it causes the program to produce an error and exit. Instead,
 			{\tt pef} should return {\tt Maybe Formula} and the places where it
 			is used should handle the error condition however they choose.

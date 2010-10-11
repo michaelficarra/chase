@@ -2,7 +2,7 @@
 
 	The chase can be used for protocol analysis. A common technique for the analysis
 	of protocols involves identifying the \emph{essentially different} runs of
-	the protocol. These essentially different protocol runs are analagous to
+	the protocol. These essentially different protocol runs are analogous to
 	minimal models. When a protocol is described using geometric logic, the
 	chase can find such minimal models.
 
@@ -16,7 +16,7 @@
 			The strand space formalism was developed as a method of formally
 			reasoning about cryptographic protocols. Participants in a protocol
 			run are represented by \emph{strands}. A single physical entity can
-			be respresented as multiple strands if they play many roles in the
+			be represented as multiple strands if they play many roles in the
 			protocol. A strand is made up of a sequence of nodes where every
 			node either sends or receives a message.
 
@@ -53,7 +53,7 @@
 			zero or more construction operations, except in the case of
 			constructing decryption keys.
 
-			Cremers proved that these constraints do not limit the capabilties
+			Cremers proved that these constraints do not limit the capabilities
 			of an adversary \textbf{reference}.
 
 			An important insight used in Cremers' algorithm, called
@@ -62,7 +62,7 @@
 
 	\subsection{The Problem}
 
-		Protocol reasearchers want to be able to programmatically reason about
+		Protocol researchers want to be able to programmatically reason about
 		cryptographic protocols. A common technique for this is to find a set of
 		essentially different classes of protocol runs. This can be accomplished by
 		finding minimal models of a geometric logic representation of the protocol.
@@ -80,7 +80,7 @@
 		because there are infinitely many. Because the set of models is
 		countably infinite, they can be enumerated, but can not be listed.
 
-	\subsection{Designing An Analagous Theory}
+	\subsection{Designing An Analogous Theory}
 
 		In order to create a geometric theory describing a protocol, the
 		formul{\ae} that define strand spaces, normilisation, efficiency, and
@@ -95,7 +95,7 @@
 		\begin{enumerate}
 		\item Alice sends Bob a nonce that she generated, encrypted with Bob's public key
 		\item Bob receives the encrypted nonce
-		\item Bob replies to Alice with the decypted nonce
+		\item Bob replies to Alice with the decrypted nonce
 		\item Alice receives Bob's message
 		\end{enumerate}
 
@@ -111,5 +111,5 @@
 		which was manually stopped before natural completion. This model, like
 		all models returned by the chase, satisfies the input theory, and
 		belongs to a set of jointly minimal models for the theory. The returned
-		model denotes a run of the protocol which contains no advesary strands
+		model denotes a run of the protocol which contains no adversary strands
 		and is a correct execution of the protocol.
