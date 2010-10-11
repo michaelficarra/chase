@@ -68,6 +68,8 @@
 	$\lambda$, and a formula $\varphi$, $satisfy$ will behave as outlined
 	in the following algorithm.
 
+	~\\
+
 	\begin{algorithm}[H]
 	\DontPrintSemicolon
 	\TitleOfAlgo{satisfy :: Model $\to$ Environment $\to$ Formula $\to$ [Model]}
@@ -121,6 +123,8 @@
 		and nonterminals are denoted by an $oblique\ style$. The greek letter
 		$\varepsilon$ matches a zero-length list of tokens. Patterns that match
 		non-literal terminals are defined in the table following the grammar.
+
+		\textbf{Should these be appendices?}
 
 		\begin{tabular}{ll}
 		$program$ & :    $\varepsilon$ \\
@@ -197,12 +201,13 @@
 
 	\subsection{Options}
 
-		\subsubsection{I/O}
+		Help on the usage of the chase implementation can be found by passing
+		the executable output by Haskell the {\tt --help} or {\tt -?} options.
 
-		When no options are given to the executable output by Haskell, it
-		expects input from stdin and outputs models in a human-readable format
-		to stdout. To take input from a file instead, pass the executable the
-		{\tt -i} or {\tt --input} option followed by the filename.
+		When no options are given to the executable, it expects input from
+		stdin and outputs models in a human-readable format to stdout. To take
+		input from a file instead, pass the executable the {\tt -i} or {\tt
+		--input} option followed by the filename.
 
 		To output models to numbered files in a directory, pass the {\tt -o} or
 		{\tt --output} option along with an optional directory name. The given
@@ -214,15 +219,10 @@
 		at any time, pass the {\tt -h} or {\tt -m} flags for human-readable and
 		machine-readable formats respectively.
 
-		\subsubsection{Tracing}
-
-		\textbf{not yet implemented}
 
 	\subsection{Future Considerations}
 
-		This section details areas of possible improvement/development that
-		were unable to be explored during the timeframe allotted for the
-		project.
+		This section details areas of possible improvement/development.
 
 		\subsubsection{Better Data Structures}
 
@@ -238,16 +238,25 @@
 			In several helper functions, the program's execution is halted and
 			an error is output when the function receives certain invalid
 			inputs. These functions should take advantage of the Maybe Monad
-			and return \tt{Maybe a} where they return \tt{a}. One particular
-			example of this is the \tt{pef} function. When \tt{pef} takes a
-			function as input that can not be converted to postive-existential
-			form, it causes the program to produce an error and exit.  Instead,
-			\tt{pef} should return \tt{Maybe Formula} and the places where it
+			and return {\tt Maybe a} where they return {\tt a}. One particular
+			example of this is the {\tt pef} function. When {\tt pef} takes a
+			formula as input that can not be converted to postive-existential
+			form, it causes the program to produce an error and exit. Instead,
+			{\tt pef} should return {\tt Maybe Formula} and the places where it
 			is used should handle the error condition however they choose.
 
 		\subsubsection{Binding Search Approach for Satisfaction Checking}
 
-			
+			When checking if a model with 30 domain members and 60 facts (a
+			reasonable real-life usage example) holds for a formula with 5
+			universally quantified variables, $30^5$ or $24,300,000$ bindings
+			will have to be generated, and the formula will be checked under
+			each one. But by limiting the checked bindings to only those that
+			can produce facts that exist in the model from the atomics in the
+			formula, only the 60 facts will have to be checked in the worst
+			case, and only 1 in the best. In practical use, this should
+			dramatically reduce the running time of theories that produce
+			finite results.
 
 		\subsubsection{Avoid Isomorphic Model Generation}
 
@@ -277,7 +286,7 @@
 			mentions that have not yet been written.
 
 			One specific example of a function that Harrison mentions is
-			\tt{pullQuants} \textbf{reference}, which pulls all quantifiers in
+			{\tt pullQuants} \textbf{reference}, which pulls all quantifiers in
 			a formula to the outside. This results in a formula with no
 			conjunctions or disjunctions of quantified subformul{\ae}. This
 			function is implemented, but a function that does exactly the
@@ -286,3 +295,15 @@
 			of times bindings need to be generated for all permutations of the
 			current model's domain because the number of quantified variables
 			will be reduced.
+
+		\subsubsection{Tracing}
+
+			Currently, Debug.Trace is being used to output real-time status for
+			ease of debugging.  This output is helpful to both developers of
+			the chase implementation and theories that will be given as input.
+			Unfortunately, all of the output can really slow down a chase run
+			of a simple theory.  Currently, the only way to disable tracing is
+			to replace the definition \[trace = Debug.Trace.trace\] with
+			\[trace\ x = id\]. A flag is already being read in from the command
+			line as {\tt -d} and stored in the options record under {\tt
+			optDebug}.

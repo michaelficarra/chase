@@ -42,7 +42,7 @@ options =
 	]
 
 showVersion _ = do
-	putStrLn "0.1.13"
+	putStrLn "0.1.14"
 	exitWith ExitSuccess
 
 enableDebug opt = return opt { optDebug = True }

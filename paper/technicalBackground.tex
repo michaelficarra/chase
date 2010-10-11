@@ -1,12 +1,18 @@
 \section{Technical Background}
 
+	\subsection{Vocabulary}
+
+		A \emph{vocabulary} consists of a set of pairings of \emph{relation
+		symbols}, with a non-negative integral arity.
+
+		A relation symbol, often called a \emph{predicate}, can be any
+
 	\subsection{Models}
 
-		A \emph{model} $\mathbb{M}$ is a construct that consists of:
+		A \emph{model} $\mathbb{M}$ for a vocabulary $\mathcal{V}$ is a construct that consists of:
 		\begin{itemize}
-		\item a set, referenced as $|\mathbb{M}|$, called the \emph{universe} or \emph{domain} of $\mathbb{M}$
-		\item a set of pairings of a \emph{predicate} and a non-negative integral arity
-		\item for each predicate $R$ with arity $k$, a relation $R^\mathbb{M}_k \subseteq |\mathbb{M}|$
+		\item a set, denoted $|\mathbb{M}|$, called the \emph{universe} or \emph{domain} of $\mathbb{M}$
+		\item for each pairing of a predicate $R$ and an arity $k$ in $\mathcal{V}$, a relation $R^\mathbb{M}_k \subseteq |\mathbb{M}|$
 		\end{itemize}
 		It is important to distinguish the predicate, which is just a symbol,
 		from the relation that it refers to when paired with its arity. The
