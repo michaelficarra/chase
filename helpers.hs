@@ -275,7 +275,7 @@ pnf formula = prenex.nnf.uselessQuantifiers $ formula
 
 pef :: Formula -> Formula
 -- attempts to convert a formula to positive existential form
-pef formula = uselessQuantifiers.pullQuantifiers $ recursivelyApply (\formula -> case formula of
+pef formula = recursivelyApply (\formula -> case formula of
 	And (Not a) (Not b) -> Or a b
 	Or (Not a) (Not b) -> And a b
 	Not (Not f) -> f
