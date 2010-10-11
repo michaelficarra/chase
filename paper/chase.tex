@@ -34,7 +34,7 @@
 		\item if $\beta$ is a contradiction, halt with failure
 		\item a binding $\lambda$ is chosen such that $\mathbb{M} \models_\lambda \alpha$
 		\item if $\beta$ contains a disjunction, choose a disjunct and assign it to $\beta$
-		\item add a new domain member to the domain for every unbound variable
+		\item add a new domain member to the domain for every free variable not in the domain of $\lambda$
 		\item for every new domain element $e$ and the variable $v$ for which it was added, redefine $\lambda$ as $\lambda_{v \mapsto e}$
 		\item for every atomic $R$, replace each variable $v$ with $\lambda(v)$ and add it to the model
 		\end{enumerate}

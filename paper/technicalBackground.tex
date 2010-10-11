@@ -182,10 +182,9 @@
 		quantifications ($\exists$), tautologies ($\top$), contradictions
 		($\bot$), equalities, and relations.
 
-		Negation of a relation $R$ with arity $k$ can be implemented by
-		introducing another relation $R'$ with arity $k$, adding two
-		formul{\ae} of the form $R \wedge R' \to \bot$ and $\top \to R \vee
-		R'$, and using $R'$ where $\neg R$ would be used.
+		The set of models of a sentence $\sigma$ is closed under homomorphisms
+		if and only if $\sigma$ is logically equivalent to a positive
+		existential formula $\varphi$.
 
 	\subsection{Geometric Logic}
 	\label{sec:technical_background.geometric_logic}
@@ -213,3 +212,9 @@
 		\emph{symmetry}      & \qquad  &  $R[x,y] \to R[y,x]$                \\
 		\emph{transitivity}  & \qquad  &  $R[x,y] \wedge R[y,z] \to R[x,z]$  \\
 		\end{tabular}
+
+		Negation of a relation $R$ with arity $k$ can be implemented by
+		introducing another relation $R'$ with arity $k$, adding two
+		formul{\ae} of the form $R \wedge R' \to \bot$ and $\top \to R \vee
+		R'$, and using $R'$ where $\neg R$ would be used.
+
