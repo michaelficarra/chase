@@ -150,19 +150,30 @@
 	\subsection{Minimal Models}
 
 		Minimal models, also called \emph{universal} models, are models for a
-		theory with the special property that there exists a homomorphism from
-		the minimal model to any other model that satisfies the theory.
-		Intuitively, minimal models have no unnecessary entities or relations
-		and thus display the least amount of constraint necessary to satisfy
-		the theory for which they are minimal.
-
-		More than one minimal model may exist for a given theory, and not every
-		theory must have a minimal model. \textbf{give examples}.
+		theory $T$ with the special property that there exists a homomorphism from
+		the minimal model to any other model that satisfies $T$.  Intuitively,
+		minimal models have no unnecessary entities or relations and thus
+		display the least amount of constraint necessary to satisfy the theory
+		for which they are minimal.
 
 		A set of models $\mathcal{M}$ is said to be \emph{jointly minimal} for
 		a set of formul{\ae} $\Sigma$ when every model $\mathbb{N}$ such that
 		$\mathbb{N} \models \Sigma$ has a homomorphism from a model $\mathbb{M}
 		\in \mathcal{M}$ to $\mathbb{N}$.
+
+		More than one minimal model may exist for a given theory. Given a model
+		$\mathbb{M}$ that is minimal for a theory $T$, any model $\mathbb{N}$
+		such that $\mathbb{N} \simeq \mathbb{M}$ is also minimal for $T$.
+
+		Not every theory must have a minimal model. A simple example of this is
+		the theory containing a single formula $\sigma$ where $\sigma$ contains
+		a disjunction. There exists no single minimal model for the formula $P
+		\vee Q$ because any model that satisfies both $P$ and $Q$ would not
+		have a homomorphism to a model that satisfies the theory with only $P$
+		or $Q$ in its set of facts. However, the set containing a model
+		$\mathbb{M}$ that contains $P$ in its set of facts and a model
+		$\mathbb{N}$ that contains $Q$ in its set of fact would be jointly
+		minimal.
 
 	\subsection{Positive Existential Form}
 
