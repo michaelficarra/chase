@@ -15,9 +15,9 @@
 
 	There are three types of runs of the chase:
 	\begin{itemize}
-	\item a non-empty result in finite time
-	\item an empty result in finite time
-	\item an infinite run, with possible return dependent on implementation
+	\item a set of jointly minimal models is found in finite time
+	\item an empty result is found in finite time
+	\item an infinite run with possible return dependent on implementation
 	\end{itemize}
 
 	\subsection{Algorithm}
@@ -120,3 +120,21 @@
 			different disjunct is chosen in \textbf{(2)} or \textbf{(3)}.
 
 		\end{enumerate}
+
+	\subsection{Joint Minimality Theorem}
+
+		\newtheorem{theorem}{Theorem}
+
+		\begin{theorem}
+			A geometric theory $T$ is satisfiable if and only if there is a
+			chase run of $T$ that returns a non-empty result.
+			\textbf{ do infinite runs imply satisfiability? }
+		\end{theorem}
+
+		\begin{theorem}
+			Let $\mathcal{M}$ be the set of models returned from a successful
+			run of the chase over a geometric theory $T$. For any model
+			$\mathbb{N}$ such that $\mathbb{N} \models T$, there is a model
+			$\mathbb{M} \in \mathcal{M}$ such that $\mathbb{M} \preceq
+			\mathbb{N}$.
+		\end{theorem}
