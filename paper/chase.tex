@@ -47,9 +47,9 @@
 		Define $\Sigma$ as the following geometric theory.
 
 		\begin{eqnarray}
-			\top    &  \to  &  \exists\ x,y : R[x,y]                             \\
-			R[x,y]  &  \to  &  (\exists\ z : Q[x,z]) \vee P                      \\
-			Q[x,y]  &  \to  &  (\exists\ z : R[x,z]) \vee (\exists\ z : R[z,y])  \\
+			\top    &  \to  &  \exists\ x,y : R(x,y)                             \\
+			R(x,y)  &  \to  &  (\exists\ z : Q(x,z)) \vee P                      \\
+			Q(x,y)  &  \to  &  (\exists\ z : R(x,z)) \vee (\exists\ z : R(z,y))  \\
 			P       &  \to  &  \bot                                              \\
 		\end{eqnarray}
 
@@ -61,31 +61,31 @@
 		\item A non-empty result in finite time:
 
 			\begin{tabular}{lllllll}
-				$\emptyset$ & $\mapsto$ & \{ & $a,b$   & $|$ & $R[a,b]$         & \} \\
-				{}          & $\mapsto$ & \{ & $a,b,c$ & $|$ & $R[a,b], Q[a,c]$ & \} \\
+				$\emptyset$ & $\mapsto$ & \{ & $a,b$   & $|$ & $R(a,b)$         & \} \\
+				{}          & $\mapsto$ & \{ & $a,b,c$ & $|$ & $R(a,b), Q(a,c)$ & \} \\
 			\end{tabular}
 
 			Since the left side of \textbf{(1)} is always satisfied, but its
-			right side is not, domain members $a$ and $b$ and fact $R[a,b]$ are
+			right side is not, domain members $a$ and $b$ and fact $R(a,b)$ are
 			added to the initially empty model to satisfy \textbf{(1)}. The
 			left side of \textbf{(2)} holds, but the right side does not, so
-			one of the disjuncts $\exists\ z : Q[x,z]$ or $P[x]$ is chosen to
+			one of the disjuncts $\exists\ z : Q(x,z)$ or $P(x)$ is chosen to
 			be satisfied. Assuming the left operand is chosen, $x$ will already
 			have been assigned to $a$ and a new domain member $c$ and a new
-			fact $Q[a,c]$ will be added to satisfy \textbf{(2)}. With the
+			fact $Q(a,c)$ will be added to satisfy \textbf{(2)}. With the
 			current model, all rules hold under any environment. Therefore,
 			this model is minimal.
 
 		\item An empty result in finite time:
 
 			\begin{tabular}{lllllll}
-				$\emptyset$ & $\mapsto$ & \{ & $a,b$   & $|$ & $R[a,b]$               & \} \\
-				{}          & $\mapsto$ & \{ & $a,b,c$ & $|$ & $R[a,b], P[a,c]$       & \} \\
-				{}          & $\mapsto$ & \{ & $a,b,c$ & $|$ & $R[a,b], P[a,c], \bot$ & \} \\
+				$\emptyset$ & $\mapsto$ & \{ & $a,b$   & $|$ & $R(a,b)$               & \} \\
+				{}          & $\mapsto$ & \{ & $a,b,c$ & $|$ & $R(a,b), P(a,c)$       & \} \\
+				{}          & $\mapsto$ & \{ & $a,b,c$ & $|$ & $R(a,b), P(a,c), \bot$ & \} \\
 				{}          & $\mapsto$ & \multicolumn{5}{l}{ $\varepsilon$ }              \\
 			\end{tabular}
 
-			Again, domain members $a$ and $c$ and fact $R[a,b]$ are added to
+			Again, domain members $a$ and $c$ and fact $R(a,b)$ are added to
 			the initial model to satisfy \textbf{(1)}.  This time, when
 			attempting to satisfy \textbf{(2)}, the right side is chosen and
 			$P$ is added to the set of facts. After adding this new fact, rule
@@ -99,23 +99,23 @@
 		\item An infinite run:
 
 			\begin{tabular}{lllllll}
-				$\emptyset$ & $\mapsto$ & \{ & $a,b$        & $|$ & $R[a,b]$                                 & \} \\
-				{}          & $\mapsto$ & \{ & $a,b,c$      & $|$ & $R[a,b], Q[a,c]$                         & \} \\
-				{}          & $\mapsto$ & \{ & $a,\ldots,d$ & $|$ & $R[a,b], Q[a,c], R[d,c]$                 & \} \\
-				{}          & $\mapsto$ & \{ & $a,\ldots,e$ & $|$ & $R[a,b], Q[a,c], R[d,c], Q[d,e]$         & \} \\
-				{}          & $\mapsto$ & \{ & $a,\ldots,f$ & $|$ & $R[a,b], Q[a,c], R[d,c], Q[d,e], R[f,e]$ & \} \\
+				$\emptyset$ & $\mapsto$ & \{ & $a,b$        & $|$ & $R(a,b)$                                 & \} \\
+				{}          & $\mapsto$ & \{ & $a,b,c$      & $|$ & $R(a,b), Q(a,c)$                         & \} \\
+				{}          & $\mapsto$ & \{ & $a,\ldots,d$ & $|$ & $R(a,b), Q(a,c), R(d,c)$                 & \} \\
+				{}          & $\mapsto$ & \{ & $a,\ldots,e$ & $|$ & $R(a,b), Q(a,c), R(d,c), Q(d,e)$         & \} \\
+				{}          & $\mapsto$ & \{ & $a,\ldots,f$ & $|$ & $R(a,b), Q(a,c), R(d,c), Q(d,e), R(f,e)$ & \} \\
 				{}          & $\mapsto$ & \multicolumn{5}{l}{ $\ldots$ }                                          \\
 			\end{tabular}
 
 			Like in the example above that returned a non-empty, finite result,
 			the first two steps add domain members $a$, $b$, and $c$ and facts
-			$R[a,b]$ and $Q[a,c]$. The left side of the implication in
+			$R(a,b)$ and $Q(a,c)$. The left side of the implication in
 			\textbf{(3)} now holds, but the right side does not. In order to
 			make the right side hold, one of the disjuncts needs to be
 			satisfied. If the right disjunct is chosen, a new domain member $d$
-			and a new relation $R[d,c]$ will be added.  This will cause the
-			left side of the implication in \textbf{(2)} to hold for $R[d,c]$,
-			but the right side will no hold for the same binding. $Q[d,e]$ will
+			and a new relation $R(d,c)$ will be added.  This will cause the
+			left side of the implication in \textbf{(2)} to hold for $R(d,c)$,
+			but the right side will no hold for the same binding. $Q(d,e)$ will
 			be added, and this loop will continue indefinitely unless a
 			different disjunct is chosen in \textbf{(2)} or \textbf{(3)}.
 

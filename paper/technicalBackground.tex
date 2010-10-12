@@ -25,7 +25,7 @@
 		\emph{First-order logic}, also called \emph{predicate logic}, is a
 		formal logic system. A first-order logic formula is defined inductively by
 		\begin{itemize}
-		\item if $R$ is a relation symbol of arity $k$ and each of $x_0 \ldots x_{k-1} \in \vec{x}$ is a variable, then $R[\vec{x}]$ is a formula, specifically an \emph{atomic formula}
+		\item if $R$ is a relation symbol of arity $k$ and each of $x_0 \ldots x_{k-1} \in \vec{x}$ is a variable, then $R(\vec{x})$ is a formula, specifically an \emph{atomic formula}
 		\item if $x$ and $y$ are variables, then $x = y$ is a formula
 		\item $\top$ and $\bot$ are formul{\ae}
 		\item if $\alpha$ is a formula, then $(\neg\alpha)$ is a formula
@@ -39,8 +39,8 @@
 		For our purposes, this logic system will not contain any constant
 		symbols or function symbols, which are commonly included in first-order
 		logic. A function $f(x,y)$ can be encoded as the geometric logic
-		formula $F[x,y,z1] \wedge F[x,y,z2] -> z1 = z2$.  Constant symbols can
-		be encoded as relations with an arity of zero, for example $C[]$.
+		formula $F(x,y,z1) \wedge F(x,y,z2) -> z1 = z2$.  Constant symbols can
+		be encoded as relations with an arity of zero, for example $C()$.
 
 		A shorthand notation may sometimes be used which omits either the left
 		or right side of an implication and denotes ($\top \to \sigma$) and
@@ -81,7 +81,7 @@
 		environment $\lambda$, denoted $\mathbb{M} \models_\lambda \sigma$ and
 		read ``under $\lambda$, $\sigma$ is true in $\mathbb{M}$", when
 		\begin{itemize}
-		\item $\sigma$ is a relation symbol $R$ and $R[\lambda(a_0) , \ldots , \lambda(a_n)] \in \mathbb{M}$ where $a$ is a set of variables
+		\item $\sigma$ is a relation symbol $R$ and $R(\lambda(a_0) , \ldots , \lambda(a_n)) \in \mathbb{M}$ where $a$ is a set of variables
 		\item $\sigma$ is of the form $\neg\alpha$ and $\mathbb{M} \not\models_\lambda \alpha$
 		\item $\sigma$ is of the form $\alpha\wedge\beta$ and both $\mathbb{M} \models_\lambda \alpha$ and $\mathbb{M} \models_\lambda \beta$
 		\item $\sigma$ is of the form $\alpha\vee\beta$ and either $\mathbb{M} \models_\lambda \alpha$ or $\mathbb{M} \models_\lambda \beta$
@@ -208,9 +208,9 @@
 		Examples of geometric logic formul{\ae}:
 
 		\begin{tabular}{lll}
-		\emph{reflexivity}   & \qquad  &  $\top \to R[x,x]$                  \\
-		\emph{symmetry}      & \qquad  &  $R[x,y] \to R[y,x]$                \\
-		\emph{transitivity}  & \qquad  &  $R[x,y] \wedge R[y,z] \to R[x,z]$  \\
+		\emph{reflexivity}   & \qquad  &  $\top \to R(x,x)$                  \\
+		\emph{symmetry}      & \qquad  &  $R(x,y) \to R(y,x)$                \\
+		\emph{transitivity}  & \qquad  &  $R(x,y) \wedge R(y,z) \to R(x,z)$  \\
 		\end{tabular}
 
 		Negation of a relation $R$ with arity $k$ can be implemented by

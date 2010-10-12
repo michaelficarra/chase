@@ -89,11 +89,11 @@
 			\lIf{$\mathbb{M}_\lambda \models \alpha$}{return $satisfy(\beta)$ \;}
 			\lElse{return an empty list \;}
 		}
-		\Case{$R[\vec x]$}{
+		\Case{$R(\vec x)$}{
 			define a new model $\mathbb{N}$ where $|\mathbb{N}| = |\mathbb{M}|$ \;
 			add a new member $\omega$ to $|\mathbb{N}|$ \;
 			\lForAll{$P_\mathbb{M}$}{$P_\mathbb{N} = P_\mathbb{M}$ \;}
-			define $R_{\mathbb{N}}[x_0 \ldots x_n]$ as $R_{\mathbb{M}}[\lambda(x_0) \ldots \lambda(x_n)]$ \;
+			define $R_{\mathbb{N}}(x_0 \ldots x_n)$ as $R_{\mathbb{M}}(\lambda(x_0) \ldots \lambda(x_n))$ \;
 			\ForEach{$v \in \vec x$}{
 				\lIf{$v \not\in \lambda$}{
 					$\lambda$ becomes $\lambda_{v \mapsto \omega}$ \;
