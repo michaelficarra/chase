@@ -21,14 +21,14 @@
 	formula, the chase tries to coerce it into one by applying following rules
 	recursively:
 
-	\begin{itemize}
-	\item $\neg\alpha \wedge \neg\beta \mapsto \alpha \vee \beta$
-	\item $\neg\alpha \vee \neg\beta \mapsto \alpha \wedge \beta$
-	\item $\neg\neg\alpha \mapsto \alpha$
-	\item $\neg\alpha \to \beta \mapsto \alpha \vee \beta$
-	\item $\alpha \to \neg\beta \mapsto \alpha \wedge \beta$
-	\item $\neg(\forall\ \vec{x} : \neg\alpha) \mapsto \exists \vec{x} : \alpha$
-	\end{itemize}
+	\begin{align*}
+	\neg\alpha \wedge \neg\beta         \quad & \mapsto \quad \alpha \vee \beta        \\
+	\neg\alpha \vee \neg\beta           \quad & \mapsto \quad \alpha \wedge \beta      \\
+	\neg\neg\alpha                      \quad & \mapsto \quad \alpha                   \\
+	\neg\alpha \to \beta                \quad & \mapsto \quad \alpha \vee \beta        \\
+	\alpha \to \neg\beta                \quad & \mapsto \quad \alpha \wedge \beta      \\
+	\neg(\forall\ \vec{x} : \neg\alpha) \quad & \mapsto \quad \exists \vec{x} : \alpha
+	\end{align*}
 
 	All other constructs are preserved. If this transformed formula is still
 	not in positive existential form, an error is thrown.
@@ -173,7 +173,7 @@
 		\\
 
 		$optNEWLINE$ & : $\varepsilon$ \\
-		{} & $\mid$      \tt{NEWLINE} \\
+		{} & $\mid$      \tt{NEWLINE}
 		\end{tabular}
 
 		{\tt \begin{tabular}{|l|l|}
@@ -195,7 +195,7 @@
 		\end{tabular} }
 
 		Comments are removed at the lexical analysis step and have no effect on
-		the input to the parser.  Single-line comments begin with either a hash
+		the input to the parser. Single-line comments begin with either a hash
 		({\tt \#}) or double-dash ({\tt --}). Multi-line comments begin with
 		{\tt /*} and are terminated by {\tt */}.
 
@@ -299,10 +299,10 @@
 		\subsubsection{Tracing}
 
 			Currently, Debug.Trace is being used to output real-time status for
-			ease of debugging.  This output is helpful to both developers of
+			ease of debugging. This output is helpful to both developers of
 			the chase implementation and theories that will be given as input.
 			Unfortunately, all of the output can really slow down a chase run
-			of a simple theory.  Currently, the only way to disable tracing is
+			of a simple theory. Currently, the only way to disable tracing is
 			to replace the definition \[trace = Debug.Trace.trace\] with
 			\[trace\ x = id\]
 

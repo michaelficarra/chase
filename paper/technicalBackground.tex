@@ -39,14 +39,14 @@
 		For our purposes, this logic system will not contain any constant
 		symbols or function symbols, which are commonly included in first-order
 		logic. A function $f(x,y)$ can be encoded as the geometric logic
-		formula $F(x,y,z1) \wedge F(x,y,z2) -> z1 = z2$.  Constant symbols can
+		formula $F(x,y,z1) \wedge F(x,y,z2) -> z1 = z2$. Constant symbols can
 		be encoded as relations with an arity of zero, for example $C()$.
 
 		A shorthand notation may sometimes be used which omits either the left
 		or right side of an implication and denotes ($\top \to \sigma$) and
-		($\sigma \to \bot$) respectively.  If $\alpha$ is a formula and
+		($\sigma \to \bot$) respectively. If $\alpha$ is a formula and
 		$\vec{x}$ is a set of variables of size $k$, then $(\forall \vec{x} :
-		\alpha)$ is $(\forall x_0 \ldots \forall x_{k-1} : \alpha)$.  If
+		\alpha)$ is $(\forall x_0 \ldots \forall x_{k-1} : \alpha)$. If
 		$\alpha$ is a formula and $\vec{x}$ is a set of variables of size $k$,
 		then $(\exists \vec{x} : \alpha)$ is $(\exists x_0 \ldots \exists
 		x_{k-1} : \alpha)$.
@@ -125,14 +125,14 @@
 
 		The notation $\mathbb{M} \preceq \mathbb{N}$ means that there exists a
 		homomorphism $h : \mathbb{M} \to \mathbb{N}$. The identity function is
-		a homomorphism from any model $\mathbb{M}$ to itself.  Homomorphisms
+		a homomorphism from any model $\mathbb{M}$ to itself. Homomorphisms
 		have the property that $\mathbb{A} \preceq \mathbb{B} \wedge \mathbb{B}
 		\preceq \mathbb{C}$ implies $\mathbb{A} \preceq \mathbb{C}$.
 
 		However, $\mathbb{M} \preceq \mathbb{N} \wedge \mathbb{N} \preceq
 		\mathbb{M}$ does not imply that $\mathbb{M} = \mathbb{N}$, but instead
 		that $\mathbb{M}$ and $\mathbb{N}$ are \emph{homomorphically
-		equivalent}.  For example, fix two models $\mathbb{M}$ and $\mathbb{N}$
+		equivalent}. For example, fix two models $\mathbb{M}$ and $\mathbb{N}$
 		that are equivalent except that $\mathbb{N}$ has one more domain
 		member than $\mathbb{M}$. Both $\mathbb{M} \preceq \mathbb{N}$ and
 		$\mathbb{N} \preceq \mathbb{M}$ are true, yet $\mathbb{M} \neq
@@ -151,7 +151,7 @@
 
 		Minimal models, also called \emph{universal} models, are models for a
 		theory $T$ with the special property that there exists a homomorphism from
-		the minimal model to any other model that satisfies $T$.  Intuitively,
+		the minimal model to any other model that satisfies $T$. Intuitively,
 		minimal models have no unnecessary entities or relations and thus
 		display the least amount of constraint necessary to satisfy the theory
 		for which they are minimal.
@@ -214,7 +214,7 @@
 		\begin{tabular}{lll}
 		\emph{reflexivity}   & \qquad  &  $\top \to R(x,x)$                  \\
 		\emph{symmetry}      & \qquad  &  $R(x,y) \to R(y,x)$                \\
-		\emph{transitivity}  & \qquad  &  $R(x,y) \wedge R(y,z) \to R(x,z)$  \\
+		\emph{transitivity}  & \qquad  &  $R(x,y) \wedge R(y,z) \to R(x,z)$
 		\end{tabular}
 
 		Negation of a relation $R$ with arity $k$ can be implemented by
