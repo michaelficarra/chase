@@ -27,6 +27,24 @@
 		When these problems have an unbounded scope of possible solutions, the
 		chase can be used to find the possible solutions that are interesting.
 		This allows researchers to go through only models that will behave
-		differently than most models, rather than testing each on separately.
+		uniquely, rather than testing each model separately. Cryptographic
+		protocol analysis is a particular application that is explored further.
 
-		\textbf{ more introduction stuff here }
+		To generate these jointly minimal models, the chase begins with a model
+		that has an empty domain and no facts. The chase goes through each
+		formula in the geometric theory and alters the model so that it
+		satisfies that formula.  Geometric formul{\ae} have the useful property
+		in that adding elements/facts to a model that satisfies a geometric
+		formula will never cause the model to no longer satisfy that formula.
+		Because of this, the chase can keep adding to the model until all
+		formul{\ae} are satsfied.
+
+		Our specific definition of the chase is nondeterministic over
+		disjunctions.  When a disjunction is encountered, a disjunct is chosen
+		without prejudice and the chase continues detereministically until it
+		encounters another disjunct. We will see that, in a Haskell
+		implementation of the chase, both disjuncts can be satisfied by forking
+		the chase and returning a list containing the concatentation of the
+		lists returned by the forks. In this way, we can deterministically
+		calculate the set of jointly minimal models by using a naturally
+		nondeterministic algorithm.
