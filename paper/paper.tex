@@ -1,14 +1,16 @@
 \documentclass[11pt, a4paper]{article}
 
+\usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{amsthm}
 \usepackage{listings}
 \usepackage[nodayofweek]{datetime}
 \usepackage{setspace}
 \usepackage{graphicx}
-\usepackage{amsmath}
 \usepackage[vlined]{algorithm2e}
 \usepackage[breaklinks]{hyperref}
 \usepackage[all]{hypcap}
+\usepackage{cite}
 
 \setlength{\textheight}{8.63in}
 \setlength{\textwidth}{5.9in}
@@ -53,6 +55,9 @@
 	\include{appendixChase}
 
 \addcontentsline{toc}{section}{References}
-\include{references}
+%\include{references}
+\nocite{*}
+\bibliography{references}{}
+\bibliographystyle{plain}
 
 \end{document}

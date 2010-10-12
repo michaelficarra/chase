@@ -63,6 +63,8 @@ namespace 'paper' do
 	task :pdf do
 		Dir.chdir 'paper' do
 			sh 'pdflatex paper.tex'
+			sh 'bibtex paper'
+			sh 'pdflatex paper.tex'
 			sh 'pdflatex paper.tex'
 		end
 	end
