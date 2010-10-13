@@ -90,20 +90,18 @@
 			Cremers gives two major constraints, which will be called
 			``efficiency" and ``normalcy". A protocol is \emph{efficient} if an
 			adversary always takes a message from the earliest point at which
-			it appears. A protocol is \emph{normal} when the adversary is
-			performing either a deconstruction or construction, it always
-			performs zero or more deconstruction operations followed by zero or
-			more construction operations, except in the case of constructing
-			decryption keys. Cremers proved that these constraints do not limit
-			the capabilities of an adversary \textbf{reference}.
+			it appears. A protocol is \emph{normal} when the adversary always
+			either preforms a generation followed by zero or more contruction
+			operations or performs zero or more deconstruction operations
+			followed by zero or more construction operations. Cremers proved
+			that these constraints do not limit the capabilities of an
+			adversary \textbf{reference}.
 
-			\textbf{above paragraph needs some rewriting}
-
-			An important insight used in Cremers' algorithm, called
-			\emph{chaining}, states that terms in messages received from an
-			adversary strand always originate in a non-adversarial strand. In
-			simpler terms, an adversary can not send a message to himself nor
-			receive a message from himself.
+			An important insight used in Cremers' algorithm, which will be
+			called \emph{chaining}, states that terms in messages received from
+			an adversary strand always originate in a non-adversarial strand.
+			In simpler terms, an adversary can not send a message to himself
+			nor receive a message from himself.
 
 	\subsection{The Problem}
 
@@ -147,16 +145,9 @@
 		\item Alice receives Bob's message
 		\end{enumerate}
 
-		This protocol can be visually represented as in Figure \ref{fig:half-duplex}.
-
-		%\begin{figure}[h]
-		%	\centering
-		%	\includegraphics[width=0.6\textwidth]{half-duplex.png}
-		%	\caption{
-		%		A visual representation of the half-duplex protocol modeled in strand space
-		%		\label{fig:half-duplex}
-		%	}
-		%\end{figure}
+		A visual representation of the protocol, as modeled in the strand space
+		formalism, can be seen in Figure \ref{fig:half-duplex}, Appendix
+		\ref{sec:appendixHalfDuplex}.
 
 		The geometric logic rules that model this protocol were generated
 		manually by direct translation into geometric logic. Ideally, the
