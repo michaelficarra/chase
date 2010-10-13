@@ -11,7 +11,7 @@
 	a disjunct. The lazy evaluation of Haskell allows a user to access members
 	of the returned list even though some chase runs have not returned a value.
 
-	Appendix B contains the chase-running portions of the implementation.
+	Appendix \ref{sec:appendixChase} contains the chase-running portions of the implementation.
 
 	\subsection{Operation}
 
@@ -118,81 +118,12 @@
 
 	\subsection{Input Format}
 
-		Input to the parser must be in a form parsable by the following
-		context-free grammar. Terminals are denoted by a {\tt monospace style}
-		and nonterminals are denoted by an $oblique\ style$. The Greek letter
-		$\varepsilon$ matches a zero-length list of tokens. Patterns that match
-		non-literal terminals are defined in the table following the grammar.
-
-		\textbf{Should these be appendices?}
-
-		\begin{tabular}{ll}
-		$program$ & :    $\varepsilon$ \\
-		{} & $\mid$      $exprList$ $optNEWLINE$ \\
-		\\
-
-		$exprList$ & :   $expr$ \\
-		{} & $\mid$      $exprList$ \tt{NEWLINE} $expr$ \\
-		\\
-
-		$expr$ & :       \tt{TAUTOLOGY} \\
-		{} & $\mid$      \tt{CONTRADICTION} \\
-		{} & $\mid$      $expr$ \tt{OR} $expr$ \\
-		{} & $\mid$      $expr$ \tt{AND} $expr$ \\
-		{} & $\mid$      \tt{NOT} $expr$ \\
-		{} & $\mid$      $expr$ \tt{->} $expr$ \\
-		{} & $\mid$      \tt{->} $expr$ \\
-		{} & $\mid$      $atomic$ \\
-		{} & $\mid$      \tt{VARIABLE EQ VARIABLE} \\
-		{} & $\mid$      \tt{FOR\_ALL} $argList$ $optCOLON$ $expr$ \\
-		{} & $\mid$      \tt{THERE\_EXISTS} $argList$ $optCOLON$ $expr$ \\
-		{} & $\mid$      \tt{(} $expr$ \tt{)} \\
-		{} & $\mid$      \tt{[} $expr$ \tt{]} \\
-		\\
-
-		$atomic$ & :     \tt{PREDICATE} $optIndex$ \\
-		\\
-
-		$index$ & :      \tt{(} $argList$ \tt{)} \\
-		{} & $\mid$      \tt{[} $argList$ \tt{]} \\
-		\\
-
-		$argList$ & :    $arg$ \\
-		{} & $\mid$      $argList$ \tt{,} $arg$ \\
-		\\
-
-		$arg$ & :        \tt{VARIABLE} \\
-		\\
-
-		$optIndex$ & :   $\varepsilon$ \\
-		{} & $\mid$      $index$ \\
-		\\
-
-		$optCOLON$ & :   $\varepsilon$ \\
-		{} & $\mid$      \tt{:} \\
-		\\
-
-		$optNEWLINE$ & : $\varepsilon$ \\
-		{} & $\mid$      \tt{NEWLINE}
-		\end{tabular}
-
-		{\tt \begin{tabular}{|l|l|}
-			\hline
-			\textbf{Input Pattern} & \textbf{Terminal} \\
-			\hline
-			|                    & OR  \\
-			\&                   & AND \\
-			!                    & NOT \\
-			=                    & EQ  \\
-			$[$Tt$]$autology     & TAUTOLOGY \\
-			$[$Cc$]$ontradiction & CONTRADICTION \\
-			$[\backslash$r$\backslash$n$]$+ & NEWLINE \\
-			$[$a-z$][$A-Za-z0-9\_'$]$* & VARIABLE \\
-			$[$A-Z$][$A-Za-z0-9\_'$]$* & PREDICATE \\
-			For$[$Aa$]$ll        & FOR\_ALL \\
-			Exists               & THERE\_EXISTS \\
-			\hline
-		\end{tabular} }
+		Input to the parser must be in a form parsable by the context-free
+		grammar seen in Appendix \ref{sec:appendixParser}. Terminals are
+		denoted by a {\tt monospace style} and nonterminals are denoted by an
+		$oblique\ style$. The Greek letter $\varepsilon$ matches a zero-length
+		list of tokens. Patterns that match non-literal terminals are defined
+		in the table in Appendix \ref{sec:appendixLexer}.
 
 		Comments are removed at the lexical analysis step and have no effect on
 		the input to the parser. Single-line comments begin with either a hash
@@ -238,25 +169,25 @@
 			In several helper functions, the program's execution is halted and
 			an error is output when the function receives certain invalid
 			inputs. These functions should take advantage of the Maybe Monad
-			and return {\tt Maybe a} where they return {\tt a}. One particular
-			example of this is the {\tt pef} function. When {\tt pef} takes a
-			formula as input that can not be converted to positive-existential
-			form, it causes the program to produce an error and exit. Instead,
-			{\tt pef} should return {\tt Maybe Formula} and the places where it
-			is used should handle the error condition however they choose.
+			and return {\tt Maybe a} where {\tt a} is the type they currently
+			return. One particular example of this is the {\tt pef} function.
+			When {\tt pef} takes a formula as input that can not be converted
+			to positive-existential form, it causes the program to produce an
+			error and exit. Instead, {\tt pef} should return {\tt Maybe
+			Formula} and the places where it is used should handle the error
+			condition however they choose.
 
 		\subsubsection{Binding Search Approach for Satisfaction Checking}
 
-			When checking if a model with 30 domain members and 60 facts (a
-			reasonable real-life usage example) holds for a formula with 5
-			universally quantified variables, $30^5$ or $24,300,000$ bindings
-			will have to be generated, and the formula will be checked under
-			each one. But by limiting the checked bindings to only those that
-			can produce facts that exist in the model from the atomics in the
-			formula, only the 60 facts will have to be checked in the worst
-			case, and only 1 in the best. In practical use, this should
-			dramatically reduce the running time of theories that produce
-			finite results.
+			When checking if a model with 30 domain members and 60 facts holds
+			for a formula with 5 universally quantified variables (a reasonable
+			real-life usage example), $30^5$ or $24,300,000$ bindings will have
+			to be generated, and the formula will be checked under each one.
+			But by limiting the checked bindings to only those that can produce
+			facts that exist in the model from the atomics in the formula, only
+			the 60 facts will have to be checked in the worst case, and only 1
+			in the best. In practical use, this should dramatically reduce the
+			running time of theories that produce finite results.
 
 		\subsubsection{Avoid Isomorphic Model Generation}
 
@@ -277,19 +208,19 @@
 			reasonable and obvious optimizations were made, there is still
 			plenty of room for optimization.
 
-			In Harrison's Practical Logic and Automated Reasoning
-			\textbf{reference}, Harrison mentions a large number of formula
-			rewriting and simplification algorithms, many of which are already
+			In \cite{Harrison09} Harrison's \emph{Practical Logic and Automated
+			Reasoning} , Harrison mentions a large number of formula rewriting
+			and simplification algorithms, many of which are already
 			implemented in the Helpers module. Those functions that are
 			written, however, are not currently being used by the chase
 			functions, and there are surely other functions that Harrison
 			mentions that have not yet been written.
 
-			One specific example of a function that Harrison mentions is
-			{\tt pullQuants} \textbf{reference}, which pulls all quantifiers in
-			a formula to the outside. This results in a formula with no
-			conjunctions or disjunctions of quantified subformul{\ae}. This
-			function is implemented, but a function that does exactly the
+			One specific example of a function that \cite{Harrison09} Harrison
+			mentions on pages 141 to 144 is {\tt pullQuants}, which pulls all
+			quantifiers in a formula to the outside. This results in a formula
+			with no conjunctions or disjunctions of quantified subformul{\ae}.
+			This function is implemented, but a function that does exactly the
 			opposite of this will help speed up satisfaction checking when
 			using the traditional looping method. This will minimize the number
 			of times bindings need to be generated for all permutations of the
@@ -307,4 +238,10 @@
 			\[trace\ x = id\]
 
 			A flag is already being read in from the command line as {\tt -d}
-			and stored in the options record under {\tt optDebug}.
+			and stored in the options record under {\tt optDebug}. When this
+			flag is found, a callback function is being invoked in the Main
+			module. Someone who implements this enhancement would need to be
+			able to alter the behaviour of the Chase module's $trace$ function
+			from a function within the Main module.  Ideally, a better
+			debugging output method will be found and Debug.Trace.trace will no
+			longer need to be used in what is otherwise production-ready code.

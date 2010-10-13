@@ -1,0 +1,21 @@
+\section{Lexical Rules}
+	\label{sec:appendixLexer}
+	{\tt
+		\begin{tabular}{|l|l|}
+			\hline
+			\textbf{Input Pattern} & \textbf{Terminal} \\
+			\hline
+			|                    & OR  \\
+			\&                   & AND \\
+			!                    & NOT \\
+			=                    & EQ  \\
+			$[$Tt$]$autology     & TAUTOLOGY \\
+			$[$Cc$]$ontradiction & CONTRADICTION \\
+			$[\backslash$r$\backslash$n$]$+ & NEWLINE \\
+			$[$a-z$][$A-Za-z0-9\_'$]$* & VARIABLE \\
+			$[$A-Z$][$A-Za-z0-9\_'$]$* & PREDICATE \\
+			For$[$Aa$]$ll        & FOR\_ALL \\
+			Exists               & THERE\_EXISTS \\
+			\hline
+		\end{tabular}
+	}

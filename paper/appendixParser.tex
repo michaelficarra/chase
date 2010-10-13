@@ -1,0 +1,52 @@
+\section{Grammar}
+	\label{sec:appendixParser}
+
+	\begin{tabular}{ll}
+	$program$ & :    $\varepsilon$ \\
+	{} & $\mid$      $exprList$ $optNEWLINE$ \\
+	\\
+
+	$exprList$ & :   $expr$ \\
+	{} & $\mid$      $exprList$ \tt{NEWLINE} $expr$ \\
+	\\
+
+	$expr$ & :       \tt{TAUTOLOGY} \\
+	{} & $\mid$      \tt{CONTRADICTION} \\
+	{} & $\mid$      $expr$ \tt{OR} $expr$ \\
+	{} & $\mid$      $expr$ \tt{AND} $expr$ \\
+	{} & $\mid$      \tt{NOT} $expr$ \\
+	{} & $\mid$      $expr$ \tt{->} $expr$ \\
+	{} & $\mid$      \tt{->} $expr$ \\
+	{} & $\mid$      $atomic$ \\
+	{} & $\mid$      \tt{VARIABLE EQ VARIABLE} \\
+	{} & $\mid$      \tt{FOR\_ALL} $argList$ $optCOLON$ $expr$ \\
+	{} & $\mid$      \tt{THERE\_EXISTS} $argList$ $optCOLON$ $expr$ \\
+	{} & $\mid$      \tt{(} $expr$ \tt{)} \\
+	{} & $\mid$      \tt{[} $expr$ \tt{]} \\
+	\\
+
+	$atomic$ & :     \tt{PREDICATE} $optIndex$ \\
+	\\
+
+	$index$ & :      \tt{(} $argList$ \tt{)} \\
+	{} & $\mid$      \tt{[} $argList$ \tt{]} \\
+	\\
+
+	$argList$ & :    $arg$ \\
+	{} & $\mid$      $argList$ \tt{,} $arg$ \\
+	\\
+
+	$arg$ & :        \tt{VARIABLE} \\
+	\\
+
+	$optIndex$ & :   $\varepsilon$ \\
+	{} & $\mid$      $index$ \\
+	\\
+
+	$optCOLON$ & :   $\varepsilon$ \\
+	{} & $\mid$      \tt{:} \\
+	\\
+
+	$optNEWLINE$ & : $\varepsilon$ \\
+	{} & $\mid$      \tt{NEWLINE}
+	\end{tabular}
