@@ -2,7 +2,51 @@
 
 	This document details work done for a Major Qualifying Project at Worcester
 	Polytechnic Institute by Michael Ficarra in partial fulfillment of the
-	requirements for a Bachelor of Science degree.
+	requirements for a Bachelor of Science degree in Computer Science.
+
+	\subsection{The Chase}
+
+		\emph{The chase} is an algorithm used to find jointly minimal models
+		for a set of geometric logic formul{\ae}. Many common real-world
+		problems can be expressed as a set of geometric logic formul{\ae}. When
+		these problems have an unbounded scope of possible solutions, the chase
+		can be used to find the possible solutions that are interesting. This
+		allows researchers to go through only models that will behave in a
+		unique way, rather than testing each model separately.
+
+		Cryptographic protocol analysis is a particular application that is
+		explored further. In this application, protocols are modeled in the
+		strand space formalism. Each participant in a legal run of the
+		protocol is called a strand. A special participant that does not obey
+		the rules of the protocol is called an adversary strand. These
+		adversary strands send/receive messages to/from regular strands, while
+		manipulating those messages. Because there is an infinite combination
+		of adversary strands, their positions, and the actions they can take,
+		it is prohibitive to test if any of these can lead to undesirable
+		consequences. This protocol can be represented as a geometric theory
+		and passed to the chase to find minimal models. When minimal models
+		are found, they can describe all interesting ways that the adversaries
+		can interact with regular strands. These models can then be tested in
+		a reasonable, finite amount of time.
+
+		To generate these jointly minimal models, the chase begins with a model
+		that has an empty domain and no facts. The chase goes through each
+		formula in the geometric theory and alters the model so that it
+		satisfies that formula. Geometric formul{\ae} have the useful property
+		in that adding elements/facts to a model that satisfies a geometric
+		formula will never cause the model to no longer satisfy that formula.
+		Because of this, the chase can keep adding to the model until all
+		formul{\ae} are satisfied.
+
+		Our specific definition of the chase is nondeterministic over
+		disjunctions. When a disjunction is encountered, a disjunct is chosen
+		without prejudice and the chase continues deterministically until it
+		encounters another disjunct. We will see that, in a Haskell
+		implementation of the chase, both disjuncts can be satisfied by forking
+		the chase and returning a list containing the concatenation of the
+		lists returned by the forks. In this way, we can deterministically
+		calculate the set of jointly minimal models by using a naturally
+		nondeterministic algorithm.
 
 	\subsection{Goals}
 
@@ -18,33 +62,3 @@
 		Secondary goals include implementing various optimizations and
 		integrating the chase implementation into a program that can take
 		advantage of the functionality it provides.
-
-	\subsection{The Chase}
-
-		\emph{The chase} is an algorithm used to find jointly minimal models
-		for a set of geometric logic formul{\ae}. Many common real-world
-		problems can be expressed as a set of geometric logic formul{\ae}.
-		When these problems have an unbounded scope of possible solutions, the
-		chase can be used to find the possible solutions that are interesting.
-		This allows researchers to go through only models that will behave
-		uniquely, rather than testing each model separately. Cryptographic
-		protocol analysis is a particular application that is explored further.
-
-		To generate these jointly minimal models, the chase begins with a model
-		that has an empty domain and no facts. The chase goes through each
-		formula in the geometric theory and alters the model so that it
-		satisfies that formula.  Geometric formul{\ae} have the useful property
-		in that adding elements/facts to a model that satisfies a geometric
-		formula will never cause the model to no longer satisfy that formula.
-		Because of this, the chase can keep adding to the model until all
-		formul{\ae} are satsfied.
-
-		Our specific definition of the chase is nondeterministic over
-		disjunctions.  When a disjunction is encountered, a disjunct is chosen
-		without prejudice and the chase continues detereministically until it
-		encounters another disjunct. We will see that, in a Haskell
-		implementation of the chase, both disjuncts can be satisfied by forking
-		the chase and returning a list containing the concatentation of the
-		lists returned by the forks. In this way, we can deterministically
-		calculate the set of jointly minimal models by using a naturally
-		nondeterministic algorithm.
