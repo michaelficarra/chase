@@ -224,7 +224,11 @@ substitute pairs formula = case formula of
 pullQuantifiers :: Formula -> Formula
 -- pulls the quantifiers in the given formula from any sub-formula to the
 -- outermost formula
-pullQuantifiers formula = case formula of
+pullQuantifiers formula = pullQuantifiers' $ nnf formula
+
+pullQuantifiers' :: Formula -> Formula
+-- 
+pullQuantifiers' formula = case formula of
 	And (UniversalQuantifier v1 f1)   (UniversalQuantifier v2 f2)   -> pullQuantifier (True,True) formula mkAnd mkUniversalQuantifier   v1 f1 v2 f2
 	Or  (ExistentialQuantifier v1 f1) (ExistentialQuantifier v2 f2) -> pullQuantifier (True,True) formula mkOr  mkExistentialQuantifier v1 f1 v2 f2
 	And (UniversalQuantifier v1 f1)   b -> pullQuantifier (True,False) formula mkAnd mkUniversalQuantifier   v1 f1 v1 b
@@ -243,7 +247,7 @@ pullQuantifier (l,r) formula operator quantifier v1 f1 v2 f2 =
 	let z = map (\s -> variant s (freeVariables formula)) v1 in
 	let a' = if l then substitute (filter (\p -> (fst p) /= (snd p)) (zip v1 z)) f1 else f1 in
 	let b' = if r then substitute (filter (\p -> (fst p) /= (snd p)) (zip v2 z)) f2 else f2 in
-	quantifier z (pullQuantifiers (operator a' b'))
+	quantifier z (pullQuantifiers' (operator a' b'))
 
 prenex :: Formula -> Formula
 -- applies pullQuantifiers to a given formula and its subformulas
