@@ -132,23 +132,32 @@
 		Some protocol researchers want to be able to programmatically reason
 		about cryptographic protocols. A common technique for this is to find a
 		set of essentially different classes of protocol runs, which are each a
-		subset of all possible runs of the protocol. Together, these classes of
-		protocol runs encompass every possible run of the protocol. This can be
-		accomplished by finding minimal models of a geometric logic
-		representation of the protocol. This happens to be precisely the
-		problem the chase solves.
+		subset of all possible runs of the protocol. Together, these classes
+		encompass every possible run of the protocol. This can be accomplished
+		by finding minimal models of a geometric logic representation of the
+		protocol. This happens to be precisely the problem the chase solves.
+
+		\textbf{ things from justin go here later }
 
 	\subsection{The Solution: Minimal Models}
 
-		Given a theory $\mathcal{T}$, the jointly minimal models $\mathcal{M}$
-		that the chase outputs are representative of all models because there
-		always exists a homomorphism from some model $\mathbb{M} \in
-		\mathcal{M}$ to any model that satisfies $\mathcal{T}$. Each model that
-		satisfies $\mathcal{T}$ represents a class of runs of the protocol. The
-		set of all models output by the chase represents every possible run of
-		the protocol. Finding every possible run of the protocol is prohibitive
-		because there are infinitely many. Because the set of models is
-		countably infinite, they can be enumerated, but can not be listed.
+		Given a theory $T$, the jointly minimal models $\mathcal{M}$ that the
+		chase outputs are representative of all models because there always
+		exists a homomorphism from some model $\mathbb{M} \in \mathcal{M}$ to
+		any model that satisfies $T$. Every model $\mathbb{N}$ that satisfies
+		$T$ describes a possible run of the protocol. It also indirectly
+		represents a larger class of runs, specifically the set of all runs of
+		the protocol that are described by a model $\mathbb{P}$ such that
+		$\mathbb{P} \models T$ and $\mathbb{N} \preceq \mathbb{P}$.
+
+		Since the set of all models output of the chase is jointly minimal,
+		they represents every possible run of the protocol. Finding every
+		possible run of the protocol would be prohibitive because there are
+		infinitely many. Fortunately, the chase may halt with a finite result,
+		providing a model that is representative of a class of protocol runs.
+		Fortunately, the deterministic chase implementation may output a finite
+		number of models before halting. These models are jointly minimal, and
+		therefore represent all runs of the protocol.
 
 	\subsection{Designing An Analogous Theory}
 
@@ -159,8 +168,8 @@
 		infer the possible runs of the protocol.
 
 		The \emph{half-duplex protocol} was chosen to be used as an example.
-		This protocol involves two participants, Alice and Bob. The protocol
-		specifies that the following actions take place:
+		This protocol involves two participants, Alice and Bob, and specifies
+		that the following actions take place:
 
 		\begin{enumerate}
 		\item Alice sends Bob a nonce that she generated, encrypted with Bob's public key
