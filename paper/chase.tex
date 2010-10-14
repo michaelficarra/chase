@@ -1,17 +1,13 @@
 \section{The Chase}
 
+	\textbf{ what does it really generate? any superset of this set is also jointly minimal... }
+
 	The \emph{chase} is a function that, when given a geometric theory, will
-	generate a set of jointly minimal models for that theory. More
+	generate a model in the set of jointly minimal models for that theory. More
 	specifically, if $\mathcal{U}$ is the set of all models obtained from an
 	execution of the chase over a geometric theory $T$, for any model
 	$\mathbb{M}$ such that $\mathbb{M} \models T$, there is a homomorphism from
 	some model $\mathbb{U} \in \mathcal{U}$ to $\mathbb{M}$.
-
-	Geometric logic formul{\ae} are used by the chase because they have the
-	useful property where adding any relations or domain members to a model
-	that satisfies a geometric logic formula will never cause the formula to no
-	longer be satisfied. This is particularly helpful when trying to create a
-	model that satisfies all formul{\ae} in a geometric theory.
 
 	There are three types of runs of the chase:
 	\begin{itemize}
@@ -19,6 +15,48 @@
 	\item an empty result is found in finite time
 	\item an infinite run with possible return dependent on implementation
 	\end{itemize}
+
+	Verifying the minimality of a model or the joint minimality of a set of
+	models requires checking if a homomorphism exists from the minimal model(s)
+	to each of the infinite set of all models that satisfy the theory, assuming
+	the theory is satisfiable. It may not at first seem obvious that generating
+	a minimal model would be a computable task, but it will be show that the
+	chase is able to do this, and it will be proven that the models it returns
+	during successful runs are in fact members of (a/the?) set of jointly
+	minimal models.
+
+	Geometric logic formul{\ae} are used by the chase because they have some
+	useful properties and are natural expressions of some common applications
+	that can take advantage of minimal models. Geometric formul{\ae} are
+	implications of positive-existential formul{\ae}, which have the useful
+	property that, when adding any relations or domain members to a model that
+	satisfies a positive-existential formula, the model will always satisfy the
+	formula. This is particularly helpful when trying to create a model that
+	satisfies all formul{\ae} in a geometric theory.
+
+	\newtheorem{minimality-theorems}{Theorem}
+
+	\begin{theorem}
+		A geometric theory $T$ is satisfiable if and only if there is an
+		infinite run, given disjunct and binding choice is fair, or there
+		is a chase run of $T$ that returns a non-empty result.
+	\end{theorem}
+
+	\begin{proof}
+		
+	\end{proof}
+
+	\begin{theorem}
+		Let $\mathcal{M}$ be the set of models returned from all successful
+		runs of the chase over a geometric theory $T$. For any model
+		$\mathbb{N}$ such that $\mathbb{N} \models T$, there is a model
+		$\mathbb{M} \in \mathcal{M}$ such that $\mathbb{M} \preceq
+		\mathbb{N}$. $\mathcal{M}$ is jointly minimal.
+	\end{theorem}
+
+	\begin{proof}
+		
+	\end{proof}
 
 	\subsection{Algorithm}
 
@@ -126,31 +164,9 @@
 
 	\subsection{History}
 
-		
-
-	\subsection{Joint Minimality Theorems}
-
-		\newtheorem{minimality-theorems}{Theorem}
-
-		\begin{theorem}
-			A geometric theory $T$ is satisfiable if and only if there is an
-			infinite run, given disjunct and binding choice is fair, or there
-			is a chase run of $T$ that returns a non-empty result.
-		\end{theorem}
-
-		\begin{proof}
-			
-		\end{proof}
-
-		\begin{theorem}
-			Let $\mathcal{M}$ be the set of models returned from all successful
-			runs of the chase over a geometric theory $T$. For any model
-			$\mathbb{N}$ such that $\mathbb{N} \models T$, there is a model
-			$\mathbb{M} \in \mathcal{M}$ such that $\mathbb{M} \preceq
-			\mathbb{N}$. $\mathcal{M}$ is jointly minimal.
-		\end{theorem}
-
-		\begin{proof}
-			
-		\end{proof}
-
+		In \cite{FKMP02} \emph{Data Exchange: Semantics and Query Answering},
+		Fagin et. al. first introduce a chase algorithm. The version they
+		defined disallows disjunctions and, because of that, is limited in its
+		utility. Input formul{\ae} without disjunctions are not as expressive
+		as geometric formul{\ae} and have less applications. It is, however,
+		naturally deterministic.

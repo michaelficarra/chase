@@ -1,0 +1,118 @@
+\section{Glossary}
+	\begin{description}
+		\item[adversary]
+			a participant in the \emph{strand space formalism}, represented by
+			zero or more \emph{adversary strands}
+		\item[adversary strand]
+			a type of \emph{strand} in the \emph{strand space formalism} that
+			is not bound by the rules defined by the protocol; manipulates
+			\emph{messages} being sent and received by non-adversarial strands
+		\item[chase]
+			a nondeterministic algorithm used to find \emph{jointly minimal
+			models} for a set of \emph{geometric logic formul{\ae}}
+		\item[component]
+			a component of a \emph{term} $t$ is any term that can be retrieved
+			simply by applying repeated unpairing operations to $t$ and is not
+			a pair itself
+		\item[construction operation]
+			pairing and encryption operations
+		\item[deconstruction operation]
+			decryption and unpairing operations
+		\item[efficient]
+			a protocol is efficient if, for every sending \emph{node} $m$ and
+			receiving adversary node $n$, if every \emph{component} of $m$ is
+			also a \emph{component} of $n$, then there is no regular node $m'$
+			such that $m < m' < n$.
+		\item[entailment]
+			given an \emph{environment} $\lambda$, a set of formul{\ae}
+			$\Sigma$ is said to entail a formula $\sigma$ ($\Sigma
+			\models_\lambda \sigma$) if the set of all models satisfied
+			by $\Sigma$ under $\lambda$ is a subset of the set of all models
+			\emph{satisfying} $\sigma$ under $\lambda$
+		\item[environment]
+			an environment for a model $\mathbb{M}$ is a function from a
+			variable $v$ to a domain member $e$ where $e \in |\mathbb{M}|$
+		\item[first-order logic]
+			a formal logic system; also called \emph{predicate logic}
+		\item[geometric logic formula]
+			implicitly universally quantified implication of
+			\emph{positive-existential formul{\ae}}
+		\item[geometric theory]
+			a set of geometric logic formul{\ae}
+		\item[homomorphic equivalence]
+			two models $\mathbb{M}$ and $\mathbb{N}$ are homomorphically
+			equivalent if $\mathbb{M} \preceq \mathbb{N} \wedge \mathbb{N}
+			\preceq \mathbb{M}$
+		\item[homomorphism]
+			a function $h: |\mathbb{A}|\to|\mathbb{B}|$ such that, for each
+			\emph{relation symbol} $R$ and tuple $\langle a_0 , \ldots , a_n
+			\rangle$ where $a \subseteq |\mathbb{A}|$, $\langle a_0 , \ldots ,
+			a_n \rangle \in R^\mathbb{A}$ implies $\langle h(a_0) , \ldots ,
+			h(a_n) \rangle \in R^\mathbb{B}$
+		\item[ingredient]
+			a \emph{term} $t$ is an ingredient of another term $u$ if $u$ can
+			be constructed from $t$ by repeatedly pairing with arbitrary terms
+			and encrypting with arbitrary keys
+		\item[isomorphism]
+			a \emph{homomorphism} $h : \mathbb{A} \to \mathbb{B}$ is also an
+			isomorphism when $h$ is 1:1 and onto and the inverse
+			function $h^{-1} : \mathbb{B} \to \mathbb{A}$ is a homomorphism.
+		\item[jointly minimal models]
+			a set of models $\mathcal{M}$ is said to be jointly minimal
+			for a set of formul{\ae} $\Sigma$ when every model $\mathbb{N}$
+			such that $\mathbb{N} \models \Sigma$ has a \emph{homomorphism} from a
+			model $\mathbb{M} \in \mathcal{M}$ to $\mathbb{N}$.
+		\item[message]
+			a \emph{term} sent or received by a \emph{node}
+		\item[minimal model]
+			a model for a theory $T$ with the special property that there exists
+			a \emph{homomorphism} from the model to any other model that
+			satisfies $T$; also called \emph{universal model}
+		\item[model]
+			a model $\mathbb{M}$ is a construct that consists of a set, denoted
+			$|\mathbb{M}|$, called the \emph{universe} or \emph{domain} of
+			$\mathbb{M}$ and a relation $R^\mathbb{M}_k \subseteq |\mathbb{M}|$
+			for each pairing of a predicate $R$ and an arity $k$ in a vocabulary
+			$\mathcal{V}$
+		\item[nonce]
+			a uniquely-originating basic term
+		\item[normal]
+			a protocol is \emph{normal} if, for any path through adversary
+			strands, the adversary always either performs a generation followed
+			by zero or more construction operations or performs zero or more
+			deconstruction operations followed by zero or more construction
+			operations
+		\item[origination]
+			a \emph{term} $t$ originates on a \emph{node} $n$ of a
+			\emph{strand} $s$ if $n$ is a sending node, $t$ is an
+			\emph{ingredient} of the \emph{message} of $n$, and $t$ is not an
+			ingredient of any previous node on $s$
+		\item[positive-existential form]
+			formula constructed using only conjunctions ($\wedge$),
+			disjunctions ($\vee$), existential quantifications ($\exists$),
+			tautologies ($\top$), contradictions ($\bot$), equalities, and
+			relations
+		\item[predicate]
+			see \emph{relation symbol}
+		\item[predicate logic]
+			see \emph{first-order logic}
+		\item[relation symbol]
+			any unique symbol; also called a \emph{predicate}
+		\item[sentence]
+			a formula $\alpha$ if \emph{free}($\alpha$) = $\emptyset$
+		\item[strand space formalism]
+			a method for formally reasoning about cryptographic protocols
+		\item[strong homomorphism]
+			a homomorphism $h$ is also a \emph{strong homomorphism} if, for each
+			relation symbol $R$ and tuple $\langle a_0 , \ldots , a_n \rangle$
+			where $a \subseteq |\mathbb{A}|$, $\langle a_0 , \ldots , a_n  \rangle
+			\in R^\mathbb{A}$ if and only if $\langle h(a_0) , \ldots , h(a_n)
+			\rangle \in R^\mathbb{B}$.
+		\item[uniquely originating]
+			a term is uniquely originating if it originates on only one strand
+		\item[universal model]
+			see \emph{minimal model}
+		\item[vocabulary]
+			a set of pairings of a \emph{relation symbol} with a non-negative
+			integral arity
+	\end{description}
