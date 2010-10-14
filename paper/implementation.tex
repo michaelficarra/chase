@@ -160,9 +160,10 @@
 			Some less-than-optimal data structures are being used to hold data
 			that should really be in a Data.Map or Data.Set. One such example
 			of this is with the truth table holding the relation information of
-			a model. This truth table should probably be implemented as a
-			Data.Map. Also, instead of Domains being a list of DomainMember, it
-			would probably be better if a Domain was a Data.Set.
+			a model. This truth table should be implemented as a Data.Map.
+			Environments are currently a list of tuples, but should really be a
+			Data.Map. Instead of Domains being a list of DomainMember, it
+			would be better if a Domain was a Data.Set.
 
 		\subsubsection{Broader use of the Maybe Monad}
 

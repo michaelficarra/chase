@@ -8,100 +8,124 @@
 	characteristics such as the existence of security violations or other
 	unexpected behaviour.
 
-	\subsection{Background}
+	\subsection{Strand Spaces}
 
-		\subsubsection{Strand Spaces}
+		The \emph{strand space formalism} was developed as a method for
+		formally reasoning about cryptographic protocols. The formalism
+		distinguishes between two different kinds of participants: regular
+		participants and an adversary. A single physical entity can be
+		represented as multiple regular strands if they play more than one role
+		in the protocol.
 
-			The \emph{strand space formalism} was developed as a method for
-			formally reasoning about cryptographic protocols. Participants in a
-			protocol run are represented by \emph{strands}. The formalism
-			distinguishes between two different kinds of participants: regular
-			participants and an adversary. A regular participant is represented
-			by a regular strand, and must follow the protocol. The adversary is
-			represented by zero or more adversary strands, and can manipulate
-			the messages that regular strands send/receive. A single physical
-			entity can be represented as multiple regular strands if they play
-			more than one role in the protocol.
+		Participants in a protocol run are represented by \emph{strands}, and
+		communicate with each other by sending and receiving messages. A
+		regular participant is represented by a regular strand, and must follow
+		the protocol. The adversary is represented by zero or more adversary
+		strands, and can manipulate the messages that regular strands
+		send/receive.
 
-			\paragraph{Messaging}
+		A strand is made up of a non-empty, finite sequence of nodes. Every
+		node either sends or receives a term, called its \emph{message}. A
+		\emph{term} is anything can be sent between nodes.
 
-				A strand is made up of a non-empty, finite sequence of nodes.
-				Every node either sends or receives a term, called its
-				\emph{message}.  Terms are defined inductively as follows:
+		\subsubsection{Messaging}
 
-				\begin{itemize}
-				\item any text is a term, specifically a \emph{basic term}
-				\item the ciphertext $\{|\tau_1|\}_{\tau_2}$ is a term if the plaintext $\tau_1$ and the key $\tau_2$ are terms
-				\item the pair ($\tau_1$,$\tau_2$) is a term if $\tau_1$ and $\tau_2$ are terms
-				\end{itemize}
+			Terms are defined inductively as follows:
 
-				A term $t$ is an \emph{ingredient} of another term $u$ if $u$
-				can be constructed from $t$ by repeatedly pairing with
-				arbitrary terms and encrypting with arbitrary keys.
+			\begin{itemize}
+			\item any text is a term, specifically a \emph{basic term}
+			\item the ciphertext $\{|\tau_1|\}_{\tau_2}$ is a term if the plaintext $\tau_1$ and the key $\tau_2$ are terms
+			\item the pair ($\tau_1$,$\tau_2$) is a term if $\tau_1$ and $\tau_2$ are terms
+			\end{itemize}
 
-				A \emph{nonce} is a uniquely-originating basic term. A term $t$
-				\emph{originates} on a node $n$ of a strand $s$ if $n$ is a
-				sending node, $t$ is an ingredient of the message of $n$, and
-				$t$ is not an ingredient of any previous node on $s$. A term is
-				\emph{uniquely originating} if it originates on only one
-				strand. A term is non-originating if it does not appear in any
-				strand.
+			A term $t$ is an \emph{ingredient} of another term $u$ if $u$ can
+			be constructed from $t$ by repeatedly pairing with arbitrary terms
+			and encrypting with arbitrary keys. A \emph{component} of a term
+			$t$ is any term that can be retrieved simply by applying repeated
+			unpairing operations to $t$ and is not a pair itself.
 
-				If a regular participant generates a random fresh nonce, it
-				will be assumed uniquely-originating because of the extreme
-				unlikelihood of any other participant generating and
-				originating the same value.
+			A \emph{nonce} is a uniquely-originating basic term. A term $t$
+			\emph{originates} on a node $n$ of a strand $s$ if $n$ is a
+			sending node, $t$ is an ingredient of the message of $n$, and
+			$t$ is not an ingredient of any previous node on $s$. A term is
+			\emph{uniquely originating} if it originates on only one
+			strand. A term is non-originating if it does not appear in any
+			strand.
 
-				Similiarly, non-origination is helpful in describing private
-				assymetric keys that should never be sent as part of a message.
+			If a regular participant generates a random fresh nonce, it
+			will be assumed uniquely-originating because of the extreme
+			unlikelihood of any other participant generating and
+			originating the same value.
 
-			\paragraph{The Adversary}
+			Similiarly, non-origination is helpful in describing private
+			assymetric keys that should never be sent as part of a message.
 
-				An adversary is included in the strand space formalism to
-				represent a worst-case situation, where an attacker may control
-				every point of communication between regular participants.  The
-				actions of the advesary are represented by \emph{advesary
-				strands}. Recall that adversary strands are not bound by the
-				rules defined by the protocol; they manipulate messages being
-				sent and received by non-adversarial strands.
+		\subsubsection{The Adversary}
 
-				The capabilities of the adversary strands are given by the
-				Dolev-Yao Threat Model \textbf{references}. The five possible
-				operations that an adversary may perform are derived from both
-				the Dolev-Yao Threat Model and the strand space formalism.
-				These operations are:
+			An adversary is included in the strand space formalism to
+			represent a worst-case situation, where an attacker may control
+			every point of communication between regular participants. The
+			actions of the advesary are represented by \emph{advesary
+			strands}. Recall that adversary strands are not bound by the
+			rules defined by the protocol; they manipulate messages being
+			sent and received by non-adversarial strands.
 
-				\begin{description}
-				\item [pairing] the pairing of two terms
-				\item [unpairing] the extraction of a term from a pair
-				\item [encryption] given a key $k$ and a plaintext $m$, the construction of the ciphertext $\{|m|\}_k$ by encrypting $m$ with $k$
-				\item [decryption] given a ciphertext $\{|m|\}_k$ and its decryption key $k^{-1}$, the extraction of the plaintext $m$
-				\item [generation] the generation of an original term when that term is not assumed to be secure
-				\end{description}
+			The capabilities of the adversary strands are given by the
+			Dolev-Yao Threat Model \textbf{references}. The five possible
+			operations that an adversary may perform are derived from both
+			the Dolev-Yao Threat Model and the strand space formalism.
+			These operations are:
 
-				Pairing and encryption are \emph{construction operations}.
-				Decryption and unpairing are \emph{deconstruction operations}.
+			\begin{description}
+			\item [pairing] the pairing of two terms
+			\item [unpairing] the extraction of a term from a pair
+			\item [encryption] given a key $k$ and a plaintext $m$, the construction of the ciphertext $\{|m|\}_k$ by encrypting $m$ with $k$
+			\item [decryption] given a ciphertext $\{|m|\}_k$ and its decryption key $k^{-1}$, the extraction of the plaintext $m$
+			\item [generation] the generation of an original term when that term is not assumed to be secure
+			\end{description}
 
-		\subsubsection{Cremers' Algorithm}
+			Pairing and encryption are \emph{construction operations}.
+			Decryption and unpairing are \emph{deconstruction operations}.
 
-			\emph{Cremers' Algorithm} adds constraints to adversarial actions
-			to allow one to infer the possible classes of protocol runs.
+		\subsection{Paths}
 
-			Cremers gives two major constraints, which will be called
-			``efficiency" and ``normalcy". A protocol is \emph{efficient} if an
-			adversary always takes a message from the earliest point at which
-			it appears. A protocol is \emph{normal} when the adversary always
-			either preforms a generation followed by zero or more contruction
-			operations or performs zero or more deconstruction operations
-			followed by zero or more construction operations. Cremers proved
-			that these constraints do not limit the capabilities of an
-			adversary \textbf{reference}.
+			An \emph{edge} is a directional relationship between two nodes.
+			The direct predecessor of a node within its strand is called its
+			\emph{parent}. Not every node has a parent. Whenever a node $n$ has
+			a parent $p$, there is an edge from $p$ to $n$. A \emph{link} is an
+			edge from a sending node to a receiving node that have the same
+			message. If there is a node $n$ with a link to a node $m$, $n$
+			sends $m$ a message and $m$ receives it unaltered. The \emph{path}
+			relation, written $x < y$, is the transitive closure of the edge
+			relation. A node $n$ \emph{precedes} another node $m$ when there is
+			a path from $n$ to $m$. In this formalism, events are partially
+			ordered.
 
-			An important insight used in Cremers' algorithm, which will be
-			called \emph{chaining}, states that terms in messages received from
-			an adversary strand always originate in a non-adversarial strand.
-			In simpler terms, an adversary can not send a message to himself
-			nor receive a message from himself.
+		\subsubsection{Normalisation / Simplification}
+
+			Two simplifying assumptions can be made about the sequence of
+			actions an adversary can perform without limiting their
+			capabilites. These simplifications are called normalisation and
+			efficiency. Guttman and Thayer \cite{GJF02} proved that adding
+			these constraints does not limit the capabilities of an adversary.
+
+			A protocol is \emph{efficient} if an adversary always takes a
+			message from the earliest point at which it appears. To be precise,
+			a protocol is efficient if, for every node $m$ and receiving
+			advesary node $n$, if every component of $m$ is also a component of
+			$n$, then there is no regular node $m'$ such that $m < m' < n$.
+
+			A protocol is \emph{normal} if, for any path through adversary
+			strands, the adversary always either performs a generation followed
+			by zero or more contruction operations or performs zero or more
+			deconstruction operations followed by zero or more construction
+			operations. This constraint limits redundancy.
+
+			An important insight used in Cremers' algorithm \cite{Cremers08},
+			which will be called \emph{chaining}, states that terms in messages
+			received from an adversary strand always originate in a
+			non-adversarial strand. In simpler terms, an adversary can not send
+			a message to himself nor receive a message from himself.
 
 	\subsection{The Problem}
 

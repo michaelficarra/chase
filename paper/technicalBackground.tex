@@ -111,11 +111,36 @@
 
 	\subsection{Homomorphisms}
 
-		A \emph{homomorphism} from $\mathbb{A}$ to $\mathbb{B}$ is a function
+		A \emph{homomorphism from $\mathbb{A}$ to $\mathbb{B}$} is a function
 		$h: |\mathbb{A}|\to|\mathbb{B}|$ such that, for each relation symbol
 		$R$ and tuple $\langle a_0 , \ldots , a_n \rangle$ where $a \subseteq
 		|\mathbb{A}|$, $\langle a_0 , \ldots , a_n  \rangle \in R^\mathbb{A}$
 		implies $\langle h(a_0) , \ldots , h(a_n) \rangle \in R^\mathbb{B}$.
+
+		%\newtheorem{homomorphism-theorems}{Theorem}
+
+		%\begin{homomorphism-theorems}
+		%	A homorphism $h: |\mathbb{M}| \to |\mathbb{N}|$
+		%	is a composition of zero or more of the following functions:
+		%	\begin{itemize}
+		%	\item $addDomain(\omega):
+		%		|\mathbb{M}| \to |\mathbb{M}| \cup \vec\omega$ where
+		%		$\vec\omega$ is non-empty and each $\omega \in \vec\omega$ is a
+		%		domain member not in $|\mathbb{M}|$
+		%	\item $addFact:
+		%		\mathbb{M} \to \mathbb{N}$ where $|\mathbb{M}| = |\mathbb{N}|$,
+		%		for each fact $R^\mathbb{M}(\alpha_0,\ldots,\alpha_n)$, there
+		%		exists an $R^\mathbb{N}(\alpha_0,\ldots,\alpha_n)$, and for
+		%		each predicate $P \in \mathbb{N}$ there exists one or more
+		%		facts $P^\mathbb{N}(\gamma_0,\ldots,\gamma_k)$
+		%	\item $rename:
+		%		\mathbb{M} \to \mathbb{N}$ where, for every
+		%		$R^\mathbb{M}(\alpha_0,\ldots,\alpha_n)$ where $\alpha \in
+		%		|\mathbb{M}|$, there exists an
+		%		$R^\mathbb{N}(\eta(\alpha_0),\ldots,\eta(\alpha_n))$ where
+		%		$\eta$ is a homomorphism
+		%	\end{itemize}
+		%\end{homomorphism-theorems}
 
 		A homomorphism $h$ is also a \emph{strong homomorphism} if, for each
 		relation symbol $R$ and tuple $\langle a_0 , \ldots , a_n \rangle$
@@ -190,8 +215,11 @@
 			existential formula $\varphi$.
 		\end{pef-theorems}
 
+		\begin{proof}
+			
+		\end{proof}
+
 	\subsection{Geometric Logic}
-	\label{sec:technical_background.geometric_logic}
 
 		\emph{Geometric logic} formul{\ae} are implicitly universally
 		quantified implications between positive existential formul{\ae}. More
