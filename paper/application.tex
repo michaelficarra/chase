@@ -19,13 +19,13 @@
 
 		Participants in a protocol run are represented by \emph{strands}, and
 		communicate with each other by sending and receiving messages. A
-		regular participant is represented by a regular strand, and must follow
+		regular participant is represented by a regular strand and must follow
 		the protocol. The adversary is represented by zero or more adversary
 		strands, and can manipulate the messages that regular strands
 		send/receive.
 
 		A strand is made up of a non-empty, finite sequence of nodes. Every
-		node either sends or receives a term, called its \emph{message}. A
+		node either sends or receives a term called its \emph{message}. A
 		\emph{term} is anything can be sent between nodes.
 
 		\subsubsection{Messaging}
@@ -65,7 +65,7 @@
 			An adversary is included in the strand space formalism to
 			represent a worst-case situation, where an attacker may control
 			every point of communication between regular participants. The
-			actions of the advesary are represented by \emph{advesary
+			actions of the adversary are represented by \emph{adversary
 			strands}. Recall that adversary strands are not bound by the
 			rules defined by the protocol; they manipulate messages being
 			sent and received by non-adversarial strands.

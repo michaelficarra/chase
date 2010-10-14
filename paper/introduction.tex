@@ -15,20 +15,20 @@
 		unique way, rather than testing each of the infinite number of models
 		separately.
 
-		Cryptographic protocol analysis is a particular application that is
-		explored further. In this application, protocols are modeled in the
-		strand space formalism. Each participant in a legal run of the
-		protocol is called a strand. A special participant that does not obey
-		the rules of the protocol is called an adversary strand. These
+		Cryptographic protocol analysis is the particular application that is
+		explored further later in this document. In this application, protocols
+		are modeled in the strand space formalism. Each participant in a legal
+		run of the protocol is called a strand. A special participant that does
+		not obey the rules of the protocol is called an adversary strand. These
 		adversary strands send/receive messages to/from regular strands, while
 		manipulating those messages. Because there is an infinite combination
 		of adversary strands, their positions, and the actions they can take,
 		it is prohibitive to test if any of these can lead to undesirable
 		consequences. This protocol can be represented as a geometric theory
-		and passed to the chase to find minimal models. When minimal models
-		are found, they can describe all interesting ways that the adversaries
-		can interact with regular strands. These models can then be tested in
-		a reasonable, finite amount of time.
+		and passed to the chase to find minimal models. When minimal models are
+		found, they can describe all interesting ways that the adversaries can
+		interact with regular strands. These models can then be tested in a
+		reasonable, finite amount of time.
 
 		To generate these jointly minimal models, the chase begins with a model
 		$\mathbb{M}$ that has an empty domain and no facts. The chase goes
@@ -56,9 +56,9 @@
 		The two main goals of this Major Qualifying Project are:
 
 		\begin{enumerate}
-		\item first, to implement an algorithm known as ``the chase" accurately
-		and with a well-defined, usable interface
-		\item second, to use the chase implementation for a real-world
+		\item to implement an algorithm known as ``the chase" accurately
+		and with a well-defined, usable interface, and
+		\item to use the chase implementation for a real-world
 		application: generating models used in analysis of a specific protocol
 		\end{enumerate}
 

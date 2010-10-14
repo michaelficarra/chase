@@ -23,7 +23,8 @@
 	\subsection{First-order Logic}
 
 		\emph{First-order logic}, also called \emph{predicate logic}, is a
-		formal logic system. A first-order logic formula is defined inductively by
+		formal logic system. A first-order logic formula is defined inductively
+		by the following:
 		\begin{itemize}
 		\item if $R$ is a relation symbol of arity $k$ and each of $x_0 \ldots x_{k-1} \in \vec{x}$ is a variable, then $R(\vec{x})$ is a formula, specifically an \emph{atomic formula}
 		\item if $x$ and $y$ are variables, then $x = y$ is a formula
@@ -37,10 +38,10 @@
 		\end{itemize}
 
 		For our purposes, this logic system will not contain any constant
-		symbols or function symbols, which are commonly included in first-order
-		logic. A function $f(x,y)$ can be encoded as the geometric logic
-		formula $F(x,y,z1) \wedge F(x,y,z2) -> z1 = z2$. Constant symbols can
-		be encoded as relations with an arity of zero, for example $C()$.
+		symbols or function symbols which are commonly included in first-order
+		logic. Constant symbols can be encoded as relations with an arity of
+		zero, for example $C()$. A function $f(x,y)$ can be encoded as the
+		geometric logic formula $F(x,y,z1) \wedge F(x,y,z2) -> z1 = z2$.
 
 		A shorthand notation may sometimes be used which omits either the left
 		or right side of an implication and denotes ($\top \to \sigma$) and
@@ -53,7 +54,7 @@
 
 	\subsection{Variable Binding}
 
-		The set of free variables in a formula is defined inductively as follows
+		The set of free variables in a formula is defined inductively as follows:
 		\begin{itemize}
 		\item any variable occurring in an atomic formula is a free variable
 		\item the set of free variables in $\top$ and $\bot$ is $\emptyset$
@@ -222,7 +223,7 @@
 		specifically, a geometric logic formula is of the form
 		\[\forall\ (free(F_L) \cup free(F_R)) : F_L \to F_R\]
 		where $free$ is the function that returns the set of all free variables
-		for a given formula and both $F_L$ and $F_R$ are are first-order logic
+		for a given formula and both $F_L$ and $F_R$ are first-order logic
 		formul{\ae} in positive existential form.
 
 		A set of geometric logic formul{\ae} is called a \emph{geometric
