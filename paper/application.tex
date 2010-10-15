@@ -9,18 +9,19 @@
 	unexpected behaviour.
 
 	\subsection{Strand Spaces}
+	\label{sec:application.strand_spaces}
 
 		The \emph{strand space formalism} was developed as a method for
 		formally reasoning about cryptographic protocols. The formalism
 		distinguishes between two different kinds of participants: regular
-		participants and an adversary. A single physical entity can be
-		represented as multiple regular strands if they play more than one role
-		in the protocol.
+		participants and an adversary. A single participant can be represented
+		as multiple regular strands if they play more than one role in the
+		protocol.
 
-		Participants in a protocol run are represented by \emph{strands}, and
+		Roles in a protocol run are represented by \emph{strands}, and
 		communicate with each other by sending and receiving messages. A
-		regular participant is represented by a regular strand and must follow
-		the protocol. The adversary is represented by zero or more adversary
+		regular rols is represented by a regular strand and must follow the
+		protocol. The adversary is represented by zero or more adversary
 		strands, and can manipulate the messages that regular strands
 		send/receive.
 
@@ -61,6 +62,7 @@
 			asymmetric keys that should never be sent as part of a message.
 
 		\subsubsection{The Adversary}
+		\label{sec:application.the_adversary}
 
 			An adversary is included in the strand space formalism to
 			represent a worst-case situation, where an attacker may control
@@ -168,8 +170,8 @@
 		infer the possible runs of the protocol.
 
 		The \emph{half-duplex protocol} was chosen to be used as an example.
-		This protocol involves two participants, Alice and Bob, and specifies
-		that the following actions take place:
+		This protocol involves two participants, Alice and Bob, playing two
+		roles, and specifies that the following actions take place:
 
 		\begin{enumerate}
 		\item Alice sends Bob a nonce that she generated, encrypted with Bob's public key
