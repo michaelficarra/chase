@@ -181,8 +181,16 @@
 		\end{enumerate}
 
 		A visual representation of the protocol, as modeled in the strand space
-		formalism, can be seen in Figure \ref{fig:half-duplex}, Appendix
-		\ref{sec:appendixHalfDuplex}.
+		formalism, can be seen in Figure \ref{fig:half-duplex}.
+
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=0.5\textwidth]{half-duplex}
+			\caption{
+				A visual representation of the half-duplex protocol modeled in strand space
+				\label{fig:half-duplex}
+			}
+		\end{figure}
 
 		The geometric logic rules that model this protocol were generated
 		manually by direct translation into geometric logic. Ideally, the
@@ -193,8 +201,19 @@
 
 		The chase was run on the logic representation of the half-duplex protocol.
 		A single model was returned during the execution of the algorithm,
-		which was manually stopped before natural completion. This model, like
-		all models returned by the chase, satisfies the input theory, and
-		belongs to a set of jointly minimal models for the theory. The returned
-		model denotes a run of the protocol which contains no adversary strands
-		and is a correct execution of the protocol.
+		which was manually stopped before natural completion. This model,
+		visualized in Figure \ref{fig:half-duplexCompleted}, like all models
+		returned by the chase, satisfies the input theory, and belongs to a set
+		of jointly minimal models for the theory.
+
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=0.5\textwidth]{half-duplexCompleted}
+			\caption{
+				A visual representation of the discovered run of the half-duplex protocol
+				\label{fig:half-duplexCompleted}
+			}
+		\end{figure}
+
+		The returned model denotes a run of the protocol which contains no
+		adversary strands and is a correct execution of the protocol.
