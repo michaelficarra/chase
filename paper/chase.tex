@@ -20,19 +20,18 @@
 	models requires checking if a homomorphism exists from the minimal model(s)
 	to each of the infinite set of all models that satisfy the theory, assuming
 	the theory is satisfiable. It may not at first seem obvious that generating
-	a minimal model would be a computable task, but it will be show that the
+	a minimal model would be a computable task, but it will be shown that the
 	chase is able to do this, and it will be proven that the models it returns
 	during successful runs are in fact members of a set of jointly minimal
 	models.
 
-	Geometric logic formul{\ae} are used by the chase because they have some
-	useful properties and are natural expressions of some common applications
-	that can take advantage of minimal models. Geometric formul{\ae} are
-	implications of positive-existential formul{\ae}, which have the useful
-	property that, when adding any relations or domain members to a model that
-	satisfies a positive-existential formula, the model will always satisfy the
-	formula. This is particularly helpful when trying to create a model that
-	satisfies all formul{\ae} in a geometric theory.
+	Geometric logic formul{\ae} are used by the chase both because they are
+	natural expressions of many common applications and because they take
+	advantage of the useful properties of the positive-existential formul{\ae}
+	of which they are made.  Recall that, when adding any relations or domain
+	members to a model that satisfies a positive-existential formula, the model
+	will always satisfy the formula. This is particularly helpful when trying
+	to create a model that satisfies all formul{\ae} in a geometric theory.
 
 	\subsection{Algorithm}
 
@@ -163,7 +162,7 @@
 			runs of the chase over a geometric theory $T$. For any model
 			$\mathbb{N}$ such that $\mathbb{N} \models T$, there is a model
 			$\mathbb{M} \in \mathcal{M}$ such that $\mathbb{M} \preceq
-			\mathbb{N}$. $\mathcal{M}$ is jointly minimal.
+			\mathbb{N}$.
 		\end{theorem}
 
 		\begin{proof}
