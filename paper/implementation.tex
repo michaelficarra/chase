@@ -19,8 +19,8 @@
 	The first step of the chase implementation is to make sure that each
 	formula of the given theory can be represented as a geometric logic
 	formula. If a formula $\varphi$ can not be coerced to a geometric logic
-	formula, the chase tries to coerce it into one by applying following rules
-	recursively:
+	formula, the implementation tries to coerce it into one by applying the
+	following rules recursively:
 
 	\begin{align*}
 	\neg\alpha \wedge \neg\beta         \quad & \mapsto \quad \alpha \vee \beta        \\
@@ -49,24 +49,24 @@
 	also occurs within these classifications that orders formul{\ae} by the
 	number of variables to reduce the number of bindings generated.
 
-	Once the input formul{\ae} are sorted, the $chase$ function begins
+	Once the input formul{\ae} are sorted, the {\tt chase} function begins
 	processing a \emph{pending} list, which is initially populated with a
 	single model that has an empty domain and no facts.
 
 	For each \emph{pending} model, each formula is evaluated to see if it holds
 	in the model for all environments. If an environment is found that does not
 	satisfy the model, the model and environment in which the formula did not
-	hold is passed to the $satisfy$ function, along with the formula that needs
-	to be satisfied. The list of models returned from $satisfy$ is merged into
-	the \emph{pending} list, and the result of running $chase$ on the new
+	hold is passed to the {\tt satisfy} function, along with the formula that needs
+	to be satisfied. The list of models returned from {\tt satisfy} is merged into
+	the \emph{pending} list, and the result of running {\tt chase} on the new
 	\emph{pending} list is returned. If, however, the model holds for all
 	formul{\ae} in the theory and all possible associated environments, it is
 	concatenated with the result of running the chase on the rest of the models
 	in the \emph{pending} list and returned.
 
-	The $satisfy$ function performs a pattern match on the type of formula
-	given. Assuming $satisfy$ is given a model $\mathbb{M}$, an environment
-	$\lambda$, and a formula $\varphi$, $satisfy$ will behave as outlined
+	The {\tt satisfy} function performs a pattern match on the type of formula
+	given. Assuming {\tt satisfy} is given a model $\mathbb{M}$, an environment
+	$\lambda$, and a formula $\varphi$, {\tt satisfy} will behave as outlined
 	in the following algorithm.
 
 	~\\
@@ -119,12 +119,14 @@
 
 	\subsection{Input Format}
 
-		Input to the parser must be in a form parsable by the context-free
-		grammar seen in Appendix \ref{sec:appendixParser}. Terminals are
-		denoted by a {\tt monospace style} and nonterminals are denoted by an
-		$oblique\ style$. The Greek letter $\varepsilon$ matches a zero-length
-		list of tokens. Patterns that match non-literal terminals are defined
-		in the table in Appendix \ref{sec:appendixLexer}.
+		Input to the program must be in a form parsable by the context-free
+		grammar seen in Appendix \ref{sec:appendixParser}. The expected input
+		is essentially a newline-separated list of ASCII representations of
+		geometric formul{\ae}. Terminals are denoted by a {\tt monospace style}
+		and nonterminals are denoted by an $oblique\ style$. The Greek letter
+		$\varepsilon$ matches a zero-length list of tokens. Patterns that match
+		non-literal terminals are defined in the table in Appendix
+		\ref{sec:appendixLexer}.
 
 		Comments are removed at the lexical analysis step and have no effect on
 		the input to the parser. Single-line comments begin with either a hash
