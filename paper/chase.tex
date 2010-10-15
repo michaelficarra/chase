@@ -22,8 +22,8 @@
 	the theory is satisfiable. It may not at first seem obvious that generating
 	a minimal model would be a computable task, but it will be show that the
 	chase is able to do this, and it will be proven that the models it returns
-	during successful runs are in fact members of (a/the?) set of jointly
-	minimal models.
+	during successful runs are in fact members of a set of jointly minimal
+	models.
 
 	Geometric logic formul{\ae} are used by the chase because they have some
 	useful properties and are natural expressions of some common applications
@@ -34,30 +34,6 @@
 	formula. This is particularly helpful when trying to create a model that
 	satisfies all formul{\ae} in a geometric theory.
 
-	\newtheorem{minimality-theorems}{Theorem}
-
-	\begin{theorem}
-		A geometric theory $T$ is satisfiable if and only if there is an
-		infinite run, given disjunct and binding choice is fair, or there
-		is a chase run of $T$ that returns a non-empty result.
-	\end{theorem}
-
-	\begin{proof}
-		
-	\end{proof}
-
-	\begin{theorem}
-		Let $\mathcal{M}$ be the set of models returned from all successful
-		runs of the chase over a geometric theory $T$. For any model
-		$\mathbb{N}$ such that $\mathbb{N} \models T$, there is a model
-		$\mathbb{M} \in \mathcal{M}$ such that $\mathbb{M} \preceq
-		\mathbb{N}$. $\mathcal{M}$ is jointly minimal.
-	\end{theorem}
-
-	\begin{proof}
-		
-	\end{proof}
-
 	\subsection{Algorithm}
 
 		The chase starts with an input theory $T$ and a model $\mathbb{M}$ that
@@ -66,15 +42,21 @@
 		\begin{algorithm}[H]
 		\DontPrintSemicolon
 		\TitleOfAlgo{The Chase}
-		\While{$\exists$ a formula $\sigma \in T$ such that $\mathbb{M} \not\models \sigma$}{
-			choose formula $\sigma \in T$ such that $\mathbb{M} \not\models \sigma$ \;
-			split this formula into the left and right sides of its implication, $\alpha$ and $\beta$ \;
-			\If{$\beta$ is a contradiction}{halt with a failure \;}
-			a binding $\lambda$ is chosen such that $\mathbb{M} \models_\lambda \alpha$ \;
-			\If{$\beta$ contains a disjunction}{choose a disjunct and assign it to $\beta$ \;}
-			\ForEach{free variable not in the domain of $\lambda$}{add a new domain member to the domain \;}
-			\ForEach{new domain element $e$ and the variable $v$ for which it was added}{redefine $\lambda$ as $\lambda_{v \mapsto e}$ \;}
-			\ForEach{atomic $R$}{replace each variable $v$ with $\lambda(v)$ and add it to the model \;}
+		\While{$\exists$ a formula $\sigma \in T$ and an environment $\lambda$ such that $\mathbb{M} \not\models_\lambda \sigma$}{
+			let $\sigma$ be $\alpha \to \beta$ \;
+			\lIf{$\beta$ is a contradiction}{
+				halt with a failure \;
+			}
+			\lIf{$\beta$ contains a disjunction}{
+				choose a disjunct and assign it to $\beta$ \;
+			}
+			\ForEach{variable not in the domain of $\lambda$}{
+				add a new domain member $\omega$ to $|\mathbb{M}|$ such that $\omega \not\in |\mathbb{M}|$ \;
+				redefine $\lambda$ as $\lambda_{v \mapsto \omega}$ \;
+			}
+			\ForEach{relation $R(\alpha_0,\ldots,\alpha_n)$}{
+				replace each variable $\alpha_i \in \{\alpha_0,\ldots,\alpha_n\}$ with $\lambda(\alpha_i)$ \;
+			}
 		}
 		halt with result $\mathbb{M}$ \;
 		\end{algorithm}
@@ -162,14 +144,40 @@
 
 		\end{enumerate}
 
+	\subsection{Theorems}
+
+		\textbf{ needs better section title }
+
+		\begin{theorem}
+			A geometric theory $T$ is satisfiable if and only if there is an
+			infinite run, given disjunct and binding choice is fair, or there
+			is a chase run of $T$ that returns a non-empty result.
+		\end{theorem}
+
+		\begin{proof}
+			
+		\end{proof}
+
+		\begin{theorem}
+			Let $\mathcal{M}$ be the set of models returned from all successful
+			runs of the chase over a geometric theory $T$. For any model
+			$\mathbb{N}$ such that $\mathbb{N} \models T$, there is a model
+			$\mathbb{M} \in \mathcal{M}$ such that $\mathbb{M} \preceq
+			\mathbb{N}$. $\mathcal{M}$ is jointly minimal.
+		\end{theorem}
+
+		\begin{proof}
+			
+		\end{proof}
+
 	\subsection{History}
 
 		In \cite{FKMP02} \emph{Data Exchange: Semantics and Query Answering},
 		Fagin et. al. first introduce a chase algorithm. The version they
 		defined disallows disjunctions and, because of that, is limited in its
 		utility. Input formul{\ae} without disjunctions are not as expressive
-		as geometric formul{\ae} and have less applications. It is, however,
-		naturally deterministic.
+		as geometric formul{\ae} and have fewer applications. It is, however,
+		deterministic.
 
 		The chase was originally used in data exchange. As Fagin et al. states,
 		``Data exchange is the problem of taking data structured under a source
