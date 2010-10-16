@@ -48,13 +48,13 @@
 				halt with a failure \;
 			}
 			\lIf{$\beta$ contains a disjunction}{
-				choose a disjunct and assign it to $\beta$ \;
+				choose a disjunct $\delta$ and redefine $\beta$ as $\delta$ \;
 			}
-			\ForEach{variable $v \in free(\beta)$ for which $\lambda$ is undefined}{
-				add a new domain member $\omega$ to $|\mathbb{M}|$ such that $\omega \not\in |\mathbb{M}|$ \;
+			\ForAll{variables $v \in free(\beta)$ for which $\lambda$ is undefined}{
+				add a new domain member $\omega$ such that $\omega \not\in |\mathbb{M}|$ to $|\mathbb{M}|$ \;
 				redefine $\lambda$ as $\lambda_{v \mapsto \omega}$ \;
 			}
-			\ForEach{relation $R(\alpha_0,\ldots,\alpha_n) \in \mathbb{M}$}{
+			\ForAll{relations $R(\alpha_0,\ldots,\alpha_n) \in \mathbb{M}$}{
 				replace each variable $\alpha_i \in \{\alpha_0,\ldots,\alpha_n\}$ with $\lambda(\alpha_i)$ \;
 			}
 		}
