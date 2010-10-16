@@ -34,6 +34,7 @@
 	to create a model that satisfies all formul{\ae} in a geometric theory.
 
 	\subsection{Algorithm}
+	\label{sec:chase.algorithm}
 
 		The chase starts with an input theory $T$ and a model $\mathbb{M}$ that
 		has an empty domain and an empty set of facts.
@@ -43,17 +44,17 @@
 		\TitleOfAlgo{The Chase}
 		\While{$\exists$ a formula $\sigma \in T$ and an environment $\lambda$ such that $\mathbb{M} \not\models_\lambda \sigma$}{
 			let $\sigma$ be $\alpha \to \beta$ \;
-			\lIf{$\beta$ is a contradiction}{
+			\lIf{$\beta = \bot$}{
 				halt with a failure \;
 			}
 			\lIf{$\beta$ contains a disjunction}{
 				choose a disjunct and assign it to $\beta$ \;
 			}
-			\ForEach{variable not in the domain of $\lambda$}{
+			\ForEach{variable $v \in free(\beta)$ for which $\lambda$ is undefined}{
 				add a new domain member $\omega$ to $|\mathbb{M}|$ such that $\omega \not\in |\mathbb{M}|$ \;
 				redefine $\lambda$ as $\lambda_{v \mapsto \omega}$ \;
 			}
-			\ForEach{relation $R(\alpha_0,\ldots,\alpha_n)$}{
+			\ForEach{relation $R(\alpha_0,\ldots,\alpha_n) \in \mathbb{M}$}{
 				replace each variable $\alpha_i \in \{\alpha_0,\ldots,\alpha_n\}$ with $\lambda(\alpha_i)$ \;
 			}
 		}
@@ -185,6 +186,10 @@
 		problem was to find a minimal model. In theories without disjunction, a
 		single minimal model exists that has a homomorphism to any other model
 		that satisfies the theory.
+
+		The definition of the chase algorithm used by Fagin et. al. is
+		similar to the one defined in section \ref{sec:chase.algorithm}
+		in all ways except that it does not have to choose a disjunct.
 
 		\textbf{ expand }
 
