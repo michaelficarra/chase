@@ -12,110 +12,111 @@
 	a disjunct. The lazy evaluation of Haskell allows a user to access members
 	of the returned list even though some chase runs have not returned a value.
 
-	Appendix \ref{sec:appendixChase} contains the chase-running portions of the implementation.
+	Appendix \ref{sec:appendixChase} contains the chase-running portions of the
+	implementation.
 
 	\subsection{Operation}
 
-	The first step of the chase implementation is to make sure that each
-	formula of the given theory can be represented as a geometric logic
-	formula. If a formula $\varphi$ can not be coerced to a geometric logic
-	formula, the implementation tries to coerce it into one by applying the
-	following rules recursively:
+		The first step of the chase implementation is to make sure that each
+		formula of the given theory can be represented as a geometric logic
+		formula. If a formula $\varphi$ can not be coerced to a geometric logic
+		formula, the implementation tries to coerce it into one by applying the
+		following rules recursively:
 
-	\begin{align*}
-	\neg\alpha \wedge \neg\beta         \quad & \mapsto \quad \alpha \vee \beta        \\
-	\neg\alpha \vee \neg\beta           \quad & \mapsto \quad \alpha \wedge \beta      \\
-	\neg\neg\alpha                      \quad & \mapsto \quad \alpha                   \\
-	\neg\alpha \to \beta                \quad & \mapsto \quad \alpha \vee \beta        \\
-	\alpha \to \neg\beta                \quad & \mapsto \quad \alpha \wedge \beta      \\
-	\neg(\forall\ \vec{x} : \neg\alpha) \quad & \mapsto \quad \exists\ \vec{x} : \alpha
-	\end{align*}
+		\begin{align*}
+		\neg\alpha \wedge \neg\beta         \quad & \mapsto \quad \alpha \vee \beta        \\
+		\neg\alpha \vee \neg\beta           \quad & \mapsto \quad \alpha \wedge \beta      \\
+		\neg\neg\alpha                      \quad & \mapsto \quad \alpha                   \\
+		\neg\alpha \to \beta                \quad & \mapsto \quad \alpha \vee \beta        \\
+		\alpha \to \neg\beta                \quad & \mapsto \quad \alpha \wedge \beta      \\
+		\neg(\forall\ \vec{x} : \neg\alpha) \quad & \mapsto \quad \exists\ \vec{x} : \alpha
+		\end{align*}
 
-	All other constructs are preserved. If this transformed formula is still
-	not in positive existential form, an error is thrown.
+		All other constructs are preserved. If this transformed formula is still
+		not in positive existential form, an error is thrown.
 
-	The chase function then sorts the input formul{\ae} by the number of
-	disjunctions on the right side of the implication. It allows branches to
-	terminate without growing to an unnecessarily (and possibly infinitely)
-	large size. This step will cause each branch of the algorithm to finish in
-	less time, as they are likely to halt before branching yet again. The
-	formul{\ae} are not sorted purely by absolute number of disjunctions on the
-	right side, but by whether there are zero, one, or many disjunctions. This
-	is done to avoid unnecessary re-ordering for no gain because formul{\ae}
-	with no disjunctions or only a single disjunct on the right side are more
-	likely to cause a branch to stop growing than one with many disjunctions.
-	Likewise, formul{\ae} with zero disjunctions are more likely to cause a
-	branch to halt than those with one or more disjunctions. A secondary sort
-	also occurs within these classifications that orders formul{\ae} by the
-	number of variables to reduce the number of bindings generated.
+		The chase function then sorts the input formul{\ae} by the number of
+		disjunctions on the right side of the implication. It allows branches to
+		terminate without growing to an unnecessarily (and possibly infinitely)
+		large size. This step will cause each branch of the algorithm to finish in
+		less time, as they are likely to halt before branching yet again. The
+		formul{\ae} are not sorted purely by absolute number of disjunctions on the
+		right side, but by whether there are zero, one, or many disjunctions. This
+		is done to avoid unnecessary re-ordering for no gain because formul{\ae}
+		with no disjunctions or only a single disjunct on the right side are more
+		likely to cause a branch to stop growing than one with many disjunctions.
+		Likewise, formul{\ae} with zero disjunctions are more likely to cause a
+		branch to halt than those with one or more disjunctions. A secondary sort
+		also occurs within these classifications that orders formul{\ae} by the
+		number of variables to reduce the number of bindings generated.
 
-	Once the input formul{\ae} are sorted, the {\tt chase} function begins
-	processing a \emph{pending} list, which is initially populated with a
-	single model that has an empty domain and no facts.
+		Once the input formul{\ae} are sorted, the {\tt chase} function begins
+		processing a \emph{pending} list, which is initially populated with a
+		single model that has an empty domain and no facts.
 
-	For each \emph{pending} model, each formula is evaluated to see if it holds
-	in the model for all environments. If an environment is found that does not
-	satisfy the model, the model and environment in which the formula did not
-	hold is passed to the {\tt satisfy} function, along with the formula that needs
-	to be satisfied. The list of models returned from {\tt satisfy} is merged into
-	the \emph{pending} list, and the result of running {\tt chase} on the new
-	\emph{pending} list is returned. If, however, the model holds for all
-	formul{\ae} in the theory and all possible associated environments, it is
-	concatenated with the result of running the chase on the rest of the models
-	in the \emph{pending} list and returned.
+		For each \emph{pending} model, each formula is evaluated to see if it holds
+		in the model for all environments. If an environment is found that does not
+		satisfy the model, the model and environment in which the formula did not
+		hold is passed to the {\tt satisfy} function, along with the formula that needs
+		to be satisfied. The list of models returned from {\tt satisfy} is merged into
+		the \emph{pending} list, and the result of running {\tt chase} on the new
+		\emph{pending} list is returned. If, however, the model holds for all
+		formul{\ae} in the theory and all possible associated environments, it is
+		concatenated with the result of running the chase on the rest of the models
+		in the \emph{pending} list and returned.
 
-	The {\tt satisfy} function performs a pattern match on the type of formula
-	given. Assuming {\tt satisfy} is given a model $\mathbb{M}$, an environment
-	$\lambda$, and a formula $\varphi$, {\tt satisfy} will behave as outlined
-	in the following algorithm.
+		The {\tt satisfy} function performs a pattern match on the type of formula
+		given. Assuming {\tt satisfy} is given a model $\mathbb{M}$, an environment
+		$\lambda$, and a formula $\varphi$, {\tt satisfy} will behave as outlined
+		in the following algorithm.
 
-	~\\
+		~\\
 
-	\begin{algorithm}[H]
-	\DontPrintSemicolon
-	\TitleOfAlgo{satisfy :: Model $\to$ Environment $\to$ Sentence $\to$ [Model]}
-	return \Switch{$\varphi$}{
-		\lCase{$\top$}{return $\{ \mathbb{M} \}$} \;
-		\lCase{$\bot$}{return $\emptyset$} \;
-		\lCase{$x=y$}{return $\{ quotient(\mathbb{M}) \}$} \;
-		\lCase{$\alpha \vee \beta$}{return $satisfy(\alpha) \cup satisfy(\beta)$} \;
-		\Case{$\alpha \wedge \beta$}{
-			let $r = \emptyset$ \;
-			\ForAll{models $m \in satisfy(\alpha)$}{
-				redefine $r$ as $r \cup satisfy(\beta)$ \;
+		\begin{algorithm}[H]
+		\DontPrintSemicolon
+		\TitleOfAlgo{satisfy :: Model $\to$ Environment $\to$ Sentence $\to$ [Model]}
+		return \Switch{$\varphi$}{
+			\lCase{$\top$}{return $\{ \mathbb{M} \}$} \;
+			\lCase{$\bot$}{return $\emptyset$} \;
+			\lCase{$x=y$}{return $\{ quotient(\mathbb{M}) \}$} \;
+			\lCase{$\alpha \vee \beta$}{return $satisfy(\alpha) \cup satisfy(\beta)$} \;
+			\Case{$\alpha \wedge \beta$}{
+				let $r = \emptyset$ \;
+				\ForAll{models $m \in satisfy(\alpha)$}{
+					redefine $r$ as $r \cup satisfy(\beta)$ \;
+				}
+				return $r$ \;
 			}
-			return $r$ \;
-		}
-		\Case{$\alpha \to \beta$}{
-			\lIf{$\mathbb{M}_\lambda \models \alpha$}{return $satisfy(\beta)$ \;}
-			\lElse{return $\emptyset$ \;}
-		}
-		\Case{$R(\vec x)$}{
-			define a model $\mathbb{N}$ where $|\mathbb{N}| = |\mathbb{M}| \cup \omega$ and $\omega \not\in |\mathbb{N}|$ to $|\mathbb{N}|$ \;
-			\lForEach{$P_\mathbb{M}$}{$P_\mathbb{N} = P_\mathbb{M}$ \;}
-			\ForAll{$v \in \vec x$}{
-				\lIf{$v \not\in \lambda$}{
-					redefine $\lambda$ as $\lambda_{v \mapsto \omega}$ \;
+			\Case{$\alpha \to \beta$}{
+				\lIf{$\mathbb{M}_\lambda \models \alpha$}{return $satisfy(\beta)$ \;}
+				\lElse{return $\emptyset$ \;}
+			}
+			\Case{$R(\vec x)$}{
+				define a model $\mathbb{N}$ where $|\mathbb{N}| = |\mathbb{M}| \cup \omega$ and $\omega \not\in |\mathbb{N}|$ to $|\mathbb{N}|$ \;
+				\lForEach{$P_\mathbb{M}$}{$P_\mathbb{N} = P_\mathbb{M}$ \;}
+				\ForAll{$v \in \vec x$}{
+					\lIf{$v \not\in \lambda$}{
+						redefine $\lambda$ as $\lambda_{v \mapsto \omega}$ \;
+					}
+				}
+				define $R_{\mathbb{N}}$ as $R_{\mathbb{M}}(\lambda(x_0) \ldots \lambda(x_n))$ \;
+				return $\{ \mathbb{N} \}$ \;
+			}
+			\Case{$\exists\ \vec x : \alpha$}{
+				\lIf{$\vec x = \emptyset$}{ return $satisfy(\alpha)$ } \;
+				\eIf{$|\mathbb{M}| \ne \emptyset$ and $\exists\ v' \in |\mathbb{M}|$ such that $\lambda' = \lambda_{x_0 \mapsto v'}$ and $\mathbb{M} \models_{\lambda'} \alpha$}{
+					return $\{ \mathbb{M} \}$ \;
+				}{
+					define a model $\mathbb{N}$ where $|\mathbb{N}| = |\mathbb{M}| \cup \omega$ and $\omega \not\in |\mathbb{N}|$ to $|\mathbb{N}|$ \;
+					\lForEach{$R_\mathbb{M}$}{$R_\mathbb{N} = R_\mathbb{M}$ \;}
+					define $\kappa = \lambda_{x_0 \mapsto \omega}$ \;
+					using model $\mathbb{N}$ and environment $\kappa$, return $satisfy(\exists\ \{x_1 \ldots x_n\} : \alpha)$ \;
 				}
 			}
-			define $R_{\mathbb{N}}$ as $R_{\mathbb{M}}(\lambda(x_0) \ldots \lambda(x_n))$ \;
-			return $\{ \mathbb{N} \}$ \;
 		}
-		\Case{$\exists\ \vec x : \alpha$}{
-			\lIf{$\vec x = \emptyset$}{ return $satisfy(\alpha)$ } \;
-			\eIf{$|\mathbb{M}| \ne \emptyset$ and $\exists\ v' \in |\mathbb{M}|$ such that $\lambda' = \lambda_{x_0 \mapsto v'}$ and $\mathbb{M} \models_{\lambda'} \alpha$}{
-				return $\{ \mathbb{M} \}$ \;
-			}{
-				define a model $\mathbb{N}$ where $|\mathbb{N}| = |\mathbb{M}| \cup \omega$ and $\omega \not\in |\mathbb{N}|$ to $|\mathbb{N}|$ \;
-				\lForEach{$R_\mathbb{M}$}{$R_\mathbb{N} = R_\mathbb{M}$ \;}
-				define $\kappa = \lambda_{x_0 \mapsto \omega}$ \;
-				using model $\mathbb{N}$ and environment $\kappa$, return $satisfy(\exists\ \{x_1 \ldots x_n\} : \alpha)$ \;
-			}
-		}
-	}
-	\end{algorithm}
+		\end{algorithm}
 
-	\textbf{TODO: write $quotient$ algorithm and possibly move these to an appendix}
+		\textbf{TODO: write $quotient$ algorithm and possibly move these to an appendix}
 
 	\subsection{Input Format}
 
