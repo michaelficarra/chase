@@ -12,7 +12,7 @@
 	a disjunct. The lazy evaluation of Haskell allows a user to access members
 	of the returned list even though some chase runs have not returned a value.
 
-	Appendix \ref{sec:appendixChase} contains the chase-running portions of the
+	Appendix \ref{sec:appendix_chase} contains the chase-running portions of the
 	implementation.
 
 	\subsection{Operation}
@@ -121,13 +121,13 @@
 	\subsection{Input Format}
 
 		Input to the program must be in a form parsable by the context-free
-		grammar seen in Appendix \ref{sec:appendixParser}. The expected input
+		grammar seen in Appendix \ref{sec:appendix_parser}. The expected input
 		is essentially a newline-separated list of ASCII representations of
 		geometric formul{\ae}. Terminals are denoted by a {\tt monospace style}
 		and nonterminals are denoted by an $oblique\ style$. The Greek letter
 		$\varepsilon$ matches a zero-length list of tokens. Patterns that match
 		non-literal terminals are defined in the table in Appendix
-		\ref{sec:appendixLexer}.
+		\ref{sec:appendix_lexer}.
 
 		Comments are removed at the lexical analysis step and have no effect on
 		the input to the parser. Single-line comments begin with either a hash
