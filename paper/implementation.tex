@@ -15,6 +15,9 @@
 	Appendix \ref{sec:appendix_chase} contains the chase-running portions of the
 	implementation.
 
+	\textbf{ I should mention how this is not fair and will not find ALL models
+	that could be returned by the chase }
+
 	\subsection{Operation}
 
 		The first step of the chase implementation is to make sure that each
@@ -121,13 +124,13 @@
 	\subsection{Input Format}
 
 		Input to the program must be in a form parsable by the context-free
-		grammar seen in Appendix \ref{sec:appendix_parser}. The expected input
+		grammar seen in Appendix \ref{sec:appendix_parser}. Terminals are
+		denoted by a {\tt monospace style} and nonterminals are denoted by an
+		$oblique\ style$. The Greek letter $\varepsilon$ matches a zero-length
+		list of tokens. Patterns that match non-literal terminals are defined
+		in the table in Appendix \ref{sec:appendix_lexer}. The expected input
 		is essentially a newline-separated list of ASCII representations of
-		geometric formul{\ae}. Terminals are denoted by a {\tt monospace style}
-		and nonterminals are denoted by an $oblique\ style$. The Greek letter
-		$\varepsilon$ matches a zero-length list of tokens. Patterns that match
-		non-literal terminals are defined in the table in Appendix
-		\ref{sec:appendix_lexer}.
+		geometric formul{\ae}.
 
 		Comments are removed at the lexical analysis step and have no effect on
 		the input to the parser. Single-line comments begin with either a hash
@@ -232,6 +235,17 @@
 			current model's domain because the number of quantified variables
 			will be reduced.
 
+		\subsubsection{Parallelize}
+
+			The chase implementation should be very easily parallelizable. The
+			program can fork for every call to the {\tt branch} function as it
+			is mapped over a pending list in the {\tt chase'} function. As each
+			fork finds a contradiction, the forks will die. This method could
+			still lead to a large number of threads. In a proper implementation,
+			forks that are waiting on a single child could consume that child's
+			work to minimize this problem. Doing this would prevent long chains
+			of waiting threads.
+
 		\subsubsection{Tracing}
 
 			Currently, Debug.Trace is being used to output real-time status for
@@ -247,6 +261,6 @@
 			flag is found, a callback function is being invoked in the Main
 			module. Someone who implements this enhancement would need to be
 			able to alter the behaviour of the Chase module's $trace$ function
-			from a function within the Main module.  Ideally, a better
+			from a function within the Main module. Ideally, a better
 			debugging output method will be found and Debug.Trace.trace will no
 			longer need to be used in what is otherwise production-ready code.

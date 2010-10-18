@@ -68,6 +68,13 @@
 		all of the models returned by successful runs of a naturally
 		nondeterministic algorithm.
 
+		The choice of Haskell for an implementation language is very benefitial
+		because of Haskell's lazy evaluation. When the chase would run
+		infinitely, the program runs infinitely as well, but it will still
+		process and return all of the results of the halting runs of the chase.
+		Haskell is also commonly used by mathemeticians and theoretical
+		computer scientists, the target audience.
+
 	\subsection{Application}
 
 		Cryptographic protocol analysis is the particular application that is
@@ -78,12 +85,16 @@
 		rules of the protocol are called adversary strands (see
 		\ref{sec:application.the_adversary}). These adversary strands consist
 		of a series of nodes that send/receive messages to/from regular strands
-		while manipulating those messages. Because the positions and actions of
-		adversary strands are variable, there exists a large number of possible
-		runs of a single protocol. It is prohibitive to test all of these to
-		find if they break assumptions made about the properties of the
-		protocol because of the large number of possibilities. This protocol
-		can be represented as a geometric theory and given to the chase to find
-		minimal models. When minimal models are found, they can describe nearly
-		all interesting ways that the adversaries can interact with regular
-		strands. These models can then be analysed in a finite amount of time.
+		while manipulating those messages.
+
+		Because the positions and actions of adversary strands are variable,
+		there exists a large number of possible runs of a single protocol. It
+		is prohibitive to test all of these to find if they break assumptions
+		made about the properties of the protocol because of the large number
+		of possibilities.
+
+		This protocol can be represented as a geometric theory and given to the
+		chase to find minimal models. When minimal models are found, they can
+		describe nearly all interesting ways that the adversaries can interact
+		with regular strands. These models can then be analysed in a finite
+		amount of time.
