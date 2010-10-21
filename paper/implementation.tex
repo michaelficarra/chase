@@ -10,13 +10,25 @@
 	list. The returned list will not contain an entry for runs that return no
 	model, and will merge lists returned from runs that themselves encountered
 	a disjunct. The lazy evaluation of Haskell allows a user to access members
-	of the returned list even though some chase runs have not returned a value.
+	of the returned list as they are found, even though some chase runs have
+	not returned a value, and even if a chase run is infinite.
+
+	To be sure that a chase implementation returns every model a chase run
+	could possibly return, it is important that the implementation is
+	\emph{fair}.  Recall the definition of fairness from section
+	\ref{fairness_definition}. Essentially, an implementation is fair if
+	\textbf{need help writing this}.
+
+	Though the discussed implementation is quite efficient, it is not fair. The
+	domain is represented by an ordered type. Any time the algorithm would ask
+	us to choose a binding, each variable is assigned a member of the domain,
+	starting with all variables paired with the representative with the lowest
+	ordering. Successive pairings relate variables with successive domain
+	members. Problems similar to this are the cause of unfairness in the
+	implementation.
 
 	Appendix \ref{sec:appendix_chase} contains the chase-running portions of the
 	implementation.
-
-	\textbf{ I should mention how this is not fair and will not find ALL models
-	that could be returned by the chase }
 
 	\subsection{Operation}
 
@@ -57,41 +69,50 @@
 		processing a \emph{pending} list, which is initially populated with a
 		single model that has an empty domain and no facts.
 
-		For each \emph{pending} model, each formula is evaluated to see if it holds
-		in the model for all environments. If an environment is found that does not
-		satisfy the model, the model and environment in which the formula did not
-		hold is passed to the {\tt satisfy} function, along with the formula that needs
-		to be satisfied. The list of models returned from {\tt satisfy} is merged into
-		the \emph{pending} list, and the result of running {\tt chase} on the new
-		\emph{pending} list is returned. If, however, the model holds for all
-		formul{\ae} in the theory and all possible associated environments, it is
-		concatenated with the result of running the chase on the rest of the models
-		in the \emph{pending} list and returned.
+		For each \emph{pending} model, each formula is evaluated to see if it
+		holds in the model for all environments. If an environment is found
+		that does not satisfy the model, the model and environment in which the
+		formula did not hold is passed to the {\tt satisfy} function, along
+		with the formula that needs to be satisfied. The list of models
+		returned from {\tt satisfy} is merged into the \emph{pending} list, and
+		the result of running {\tt chase} on the new \emph{pending} list is
+		returned. If, however, the model holds for all formul{\ae} in the
+		theory and all possible associated environments, it is concatenated
+		with the result of running the chase on the rest of the models in the
+		\emph{pending} list and returned.
 
-		The {\tt satisfy} function performs a pattern match on the type of formula
-		given. Assuming {\tt satisfy} is given a model $\mathbb{M}$, an environment
-		$\lambda$, and a formula $\varphi$, {\tt satisfy} will behave as outlined
-		in the following algorithm.
+		The {\tt satisfy} function performs a pattern match on the type of
+		formula given. {\tt satisfy} will behave as outlined in the following
+		algorithm.
 
 		~\\
 
 		\begin{algorithm}[H]
 		\DontPrintSemicolon
-		\TitleOfAlgo{satisfy :: Model $\to$ Environment $\to$ Sentence $\to$ [Model]}
+		\TitleOfAlgo{satisfy :: Model ($\mathbb{M}$) $\to$ Environment ($\lambda$) $\to$ Sentence ($\varphi$) $\to$ [Model]}
 		return \Switch{$\varphi$}{
 			\lCase{$\top$}{return $\{ \mathbb{M} \}$} \;
 			\lCase{$\bot$}{return $\emptyset$} \;
-			\lCase{$x=y$}{return $\{ quotient(\mathbb{M}) \}$} \;
-			\lCase{$\alpha \vee \beta$}{return $satisfy(\alpha) \cup satisfy(\beta)$} \;
+			\Case{$x=y$}{
+				let $a=\lambda(x)$ and $b=\lambda(y)$
+				\lIf{$a=b$}{return $\mathbb{M}$} \;
+				let $\mathbb{N}$ be a model where $|\mathbb{N}| = |\mathbb{M}|$ \;
+				\ForEach{fact $R_\mathbb{M}(\vec v)$}{
+					let $\vec \eta = \vec v$ with all references to $b$ replaced with $a$ \;
+					add $R(\vec \eta)$ to $\mathbb{N}$ \;
+				}
+				return $\mathbb{N}$
+			}
+			\lCase{$\alpha \vee \beta$}{return $satisfy(\mathbb{M},\lambda,\alpha) \cup satisfy(\mathbb{M},\lambda,\beta)$} \;
 			\Case{$\alpha \wedge \beta$}{
 				let $r = \emptyset$ \;
-				\ForAll{models $m \in satisfy(\alpha)$}{
-					redefine $r$ as $r \cup satisfy(\beta)$ \;
+				\ForAll{models $m \in satisfy(\mathbb{M},\lambda,\alpha)$}{
+					redefine $r$ as $r \cup satisfy(\mathbb{M},\lambda,\beta)$ \;
 				}
 				return $r$ \;
 			}
 			\Case{$\alpha \to \beta$}{
-				\lIf{$\mathbb{M}_\lambda \models \alpha$}{return $satisfy(\beta)$ \;}
+				\lIf{$\mathbb{M} \models_\lambda \alpha$}{return $satisfy(\mathbb{M},\lambda,\beta)$ \;}
 				\lElse{return $\emptyset$ \;}
 			}
 			\Case{$R(\vec x)$}{
@@ -106,20 +127,21 @@
 				return $\{ \mathbb{N} \}$ \;
 			}
 			\Case{$\exists\ \vec x : \alpha$}{
-				\lIf{$\vec x = \emptyset$}{ return $satisfy(\alpha)$ } \;
+				\lIf{$\vec x = \emptyset$}{ return $satisfy(\mathbb{M},\lambda,\alpha)$ } \;
 				\eIf{$|\mathbb{M}| \ne \emptyset$ and $\exists\ v' \in |\mathbb{M}|$ such that $\lambda' = \lambda_{x_0 \mapsto v'}$ and $\mathbb{M} \models_{\lambda'} \alpha$}{
 					return $\{ \mathbb{M} \}$ \;
 				}{
 					define a model $\mathbb{N}$ where $|\mathbb{N}| = |\mathbb{M}| \cup \omega$ and $\omega \not\in |\mathbb{N}|$ to $|\mathbb{N}|$ \;
 					\lForEach{$R_\mathbb{M}$}{$R_\mathbb{N} = R_\mathbb{M}$ \;}
 					define $\kappa = \lambda_{x_0 \mapsto \omega}$ \;
-					using model $\mathbb{N}$ and environment $\kappa$, return $satisfy(\exists\ \{x_1 \ldots x_n\} : \alpha)$ \;
+					return $satisfy(\mathbb{N},\kappa,\exists\ \{x_1 \ldots x_n\} : \alpha)$ \;
 				}
 			}
 		}
 		\end{algorithm}
 
-		\textbf{TODO: write $quotient$ algorithm and possibly move these to an appendix}
+		\textbf{should probably move this to an appendix}
+		\textbf{also, need some rewording help from dd at least for the x=y section}
 
 	\subsection{Input Format}
 

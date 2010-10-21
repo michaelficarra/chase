@@ -1,32 +1,22 @@
 \section{The Chase}
 \label{sec:chase}
 
-	\textbf{ what does it really generate? any superset of this set is also jointly minimal... }
-
 	The \emph{chase} is a function that, when given a geometric theory, will
-	generate a model in the set of jointly minimal models for that theory. More
+	generate a model in the set of jointly universal models for that theory. More
 	specifically, if $\mathcal{U}$ is the set of all models obtained from an
 	execution of the chase over a geometric theory $T$, for any model
 	$\mathbb{M}$ such that $\mathbb{M} \models T$, there is a homomorphism from
-	some model $\mathbb{U} \in \mathcal{U}$ to $\mathbb{M}$.
+	some model $\mathbb{U} \in \mathcal{U}$ to $\mathbb{M}$. Note that given a
+	model $\mathbb{M}$ returned by the chase there may exist a model
+	$\mathbb{N}$ such that $\mathbb{N} \preceq \mathbb{M}$.
 
-	\textbf{ Where should I move this list? It's definitely important }
-
-	There are three types of runs of the chase:
-	\begin{itemize}
-	\item a set of jointly minimal models is found in finite time
-	\item an empty result is found in finite time
-	\item an infinite run with possible return dependent on implementation
-	\end{itemize}
-
-	Verifying the minimality of a model or the joint minimality of a set of
-	models requires checking if a homomorphism exists from the minimal model(s)
-	to each of the infinite set of all models that satisfy the theory, assuming
-	the theory is satisfiable. It may not at first seem obvious that generating
-	a minimal model would be a computable task, but it will be shown that the
-	chase is able to do this, and it will be proven that the models it returns
-	during successful runs are in fact members of a set of jointly minimal
-	models.
+	Verifying the universality of a model or the joint universality of a set of
+	models requires checking if a homomorphism exists from the universal model(s)
+	to each of the infinite set of all models that satisfy the theory. It may
+	not at first seem obvious that generating a universal model would be a
+	computable task, but it will be shown that the chase is able to do this,
+	and it will be proven that the models it returns during successful runs are
+	in fact members of a set of jointly universal models.
 
 	Geometric logic formul{\ae} are used by the chase both because they are
 	natural expressions of many common applications and because they take
@@ -75,6 +65,13 @@
 		Modify $\lambda$ for existential quantifiers like in the implementation
 		too?}
 
+		There are three types of runs of the chase:
+		\begin{itemize}
+		\item a set of jointly universal models is found in finite time
+		\item an empty result is found in finite time
+		\item an infinite run with possible return dependent on implementation
+		\end{itemize}
+
 	\subsection{Examples}
 
 		Define $\Sigma$ as the following geometric theory.
@@ -111,7 +108,7 @@
 			will already have been assigned to $a$ and a new domain member $c$
 			and a new fact $Q(a,c)$ will be added to satisfy \eqref{eqn:chase2}.
 			With the current model, all rules hold under any environment.
-			Therefore, this model is minimal.
+			Therefore, this model is universal.
 
 		\item An empty result in finite time:
 
@@ -159,38 +156,37 @@
 
 		\end{enumerate}
 
-	\subsection{Theorems}
+	\subsection{Properties of the Chase}
 
-		\textbf{ needs better section title }
+		%\begin{theorem}
+		%	A geometric theory $T$ is satisfiable if and only if either there
+		%	exists an infinite fair chase run of $T$ or there exists a
+		%	successful fair chase run of $T$.
+		%\end{theorem}
 
-		\begin{theorem}
-			A geometric theory $T$ is satisfiable if and only if either there
-			exists an infinite fair chase run of $T$ or there exists a
-			successful fair chase run of $T$.
-		\end{theorem}
+		%\begin{proof}
+		%\end{proof}
 
-		\begin{proof}
-			Things we know:
-			\begin{itemize}
-			\item satisfiability: a model $m$ exists such that $m \models \sigma$ for all $\sigma \in T$
-			\item an infinite chase: ??
-			\item a successful fair chase produces a model of $T$
-			\end{itemize}
-		\end{proof}
+		\label{fairness_definition}
+		\begin{description}
+		\item [Fairness] A deterministic realization of the chase algorithm
+		(the pair of the chase and an evaluation strategy) is \emph{fair} if
+		there is no opportunity for a formula, binding, or \textbf{...} to go
+		unevaluated during an infinite run.
+		\end{description}
+
+		\textbf{how about order of conjunction evaluation? that must cause an unfair chase}
+
+		\textbf{also, this is quite an unclear description and should be reworded with help from dd}
 
 		\begin{theorem}
 			Let $T$ be a geometric theory. For any model $\mathbb{M}$ such that
-			$\mathbb{M} \models T$, there exists a fair run of the chase that
+			$\mathbb{M} \models T$, there exists a run of the chase that
 			returns a model $\mathbb{N}$ such that $\mathbb{N} \models T$ and
 			$\mathbb{N} \preceq \mathbb{M}$.
 		\end{theorem}
 
 		\begin{proof}
-			Things we know:
-			\begin{itemize}
-			\item if there exists a model $m$ such that $m \models T$, $T$ is satisfiable
-			\item nothing else...
-			\end{itemize}
 		\end{proof}
 
 	\subsection{History}
@@ -206,16 +202,12 @@
 		Fagin et al. states, ``Data exchange is the problem of taking data
 		structured under a source schema and creating an instance of a target
 		schema that reflects the source data as accurately as possible". The
-		solution to the stated problem was to find a minimal model. In theories
-		without disjunction, a single minimal model exists that has a
+		solution to the stated problem was to find a universal model. In theories
+		without disjunction, a single universal model exists that has a
 		homomorphism to any other model that satisfies the theory. This
-		absolute minimal model can be calculated from a single run of their
+		absolute universal model can be calculated from a single run of their
 		deterministic chase algorithm.
 
 		The definition of the chase algorithm used by Fagin et. al. is similar
 		to the one defined in section \ref{sec:chase.algorithm} in all ways
 		except that it does not have to choose a disjunct.
-
-	\subsection{Computational Complexity}
-
-		\textbf{ is this section necessary? }

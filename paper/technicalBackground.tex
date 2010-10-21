@@ -177,36 +177,37 @@
 		\emph{isomorphism} when $h$ is 1:1 and onto and the inverse function
 		$h^{-1} : \mathbb{B} \to \mathbb{A}$ is a homomorphism.
 
-	\subsection{Minimal Models}
-	\label{sec:technical_background.minimal_models}
+	\subsection{Universal Models}
+	\label{sec:technical_background.universal_models}
 
-		\emph{Minimal models}, also called \emph{universal} models, are models
+		\emph{Universal models}, also called \emph{universal} models, are models
 		for a theory $T$ with the special property that there exists a
-		homomorphism from the minimal model to any other model that satisfies
-		$T$. Intuitively, minimal models have no unnecessary entities or
+		homomorphism from the universal model to any other model that satisfies
+		$T$. Intuitively, universal models have no unnecessary entities or
 		relations and thus display the least amount of constraint necessary to
-		satisfy the theory for which they are minimal. Any model to which there
-		exists a homomorphism from a minimal model will have more constraints
-		than the minimal model.
+		satisfy the theory for which they are universal. Any model to which there
+		exists a homomorphism from a universal model will have more constraints
+		than the universal model.
 
-		A set of models $\mathcal{M}$ is said to be \emph{jointly minimal} for
-		a set of formul{\ae} $\Sigma$ when, for every model $\mathbb{N}$ such that
-		$\mathbb{N} \models \Sigma$, there exists a homomorphism from a model $\mathbb{M}
-		\in \mathcal{M}$ to $\mathbb{N}$.
+		A set of models $\mathcal{M}$ is said to be \emph{jointly universal} for
+		a set of formul{\ae} $\Sigma$ when, for every model $\mathbb{N}$ such
+		that $\mathbb{N} \models \Sigma$, there exists a homomorphism from a
+		model $\mathbb{M} \in \mathcal{M}$ to $\mathbb{N}$. It follows that any
+		superset of a jointly universal set of models is also jointly universal.
 
-		More than one minimal model may exist for a given theory. Given a model
-		$\mathbb{M}$ that is minimal for a theory $T$, any model $\mathbb{N}$
-		such that $\mathbb{N} \simeq \mathbb{M}$ is also minimal for $T$.
+		More than one universal model may exist for a given theory. Given a model
+		$\mathbb{M}$ that is universal for a theory $T$, any model $\mathbb{N}$
+		such that $\mathbb{N} \simeq \mathbb{M}$ is also universal for $T$.
 
-		Not every theory must have a minimal model. A simple example of this is
+		Not every theory must have a universal model. A simple example of this is
 		the theory containing a single formula $\sigma$ where $\sigma$ contains
-		a disjunction. There exists no single minimal model for the formula $P
+		a disjunction. There exists no single universal model for the formula $P
 		\vee Q$ ($P$ and $Q$ are relations with arity $0$) because any model that
 		satisfies both $P$ and $Q$ would not have a homomorphism to a model
 		that satisfies the theory with only $P$ or $Q$ in its set of facts.
 		However, the set containing a model $\mathbb{M}$ that contains $P$ in
 		its set of facts and a model $\mathbb{N}$ that contains $Q$ in its
-		set of fact would be jointly minimal.
+		set of fact would be jointly universal.
 
 	\subsection{Positive Existential Form}
 

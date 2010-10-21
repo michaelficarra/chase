@@ -132,7 +132,7 @@ relationSubstitute d1 d2 (predicate,arity,truthTable) =
 
 quotient :: Model -> DomainMember -> DomainMember -> Model
 -- make two domain elements equal in a given model
-quotient model @ (domain,relations) a b
+quotient model@(domain,relations) a b
 	| a == b = model
 	| otherwise =
 	let newDomainSize = (length domain) - 1 in
