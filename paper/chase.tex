@@ -18,6 +18,9 @@
 	and it will be proven that the models it returns during successful runs are
 	in fact members of a set of jointly universal models.
 
+	\textbf{should I say sentence instead of formula when talking about input
+	to the chase, which must be geometric logic sentences?}
+
 	Geometric logic formul{\ae} are used by the chase both because they are
 	natural expressions of many common applications and because they take
 	advantage of the useful properties of the positive-existential formul{\ae}
@@ -27,43 +30,50 @@
 	when trying to create a model that satisfies all formul{\ae} in a geometric
 	theory.
 
-	\textbf{ I should probably talk about fairness here, I'm just not exactly sure where }
-
 	\subsection{Algorithm}
 	\label{sec:chase.algorithm}
 
-		The chase starts with an input theory $T$ and a model $\mathbb{M}$ that
-		has an empty domain and an empty set of facts.
+		To describe the chase algorithm succinctly, it is convenient to
+		introduce the following notation. Given $\mathbb{M}$ is a model, $T$ is
+		a geometric theory, $\sigma$ is a formula\textbf{(sentence?)} in $T$,
+		and $\lambda : free(\sigma) \to |\mathbb{M}|$ is an environment, the
+		pair $(\sigma,\lambda)$ is a \emph{test}, specifically a test of
+		$\mathbb{M}$ based on $T$. The model $\mathbb{M}$ \emph{passes} this
+		test if and only if $\mathbb{M} \models_\lambda \sigma$.
 
-		\textbf{ I need this thoroughly checked for correctness }
+		An existentially-quantified conjunction of atomics (ECA) $E$ is defined
+		inductively by
+		\begin{itemize}
+		\item if $E$ is an atomic, $E$ is an ECA
+		\item if $E$ is $\exists \vec{x} : \alpha$ and $\alpha$ is an ECA, $E$ is an ECA
+		\item if $E$ is $\alpha \wedge \beta$ and both $\alpha$ and $\beta$ are ECAs, $E$ is an ECA
+		\end{itemize}
+		For simplicity, we describe the chase assuming each sentence of the
+		input theory is of the form
+		\[\delta_0 \vee\ldots\vee \delta_n \to \gamma_0 \vee\ldots\vee \gamma_k\}\]
+		where each $\delta_i$ and $\gamma_j$ are ECAs.  The chase can take this
+		form without loss of generality. In other words, a logical equivalent
+		to any legal chase input theory can be expressed in a way that respects
+		these constraints.
+
+		\textbf{I need to better define a chase step here... needs help from dd}
+
+		Next we define a \emph{chase step}, denoted $\mathbb{M}
+		\xrightarrow{(\sigma,\lambda)} \mathbb{M}'$, which would be equivalent
+		to ``$\mathbb{M}'$ if $\mathbb{M} \models_\lambda \sigma$, $\mathbb{M}$
+		otherwise". A chase step fails if and only if the right side of the
+		implication is a contradiction.
 
 		\begin{algorithm}[H]
 		\DontPrintSemicolon
-		\TitleOfAlgo{The Chase}
-		\While{$\exists$ a formula $\sigma \in T$ and an environment $\lambda$ such that $\mathbb{M} \not\models_\lambda \sigma$}{
-			let $\sigma$ be $\alpha \to \beta$ \;
-			\lIf{$\beta = \bot$}{
-				halt with a failure \;
-			}
-			\lIf{$\beta$ contains a disjunction}{
-				choose a disjunct $\delta$ and redefine $\beta$ as $\delta$ \;
-			}
-			\ForAll{variables $v \in free(\beta)$ for which $\lambda$ is undefined}{
-				add a new domain member $\omega$ such that $\omega \not\in |\mathbb{M}|$ to $|\mathbb{M}|$ \;
-				redefine $\lambda$ as $\lambda_{v \mapsto \omega}$ \;
-			}
-			\ForAll{relations $R(\alpha_0,\ldots,\alpha_n) \in \mathbb{M}$}{
-				replace each variable $\alpha_i \in \{\alpha_0,\ldots,\alpha_n\}$ with $\lambda(\alpha_i)$ \;
-			}
+		\TitleOfAlgo{chase :: [Sentence] ($T$) $\to$ Model}
+		let $\mathbb{M}$ be a model that has an empty domain and an empty set of facts \;
+		\While{$\mathbb{M} \not\models T$}{
+			choose a test $(\sigma,\lambda)$ for which $\mathbb{M}$ fails \;
+			do a chase step on $\mathbb{M}$ based on $(\sigma,\lambda)$ \;
 		}
-		halt with result $\mathbb{M}$ \;
+		return $\mathbb{M}$
 		\end{algorithm}
-
-		\textbf{Is what I have only applicable to a $\beta$ that is a single
-		atomic? Do I have to recursively call $chase$ or call a helper for
-		conjunctions and handle equality like I do in the implementation?
-		Modify $\lambda$ for existential quantifiers like in the implementation
-		too?}
 
 		There are three types of runs of the chase:
 		\begin{itemize}
