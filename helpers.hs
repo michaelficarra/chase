@@ -449,7 +449,7 @@ holds' model@(domain,relations) env formula =
 		UniversalQuantifier [] f -> self env f
 		UniversalQuantifier (v:vs) f -> all (\v' -> self (hashSet env v v') (UniversalQuantifier vs f)) domain
 		ExistentialQuantifier [] f -> self env f
-		ExistentialQuantifier (v:vs) f -> any (\v' -> self (hashSet env v v') (ExistentialQuantifier vs f)) domain
+		ExistentialQuantifier (v:vs) f -> domain /= [] && any (\v' -> self (hashSet env v v') (ExistentialQuantifier vs f)) domain
 
 bind :: Model -> Formula -> [Environment]
 bind m f = bind' m [] f
