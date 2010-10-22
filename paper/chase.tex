@@ -18,16 +18,13 @@
 	and it will be proven that the models it returns during successful runs are
 	in fact members of a set of jointly universal models.
 
-	\textbf{should I say sentence instead of formula when talking about input
-	to the chase, which must be geometric logic sentences?}
-
-	Geometric logic formul{\ae} are used by the chase both because they are
+	Geometric logic sentences are used by the chase both because they are
 	natural expressions of many common applications and because they take
-	advantage of the useful properties of the positive-existential formul{\ae}
+	advantage of the useful properties of the positive-existential sentences
 	of which they are constructed. Recall that, when adding any relations or
-	domain members to a model that satisfies a positive-existential formula,
-	the model will always satisfy the formula. This is particularly helpful
-	when trying to create a model that satisfies all formul{\ae} in a geometric
+	domain members to a model that satisfies a positive-existential sentence,
+	the model will always satisfy the sentence. This is particularly helpful
+	when trying to create a model that satisfies all sentences in a geometric
 	theory.
 
 	\subsection{Algorithm}
@@ -35,9 +32,9 @@
 
 		To describe the chase algorithm succinctly, it is convenient to
 		introduce the following notation. Given $\mathbb{M}$ is a model, $T$ is
-		a geometric theory, $\sigma$ is a formula\textbf{(sentence?)} in $T$,
-		and $\lambda : free(\sigma) \to |\mathbb{M}|$ is an environment, the
-		pair $(\sigma,\lambda)$ is a \emph{test}, specifically a test of
+		a geometric theory, $\sigma$ is a sentence in $T$, and $\lambda :
+		free(\sigma) \to |\mathbb{M}|$ is an environment, the pair
+		$(\sigma,\lambda)$ is a \emph{test}, specifically a test of
 		$\mathbb{M}$ based on $T$. The model $\mathbb{M}$ \emph{passes} this
 		test if and only if $\mathbb{M} \models_\lambda \sigma$.
 
@@ -45,24 +42,38 @@
 		inductively by
 		\begin{itemize}
 		\item if $E$ is an atomic, $E$ is an ECA
-		\item if $E$ is $\exists \vec{x} : \alpha$ and $\alpha$ is an ECA, $E$ is an ECA
+		\item if $E$ is $\exists\ \vec{x} : \alpha$ and $\alpha$ is an ECA, $E$ is an ECA
 		\item if $E$ is $\alpha \wedge \beta$ and both $\alpha$ and $\beta$ are ECAs, $E$ is an ECA
 		\end{itemize}
 		For simplicity, we describe the chase assuming each sentence of the
 		input theory is of the form
 		\[\delta_0 \vee\ldots\vee \delta_n \to \gamma_0 \vee\ldots\vee \gamma_k\}\]
 		where each $\delta_i$ and $\gamma_j$ are ECAs.  The chase can take this
-		form without loss of generality. In other words, a logical equivalent
-		to any legal chase input theory can be expressed in a way that respects
-		these constraints.
-
-		\textbf{I need to better define a chase step here... needs help from dd}
+		form as input without loss of generality. In other words, a logical
+		equivalent to any legal chase input theory can be expressed in a way
+		that respects these constraints.
 
 		Next we define a \emph{chase step}, denoted $\mathbb{M}
-		\xrightarrow{(\sigma,\lambda)} \mathbb{M}'$, which would be equivalent
-		to ``$\mathbb{M}'$ if $\mathbb{M} \models_\lambda \sigma$, $\mathbb{M}$
-		otherwise". A chase step fails if and only if the right side of the
+		\xrightarrow{(\sigma,\lambda)} \mathbb{M}'$, with $\mathbb{M'}$ being
+		the result of the following algorithm applied to the model
+		$\mathbb{M}$, the sentence $\sigma$, and the environment $\lambda$.
+
+		\begin{algorithm}[H]
+		\DontPrintSemicolon
+		\TitleOfAlgo{chaseStep :: Model ($\mathbb{M}$) $\to$ Sentence ($\sigma$) $\to$ Environment ($\lambda$) $\to$ Model}
+		let $\sigma$ be $\alpha \to \beta$ \;
+		choose some disjunct $e \equiv \exists\ x_0,\ldots,x_p : c_0(\vec{a_0}) \wedge\ldots\wedge c_n(\vec{a_n})$ of $\beta$ \;
+		add new elements $d_0 \ldots d_p$ to $|\mathbb{M}|$ \;
+		define $\theta$ as $\lambda_{[x_0 \mapsto d_0 , \ldots , x_p \mapsto d_p]}$ \;
+		add each of the facts $\{c_i(\theta\vec{a_j}) | 0 \le i \le n \}$ to $\mathbb{M}$ \;
+		return $\mathbb{M}$ \;
+		\end{algorithm}
+
+		A chase step fails if and only if the right side of the
 		implication is a contradiction.
+
+		Now that the notion of a chase step is established, the chase can be
+		defined as follows.
 
 		\begin{algorithm}[H]
 		\DontPrintSemicolon
@@ -70,7 +81,7 @@
 		let $\mathbb{M}$ be a model that has an empty domain and an empty set of facts \;
 		\While{$\mathbb{M} \not\models T$}{
 			choose a test $(\sigma,\lambda)$ for which $\mathbb{M}$ fails \;
-			do a chase step on $\mathbb{M}$ based on $(\sigma,\lambda)$ \;
+			update $\mathbb{M}$ to be the result of the chase step on $\mathbb{M}$ based on $(\sigma,\lambda)$ \;
 		}
 		return $\mathbb{M}$
 		\end{algorithm}
@@ -181,13 +192,11 @@
 		\begin{description}
 		\item [Fairness] A deterministic realization of the chase algorithm
 		(the pair of the chase and an evaluation strategy) is \emph{fair} if
-		there is no opportunity for a formula, binding, or \textbf{...} to go
+		there is no opportunity for a rule, binding, or \textbf{...} to go
 		unevaluated during an infinite run.
 		\end{description}
 
-		\textbf{how about order of conjunction evaluation? that must cause an unfair chase}
-
-		\textbf{also, this is quite an unclear description and should be reworded with help from dd}
+		\textbf{this is an unclear description and should be reworded with help from dd}
 
 		\newtheorem{chase_lemma}{Lemma}
 		\begin{chase_lemma}
@@ -221,8 +230,8 @@
 		In \cite{FKMP02} \emph{Data Exchange: Semantics and Query Answering},
 		Fagin et. al. first introduce a chase algorithm. The version they
 		defined disallows disjunctions and, because of that, is limited in its
-		utility. Input formul{\ae} without disjunctions are not as expressive
-		as geometric formul{\ae} and have fewer applications. It is, however, a
+		utility. Input sentences without disjunctions are not as expressive
+		as geometric sentences and have fewer applications. It is, however, a
 		completely deterministic algorithm.
 
 		The chase was originally used to solve the problem of data exchange. As

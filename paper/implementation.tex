@@ -16,10 +16,9 @@
 	To be sure that a chase implementation returns every model a chase run
 	could possibly return, it is important that the implementation is
 	\emph{fair}.  Recall the definition of fairness from section
-	\ref{fairness_definition}. Essentially, an implementation is fair if
-	\textbf{need help writing this}.
+	\ref{fairness_definition}.
 
-	Though the discussed implementation is quite efficient, it is not fair. The
+	Though the discussed implementation is efficient, it is not fair. The
 	domain is represented by an ordered type. Any time the algorithm would ask
 	us to choose a binding, each variable is assigned a member of the domain,
 	starting with all variables paired with the representative with the lowest
@@ -87,19 +86,20 @@
 
 		~\\
 
+		\textbf{should probably move this to an appendix}
+
 		\begin{algorithm}[H]
 		\DontPrintSemicolon
-		\TitleOfAlgo{satisfy :: Model ($\mathbb{M}$) $\to$ Environment ($\lambda$) $\to$ Sentence ($\varphi$) $\to$ [Model]}
+		\TitleOfAlgo{satisfy :: Model ($\mathbb{M}$) $\to$ Environment ($\lambda$) $\to$ Formula ($\varphi$) $\to$ [Model]}
 		return \Switch{$\varphi$}{
 			\lCase{$\top$}{return $\{ \mathbb{M} \}$} \;
 			\lCase{$\bot$}{return $\emptyset$} \;
-			\Case{$x=y$}{
-				let $a=\lambda(x)$ and $b=\lambda(y)$
-				\lIf{$a=b$}{return $\mathbb{M}$} \;
-				let $\mathbb{N}$ be a model where $|\mathbb{N}| = |\mathbb{M}|$ \;
-				\ForEach{fact $R_\mathbb{M}(\vec v)$}{
-					let $\vec \eta = \vec v$ with all references to $b$ replaced with $a$ \;
-					add $R(\vec \eta)$ to $\mathbb{N}$ \;
+			\Case{$x=y$ \tcc*[f]{TODO: add comment here}}{
+				let $a=\lambda(x)$ and $b=\lambda(y)$ \;
+				let $F$ be the facts of $\mathbb{M}$ \;
+				let $\mathbb{N}$ be a model where $|\mathbb{N}| = |\mathbb{M}| - \{b\}$ \;
+				\lForEach{fact $R(\vec v) \in F$}{
+					add $R(\vec{v_{[b \mapsto a]}})$ as a fact in $\mathbb{N}$ \;
 				}
 				return $\mathbb{N}$
 			}
@@ -110,10 +110,6 @@
 					redefine $r$ as $r \cup satisfy(\mathbb{M},\lambda,\beta)$ \;
 				}
 				return $r$ \;
-			}
-			\Case{$\alpha \to \beta$}{
-				\lIf{$\mathbb{M} \models_\lambda \alpha$}{return $satisfy(\mathbb{M},\lambda,\beta)$ \;}
-				\lElse{return $\emptyset$ \;}
 			}
 			\Case{$R(\vec x)$}{
 				define a model $\mathbb{N}$ where $|\mathbb{N}| = |\mathbb{M}| \cup \omega$ and $\omega \not\in |\mathbb{N}|$ to $|\mathbb{N}|$ \;
@@ -139,9 +135,6 @@
 			}
 		}
 		\end{algorithm}
-
-		\textbf{should probably move this to an appendix}
-		\textbf{also, need some rewording help from dd at least for the x=y section}
 
 	\subsection{Input Format}
 
