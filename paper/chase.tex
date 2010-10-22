@@ -202,13 +202,23 @@
 		\begin{chase_lemma}
 			Let $T$ be a geometric theory and $\mathbb{M}$ be a model of $T$.
 			Let $\mathbb{N}$ be a model and suppose there exists a homomorphism
-			$h : |\mathbb{N}| \to |\mathbb{M}|$. If $\mathbb{N}$ fails the test
+			$h : \mathbb{N} \to \mathbb{M}$. If $\mathbb{N}$ fails the test
 			$(\sigma,\lambda)$, there exists a chase step $\mathbb{N}
-			\xrightarrow{(\sigma,\lambda)} \mathbb{N}'$ such that \textbf{... ?}
+			\xrightarrow{(\sigma,\lambda)} \mathbb{N}'$ and a homomorphism $h'
+			: \mathbb{N}' \to \mathbb{M}$.
 		\end{chase_lemma}
 
 		\begin{proof}
-			
+			When $\sigma$ is in the form $E \to \bigvee_i \bigwedge_j
+			R_{ij}(\vec x)$, we know that $\mathbb{M} \models_\lambda \sigma$
+			because $\mathbb{M} \models T$. Therefore, $\mathbb{M} \models
+			\bigwedge_j R_{ij}(\vec x)$ for some disjunct $i$. There exists a
+			chase step $\mathbb{N} \xrightarrow{(\sigma,\lambda)} \mathbb{N}'$
+			that will choose this disjunct. This chase step proceeds normally
+			and generates $\mathbb{N}'$. The homomorphism $h : \mathbb{N} \to
+			\mathbb{M}$ is also a homomorphism from $\mathbb{N}'$ to
+			$\mathbb{M}$ because, for every $R_{\mathbb{N}'}(a_0,\ldots,a_n)$,
+			there exists $R_\mathbb{M}(h(a_0),\ldots,h(a_n))$.
 		\end{proof}
 
 		\begin{theorem}

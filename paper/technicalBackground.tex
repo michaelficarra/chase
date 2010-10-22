@@ -223,21 +223,48 @@
 		\end{theorem}
 
 		\begin{proof}
-			Suppose a positive-existential formula $\sigma$.
+			It suffices to prove the claim about positive-existential sentences
+			by proving the claim for positive-existential \emph{formul{\ae}} by
+			induction over formul{\ae}. Given $\sigma$ is a
+			positive-existential formula, $\mathbb{M}$ is a model, $\lambda :
+			[var] \to |\mathbb{M}|$ is an environment such that $\mathbb{M}
+			\models_\lambda \sigma$, and $h$ is a homomorphism $h :
+			|\mathbb{M}| \to |\mathbb{M}'|$, then we want to show that
+			$\mathbb{M}' \models_{h\circ\lambda} \sigma$.
 
-			When $\sigma$ is an atomic formula $R(x_0,\ldots,x_n)$, 
+			When $\sigma$ is an atomic formula $R(x_0,\ldots,x_n)$, we know
+			that $R(\lambda(x_0),\ldots,\lambda(x_n)) \in \mathbb{M}$ and by the
+			definition of a homomophism,
+			$R((h\circ\lambda)(x_0),\ldots,(h\circ\lambda)(x_n)) \in
+			\mathbb{M}'$.
 
 			When $\sigma$ is $x=y$, 
 
-			When $\sigma$ is $\top$, 
+			When $\sigma$ is $\top$, we know that $\mathbb{M} \models_\lambda
+			\top$ and by the induction hypothesis, $\mathbb{M}'
+			\models_{h\circ\lambda} \top$.
 
-			When $\sigma$ is $\bot$, 
-
-			When $\sigma$ is $\alpha \wedge \beta$, 
+			When $\sigma$ is $\alpha \wedge \beta$, we know that $\mathbb{M}
+			\models_\lambda \alpha$ and by the induction hypothesis
+			$\mathbb{M}' \models_{h\circ\lambda} \alpha$. We also know that
+			$\mathbb{M} \models_\lambda \beta$ and by the induction hypothesis
+			$\mathbb{M}' \models_{h\circ\lambda} \beta$. By the definition of
+			conjunction, because $\mathbb{M}' \models_{h\circ\lambda} \alpha$
+			and $\mathbb{M}' \models_{h\circ\lambda} \beta$, we know that
+			$\mathbb{M}' \models_{h\circ\lambda} \alpha \wedge \beta$.
 
 			When $\sigma$ is $\alpha \vee \beta$, 
 
-			When $\sigma$ is $\exists\ \vec x : \alpha$, 
+			When $\sigma$ is $\exists\ \vec x : \alpha$, we know
+			that $\mathbb{M} \models_\lambda \exists\ x : \alpha$, and want to
+			prove that $\mathbb{M}' \models_{h\circ\lambda} \exists\ x :
+			\alpha$. There is a $\delta \in |\mathbb{M}|$ such that $\mathbb{M}
+			\models_{\lambda[x\mapsto\delta]} \alpha$.
+
+			\textbf{we say something else and finally get to...}
+
+			$\mathbb{M}' \models_{(h\circ\lambda)[x\mapsto h(\delta)]} \alpha$
+
 		\end{proof}
 
 	\subsection{Geometric Logic}

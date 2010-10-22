@@ -96,9 +96,8 @@
 			\lCase{$\bot$}{return $\emptyset$} \;
 			\Case{$x=y$ \tcc*[f]{TODO: add comment here}}{
 				let $a=\lambda(x)$ and $b=\lambda(y)$ \;
-				let $F$ be the facts of $\mathbb{M}$ \;
 				let $\mathbb{N}$ be a model where $|\mathbb{N}| = |\mathbb{M}| - \{b\}$ \;
-				\lForEach{fact $R(\vec v) \in F$}{
+				\lForEach{fact $R(\vec v) \in \mathbb{M}$}{
 					add $R(\vec{v_{[b \mapsto a]}})$ as a fact in $\mathbb{N}$ \;
 				}
 				return $\mathbb{N}$
