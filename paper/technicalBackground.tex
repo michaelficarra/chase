@@ -247,12 +247,24 @@
 
 			When $\sigma$ is an atomic formula $R(x_0,\ldots,x_n)$, we know
 			that $R(\lambda(x_0),\ldots,\lambda(x_n)) \in \mathbb{M}$ and by
-			the definition of a homomophism \[
-			R((h(\lambda(x_0)),\ldots,(h(\lambda(x_n))) \in \mathbb{M}'.  \]
-			That is, \[ R((h\circ\lambda)(x_0),\ldots,(h\circ\lambda)(x_n)) \in
-			\mathbb{M'} , \] as desired.
+			the definition of a homomophism
+				\[
+				R((h(\lambda(x_0)),\ldots,(h(\lambda(x_n))) \in \mathbb{M}'
+				\]
+			That is,
+				\[
+				R((h\circ\lambda)(x_0),\ldots,(h\circ\lambda)(x_n)) \in \mathbb{M'}
+				\]
+			as desired.
 
-			When $\sigma$ is $x=y$, \textbf{I need help here. I thought I could explain this, but I'm having trouble.}
+			When $\sigma$ is $x=y$, we know that $\lambda(x) = \lambda(y)$. If
+			we show that $(h\circ\lambda)(x) = (h\circ\lambda)(y)$, we will
+			know that $\mathbb{M}' \models_{h\circ\lambda} x=y$. Because $h$
+			is a function, it will only return a single value for each input
+			for which it is defined. We know that $\lambda(x) = \lambda(y)$, so
+			$h(\lambda(x))$ must be $h(\lambda(y))$.
+
+			\textbf{this previous paragraph can probably be worded better}
 
 			When $\sigma$ is $\bot$, there exists no $\lambda$ such that
 			$\mathbb{M} \models_\lambda \bot$, so the condition of our claim
@@ -297,7 +309,9 @@
 		\emph{Geometric logic} formul{\ae} are implicitly universally
 		quantified implications between positive existential formul{\ae}. More
 		specifically, a geometric logic formula is of the form
-		\[\forall\ \vec{x} : F_L \to F_R\]
+			\[
+			\forall\ \vec{x} : F_L \to F_R
+			\]
 		where $\vec{x} = free(F_L) \cup free(F_R)$, $free$ is the function that
 		returns the set of all free variables for a given formula, and both
 		$F_L$ and $F_R$ are first-order logic formul{\ae} in positive
@@ -311,21 +325,50 @@
 		convention to treat a negated positive existential formula $\neg\sigma$
 		as $\sigma \to \bot$.
 
-		Examples of geometric logic formul{\ae}:
 
-		\begin{tabular}{lll}
-		\emph{reflexivity}   & \qquad & $\top \to R(x,x)$                  \\
-		\emph{symmetry}      & \qquad & $R(x,y) \to R(y,x)$                \\
-		\emph{asymmetry}     & \qquad & $R(x,y) \wedge R(y,x) \to \bot$    \\
-		\emph{serial}        & \qquad & $\top \to \exists\ y : R(x,y)$     \\
-		\emph{totality}      & \qquad & $\top \to R(x,y) \vee R(y,x)$      \\
-		\emph{transitivity}  & \qquad & $R(x,y) \wedge R(y,z) \to R(x,z)$
-		\end{tabular}
+		\subsubsection{Examples}
 
-		Negation of a relation $R$ with arity $k$ can be implemented by
-		introducing another relation $R'$ with arity $k$, adding two
-		formul{\ae} of the form $R \wedge R' \to \bot$ and $\top \to R \vee
-		R'$, and using $R'$ where $\neg R$ would be used. Constant symbols can
-		be encoded as relations with an arity of zero, for example $C()$. A
-		function $f(x,y)$ can be encoded as the geometric logic formula
-		$F(x,y,z1) \wedge F(x,y,z2) -> z1 = z2$.
+			\begin{tabular}{lll}
+			\emph{reflexivity}   & \qquad & $\top \to R(x,x)$                  \\
+			\emph{symmetry}      & \qquad & $R(x,y) \to R(y,x)$                \\
+			\emph{asymmetry}     & \qquad & $R(x,y) \wedge R(y,x) \to \bot$    \\
+			\emph{serial}        & \qquad & $\top \to \exists\ y : R(x,y)$     \\
+			\emph{totality}      & \qquad & $\top \to R(x,y) \vee R(y,x)$      \\
+			\emph{transitivity}  & \qquad & $R(x,y) \wedge R(y,z) \to R(x,z)$
+			\end{tabular}
+
+		\subsection{Useful Equivalences}
+		\label{sec:technical_background.geometric_logic.useful_equivalences}
+
+			\begin{itemize}
+			\item
+			Equality can be encoded as the two relations
+				\begin{eqnarray*}
+				EQ(x,y)                & \to & EQ(y,x)  \\
+				EQ(x,y) \wedge EQ(y,z) & \to & EQ(x,z)
+				\end{eqnarray*}
+			along with, for each relation symbol $P$ in the vocabulary and each
+			of its variables $\vec x$, a relation of the form $P(x_0) \wedge
+			EQ(x_0,z) \to P(z)$. For example, the relation $P$ with arity $2$
+			would require the following rules.
+				\begin{eqnarray*}
+				P(x,y) \wedge EQ(x,z) & \to & P(z,y)  \\
+				P(x,y) \wedge EQ(y,z) & \to & P(x,z)
+				\end{eqnarray*}
+
+			\item
+			Negation of a relation $R$ with arity $k$ can be used in
+			positive-existential formul{\ae} by introducing another relation
+			$R'$ with arity $k$, adding two formul{\ae} of the form $R \wedge
+			R' \to \bot$ and $\top \to R \vee R'$, and using $R'$ where $\neg
+			R$ would be used.
+
+			\item
+			Constant symbols can be encoded as relations with an arity of zero.
+			For example, the constant $C$ can be represented by the relation
+			$C()$.
+
+			\item
+			A function $f(x,y)$ can be encoded as the geometric logic formula
+			$F(x,y,z1) \wedge F(x,y,z2) -> z1 = z2$.
+			\end{itemize}

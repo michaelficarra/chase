@@ -47,7 +47,9 @@
 		\end{itemize}
 		For simplicity, we describe the chase assuming each sentence of the
 		input theory is of the form
-		\[\delta_0 \vee\ldots\vee \delta_n \to \gamma_0 \vee\ldots\vee \gamma_k\}\]
+			\[
+			\delta_0 \vee\ldots\vee \delta_n \to \gamma_0 \vee\ldots\vee \gamma_k\}
+			\]
 		where each $\delta_i$ and $\gamma_j$ are ECAs. The chase can take this
 		form as input without loss of generality. In other words, a logical
 		equivalent to any legal chase input theory can be expressed in a way
@@ -65,7 +67,7 @@
 		choose some disjunct $e \equiv \exists\ x_0,\ldots,x_p : c_0(\vec{a_0}) \wedge\ldots\wedge c_n(\vec{a_n})$ of $\beta$ \;
 		add new elements $d_0 \ldots d_p$ to $|\mathbb{M}|$ \;
 		define $\theta$ as $\lambda_{[x_0 \mapsto d_0 , \ldots , x_p \mapsto d_p]}$ \;
-		add each of the facts $\{c_i(\theta\vec{a_j}) | 0 \le i \le n \}$ to $\mathbb{M}$ \;
+		add each of the facts $\{c_i(\theta\vec{a_j}) \mid 0 \le i \le n \}$ to $\mathbb{M}$ \;
 		return $\mathbb{M}$ \;
 		\end{algorithm}
 
@@ -116,8 +118,8 @@
 		\item A non-empty result in finite time:
 
 			\begin{tabular}{lllllll}
-				$\emptyset$ & $\mapsto$ & \{ & $a,b$   & $|$ & $R(a,b)$         & \} \\
-				{}          & $\mapsto$ & \{ & $a,b,c$ & $|$ & $R(a,b), Q(a,c)$ & \}
+				$\emptyset$ & $\mapsto$ & \{ & $a,b$   & $\mid$ & $R(a,b)$         & \} \\
+				{}          & $\mapsto$ & \{ & $a,b,c$ & $\mid$ & $R(a,b), Q(a,c)$ & \}
 			\end{tabular}
 
 			Since the left side of \eqref{eqn:chase1} is always satisfied, but
@@ -134,9 +136,9 @@
 		\item An empty result in finite time:
 
 			\begin{tabular}{lllllll}
-				$\emptyset$ & $\mapsto$ & \{ & $a,b$   & $|$ & $R(a,b)$               & \} \\
-				{}          & $\mapsto$ & \{ & $a,b,c$ & $|$ & $R(a,b), P(a,c)$       & \} \\
-				{}          & $\mapsto$ & \{ & $a,b,c$ & $|$ & $R(a,b), P(a,c), \bot$ & \} \\
+				$\emptyset$ & $\mapsto$ & \{ & $a,b$   & $\mid$ & $R(a,b)$               & \} \\
+				{}          & $\mapsto$ & \{ & $a,b,c$ & $\mid$ & $R(a,b), P(a,c)$       & \} \\
+				{}          & $\mapsto$ & \{ & $a,b,c$ & $\mid$ & $R(a,b), P(a,c), \bot$ & \} \\
 				{}          & $\mapsto$ & \multicolumn{5}{l}{ $\varepsilon$ }
 			\end{tabular}
 
@@ -154,11 +156,11 @@
 		\item An infinite run:
 
 			\begin{tabular}{lllllll}
-				$\emptyset$ & $\mapsto$ & \{ & $a,b$        & $|$ & $R(a,b)$                                 & \} \\
-				{}          & $\mapsto$ & \{ & $a,b,c$      & $|$ & $R(a,b), Q(a,c)$                         & \} \\
-				{}          & $\mapsto$ & \{ & $a,\ldots,d$ & $|$ & $R(a,b), Q(a,c), R(d,c)$                 & \} \\
-				{}          & $\mapsto$ & \{ & $a,\ldots,e$ & $|$ & $R(a,b), Q(a,c), R(d,c), Q(d,e)$         & \} \\
-				{}          & $\mapsto$ & \{ & $a,\ldots,f$ & $|$ & $R(a,b), Q(a,c), R(d,c), Q(d,e), R(f,e)$ & \} \\
+				$\emptyset$ & $\mapsto$ & \{ & $a,b$        & $\mid$ & $R(a,b)$                                 & \} \\
+				{}          & $\mapsto$ & \{ & $a,b,c$      & $\mid$ & $R(a,b), Q(a,c)$                         & \} \\
+				{}          & $\mapsto$ & \{ & $a,\ldots,d$ & $\mid$ & $R(a,b), Q(a,c), R(d,c)$                 & \} \\
+				{}          & $\mapsto$ & \{ & $a,\ldots,e$ & $\mid$ & $R(a,b), Q(a,c), R(d,c), Q(d,e)$         & \} \\
+				{}          & $\mapsto$ & \{ & $a,\ldots,f$ & $\mid$ & $R(a,b), Q(a,c), R(d,c), Q(d,e), R(f,e)$ & \} \\
 				{}          & $\mapsto$ & \multicolumn{5}{l}{ $\ldots$ }
 			\end{tabular}
 
@@ -177,9 +179,7 @@
 
 		\end{enumerate}
 
-	\subsection{Properties of the Chase}
-
-		\textbf{we REALLY need a better section title than this}
+	\subsection{Foundations}
 
 		%\begin{theorem}
 		%	A geometric theory $T$ is satisfiable if and only if either there
@@ -192,23 +192,46 @@
 
 		\label{fairness_definition}
 		\begin{description}
-		\item [Fairness] A deterministic realization of the chase algorithm
-		(the pairing of the nondeterministic chase algorithm with an evaluation
-		strategy) is \emph{fair} if the scheduler would not allow for a (rule,
-		binding) \textbf{(syntax?)} pair to go unevaluated during an infinite run.
+		\item [Fairness] Intuitively, a deterministic realization of the chase
+		algorithm (the pairing of the nondeterministic chase algorithm with an
+		evaluation strategy) is \emph{fair} if the scheduler would not allow
+		for a (rule, binding) \textbf{(syntax?)} pair to go unevaluated during
+		an infinite run. The formal definition is below.
 		\end{description}
 
-		\textbf{I used to think this was an unfavorable fairness description, but I really like it now. Is it good enough to stay?}
+		\begin{definition}
+		Let $T$ be a geometric theory, and let
+			\[
+			\rho \quad = \quad \mathbb{F}_0 \xrightarrow{(\sigma_0,\lambda_0)}
+			\mathbb{F}_1 \xrightarrow{(\sigma_1,\lambda_1)} % \mathbb{F}_1
+			\cdots \mathbb{F}_{i} \xrightarrow{(\sigma_i,\lambda_i)}
+			\mathbb{F}_{i+1} \xrightarrow{(\sigma_{i+1},\lambda_{i+1)}} \cdots
+			\]
+			%    $\rho = <s_1, s_2, \dots>$
+		be an infinite run of the chase starting with a model $\mathbb{F}_0$
+		having an empty set of facts.
 
-		\newtheorem{chase_lemma}{Lemma}
-		\begin{chase_lemma}
+		Let $C$ be the set of domain elements that occur anywhere in the chase;
+		that is,
+			\[
+			C = \bigcup \{ | \mathbb{F}_{i} | \mid 0 \leq i < \infty \}
+			\]
+
+		We say that $\rho$ is \emph{fair} if for every pair $(\sigma,\lambda)$
+		where $\sigma \in T$, $\lambda$ is an environment over $C$, and
+		$\mathbb{F}_i \not\models_{\lambda} \sigma$, then there exists $j$ such
+		that $i \leq j$ and $(\sigma,\lambda)$ is $(\sigma_j,\lambda_j)$.
+		\end{definition}
+
+		\begin{lemma}
 			Let $T$ be a geometric theory and $\mathbb{M}$ be a model of $T$.
 			Let $\mathbb{N}$ be a model and suppose there exists a homomorphism
 			$h : \mathbb{N} \to \mathbb{M}$. If $\mathbb{N}$ fails the test
 			$(\sigma,\lambda)$, there exists a chase step $\mathbb{N}
 			\xrightarrow{(\sigma,\lambda)} \mathbb{N}'$ and a homomorphism $h'
 			: \mathbb{N}' \to \mathbb{M}$.
-		\end{chase_lemma}
+		\end{lemma}
+
 		\begin{proof}
 
 %		[yours]
@@ -252,7 +275,9 @@
 %		[real thing]
 
 			Suppose $\sigma$ is in the form
-				\[E(\vec{x}) \to \bigvee_i F_i(\vec{x})\]
+				\[
+				E(\vec{x}) \to \bigvee_i F_i(\vec{x})
+				\]
 
 			Since $\mathbb{N} \not\models_\lambda \sigma$, we know $\mathbb{N}
 			\models_\lambda E(\vec{x})$ while $\mathbb{N} \not\models_\lambda
@@ -263,8 +288,6 @@
 			$i$. There exists a chase step $\mathbb{N}
 			\xrightarrow{(\sigma,\lambda)} \mathbb{N}'$ that will choose this
 			disjunct.
-
-			[@@ HERE!] \textbf{something important was supposed to be here, but I forgot what it was}
 
 			In case $F_i(\vec x)$ is of the form $\bigwedge_j R_{ij}(\vec x)$
 			the chase step generates $\mathbb{N}'$ by adding the facts
@@ -278,7 +301,11 @@
 			$\mathbb{M} \models_{h\circ\lambda} F_i(\vec{x})$.
 
 			In case $F_i$ is of the form $\exists \vec{y} : \bigwedge_j
-			R_{ij}(\vec x)$ \textbf{(should this be $R_{ij}(\vec y)$)} \ldots
+			R_{ij}(\vec x,\vec y)$ \ldots
+
+			In case $F_i$ contains equality, we can treat all equalities in
+			$F_i$ as if they were in the relational form mentioned in section
+			\ref{sec:technical_background.geometric_logic.useful_equivalences}.
 		\end{proof}
 
 		\begin{theorem}
