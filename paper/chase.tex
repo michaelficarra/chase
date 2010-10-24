@@ -48,7 +48,7 @@
 		For simplicity, we describe the chase assuming each sentence of the
 		input theory is of the form
 		\[\delta_0 \vee\ldots\vee \delta_n \to \gamma_0 \vee\ldots\vee \gamma_k\}\]
-		where each $\delta_i$ and $\gamma_j$ are ECAs.  The chase can take this
+		where each $\delta_i$ and $\gamma_j$ are ECAs. The chase can take this
 		form as input without loss of generality. In other words, a logical
 		equivalent to any legal chase input theory can be expressed in a way
 		that respects these constraints.
@@ -179,6 +179,8 @@
 
 	\subsection{Properties of the Chase}
 
+		\textbf{we REALLY need a better section title than this}
+
 		%\begin{theorem}
 		%	A geometric theory $T$ is satisfiable if and only if either there
 		%	exists an infinite fair chase run of $T$ or there exists a
@@ -191,12 +193,12 @@
 		\label{fairness_definition}
 		\begin{description}
 		\item [Fairness] A deterministic realization of the chase algorithm
-		(the pair of the chase and an evaluation strategy) is \emph{fair} if
-		there is no opportunity for a rule, binding, or \textbf{...} to go
-		unevaluated during an infinite run.
+		(the pairing of the nondeterministic chase algorithm with an evaluation
+		strategy) is \emph{fair} if the scheduler would not allow for a (rule,
+		binding) \textbf{(syntax?)} pair to go unevaluated during an infinite run.
 		\end{description}
 
-		\textbf{this is an unclear description and should be reworded with help from dd}
+		\textbf{I used to think this was an unfavorable fairness description, but I really like it now. Is it good enough to stay?}
 
 		\newtheorem{chase_lemma}{Lemma}
 		\begin{chase_lemma}
@@ -207,28 +209,87 @@
 			\xrightarrow{(\sigma,\lambda)} \mathbb{N}'$ and a homomorphism $h'
 			: \mathbb{N}' \to \mathbb{M}$.
 		\end{chase_lemma}
-
 		\begin{proof}
-			When $\sigma$ is in the form $E \to \bigvee_i \bigwedge_j
-			R_{ij}(\vec x)$, we know that $\mathbb{M} \models_\lambda \sigma$
-			because $\mathbb{M} \models T$. Therefore, $\mathbb{M} \models
-			\bigwedge_j R_{ij}(\vec x)$ for some disjunct $i$. There exists a
-			chase step $\mathbb{N} \xrightarrow{(\sigma,\lambda)} \mathbb{N}'$
-			that will choose this disjunct. This chase step proceeds normally
-			and generates $\mathbb{N}'$. The homomorphism $h : \mathbb{N} \to
-			\mathbb{M}$ is also a homomorphism from $\mathbb{N}'$ to
-			$\mathbb{M}$ because, for every $R_{\mathbb{N}'}(a_0,\ldots,a_n)$,
-			there exists $R_\mathbb{M}(h(a_0),\ldots,h(a_n))$.
+
+%		[yours]
+%
+%			When $\sigma$ is in the form $E \to \bigvee_i \bigwedge_j R_{ij}(\vec
+%			x)$, we know that $\mathbb{M} \models_\lambda \sigma$ because
+%			$\mathbb{M} \models T$. Therefore, $\mathbb{M} \models \bigwedge_j
+%			R_{ij}(\vec x)$ for some disjunct $i$. There exists a chase step
+%			$\mathbb{N} \xrightarrow{(\sigma,\lambda)} \mathbb{N}'$ that will
+%			choose this disjunct. This chase step proceeds normally and generates
+%			$\mathbb{N}'$. The homomorphism $h : \mathbb{N} \to \mathbb{M}$ is also
+%			a homomorphism from $\mathbb{N}'$ to $\mathbb{M}$ because, for every
+%			$R_{\mathbb{N}'}(a_0,\ldots,a_n)$, there exists
+%			$R_\mathbb{M}(h(a_0),\ldots,h(a_n))$.
+%
+%		[my first]
+%
+%			Suppose $\sigma$ is in the form $E(\vec{x}) \to \bigvee_i
+%			\bigwedge_j R_{ij}(\vec x)$. Since $\sigma$ is false in
+%			$\mathbb{N}$ under $\lambda$, we have $\mathbb{N} \models
+%			E(\vec{x})$ under $\lambda$ while $\mathbb{N} \not\models
+%			\bigvee_i \bigwedge_j R_{ij}(\vec x)$ under $\lambda$. Since $h$
+%			is a homomorphism, $\mathbb{M} \models E(\vec{x})$ under $h \circ
+%			\lambda$. Since $M \models \sigma$ under $h \circ \lambda$, we
+%			have $\mathbb{M} \models \bigvee_i \bigwedge_j R_{ij}(\vec x)$
+%			under $h \circ \lambda$. Therefore, $\mathbb{M} \models
+%			\bigwedge_j R_{ij}(\vec x)$ under $h \circ \lambda$ for some
+%			disjunct $i$. There exists a chase step $\mathbb{N}
+%			\xrightarrow{(\sigma,\lambda)} \mathbb{N}'$ that will choose this
+%			disjunct. This chase step proceeds normally and generates
+%			$\mathbb{N}'$, by adding the facts $R_{ij}(\lambda(\vec{x}))$ for
+%			each $j$. To see that $h : \mathbb{N} \to \mathbb{M}$ is also a
+%			homomorphism from $\mathbb{N}'$ to $\mathbb{M}$ it suffices to see
+%			that each of the new facts added to $\mathbb{N}'$ is preserved, by
+%			$h$, in $\mathbb{M}$. That is, we want to see that for each $j$,
+%			the fact $R_{ij}(h(\lambda(x_0)),\ldots,h(\lambda(x_n))$ holds in
+%			$\mathbb{M}$. But this follows from our earlier observation that
+%			$\mathbb{M} \models \bigwedge_j R_{ij}(\vec x)$ under $h \circ
+%			\lambda$.
+%
+%		[real thing]
+
+			Suppose $\sigma$ is in the form
+				\[E(\vec{x}) \to \bigvee_i F_i(\vec{x})\]
+
+			Since $\mathbb{N} \not\models_\lambda \sigma$, we know $\mathbb{N}
+			\models_\lambda E(\vec{x})$ while $\mathbb{N} \not\models_\lambda
+			\bigvee_i F_i(\vec{x})$. Since $h$ is a homomorphism, $\mathbb{M}
+			\models_{h\circ\lambda} E(\vec{x})$. Since $M
+			\models_{h\circ\lambda} \sigma$, we have $\mathbb{M}
+			\models_{h\circ\lambda} \bigvee_i F_i(\vec{x})$ for some disjunct
+			$i$. There exists a chase step $\mathbb{N}
+			\xrightarrow{(\sigma,\lambda)} \mathbb{N}'$ that will choose this
+			disjunct.
+
+			[@@ HERE!] \textbf{something important was supposed to be here, but I forgot what it was}
+
+			In case $F_i(\vec x)$ is of the form $\bigwedge_j R_{ij}(\vec x)$
+			the chase step generates $\mathbb{N}'$ by adding the facts
+			$R_{ij}(\lambda(\vec{x}))$ for each $j$. To see that $h :
+			\mathbb{N} \to \mathbb{M}$ is also a homomorphism from
+			$\mathbb{N}'$ to $\mathbb{M}$ it suffices to see that each of the
+			new facts added to $\mathbb{N}'$ is preserved, by $h$, in
+			$\mathbb{M}$. That is, we want to see that for each $j$, the fact
+			$R_{ij}(h(\lambda(x_0)),\ldots,h(\lambda(x_n))$ holds in
+			$\mathbb{M}$. But this follows from our earlier observation that
+			$\mathbb{M} \models_{h\circ\lambda} F_i(\vec{x})$.
+
+			In case $F_i$ is of the form $\exists \vec{y} : \bigwedge_j
+			R_{ij}(\vec x)$ \textbf{(should this be $R_{ij}(\vec y)$)} \ldots
 		\end{proof}
 
 		\begin{theorem}
-			%Let $T$ be a geometric theory. For any model $\mathbb{M}$ such that
-			%$\mathbb{M} \models T$, there exists a run of the chase that
-			%returns a model $\mathbb{N}$ such that $\mathbb{N} \models T$ and
-			%$\mathbb{N} \preceq \mathbb{M}$.
-			One can schedule the choices made in the chase algorithm in such a
-			way that, in a case where the chase will never terminate,
-			\textbf{... ?}
+			Let $T$ be a geometric theory. For any model $\mathbb{M}$ such that
+			$\mathbb{M} \models T$, there exists a run of the chase that
+			returns a model $\mathbb{N}$ such that $\mathbb{N} \models T$ and
+			$\mathbb{N} \preceq \mathbb{M}$.
+
+			% One can schedule the choices made in the chase algorithm in such a
+			% way that, in a case where the chase will never terminate,
+			% \textbf{... ?}
 		\end{theorem}
 
 		\begin{proof}
@@ -257,3 +318,8 @@
 		The definition of the chase algorithm used by Fagin et. al. is similar
 		to the one defined in section \ref{sec:chase.algorithm} in all ways
 		except that it does not have to choose a disjunct.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End: 

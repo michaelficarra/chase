@@ -217,28 +217,46 @@
 		($\bot$), equalities, and relations.
 
 		\begin{theorem}
+			\label{pef_theorem}
 			The set of models of a sentence $\sigma$ is closed under homomorphisms
 			if and only if $\sigma$ is logically equivalent to a positive
 			existential formula $\varphi$.
 		\end{theorem}
 
 		\begin{proof}
-			It suffices to prove the claim about positive-existential sentences
-			by proving the claim for positive-existential \emph{formul{\ae}} by
-			induction over formul{\ae}. Given $\sigma$ is a
-			positive-existential formula, $\mathbb{M}$ is a model, $\lambda :
-			[var] \to |\mathbb{M}|$ is an environment such that $\mathbb{M}
-			\models_\lambda \sigma$, and $h$ is a homomorphism $h :
-			|\mathbb{M}| \to |\mathbb{M}'|$, then we want to show that
-			$\mathbb{M}' \models_{h\circ\lambda} \sigma$.
+			This is a well-known classical result in model theory. See
+			\cite{ChangKeisler73}, section 5.2 for an example.
+
+			We will only use one direction of Theorem \ref{pef_theorem}: the
+			fact that if a sentence is in positive-existential form then it is
+			closed under homomorphisms. To keep this paper self-contained, we
+			provide here a proof of this fact.
+
+			It suffices to prove the following, more general, claim for
+			positive-existential \emph{formul{\ae}}.
+
+			\begin{quote}
+				If $\sigma$ is a positive-existential formula, $\mathbb{M}$ is
+				a model, $\lambda : [var] \to |\mathbb{M}|$ is an environment
+				such that $\mathbb{M} \models_\lambda \sigma$, and $h$ is a
+				homomorphism $h : |\mathbb{M}| \to |\mathbb{M}'|$, then
+				$\mathbb{M}' \models_{h\circ\lambda} \sigma$.
+			\end{quote}
+
+			We prove this by induction over formul{\ae}.
 
 			When $\sigma$ is an atomic formula $R(x_0,\ldots,x_n)$, we know
-			that $R(\lambda(x_0),\ldots,\lambda(x_n)) \in \mathbb{M}$ and by the
-			definition of a homomophism,
-			$R((h\circ\lambda)(x_0),\ldots,(h\circ\lambda)(x_n)) \in
-			\mathbb{M}'$.
+			that $R(\lambda(x_0),\ldots,\lambda(x_n)) \in \mathbb{M}$ and by
+			the definition of a homomophism \[
+			R((h(\lambda(x_0)),\ldots,(h(\lambda(x_n))) \in \mathbb{M}'.  \]
+			That is, \[ R((h\circ\lambda)(x_0),\ldots,(h\circ\lambda)(x_n)) \in
+			\mathbb{M'} , \] as desired.
 
-			When $\sigma$ is $x=y$, 
+			When $\sigma$ is $x=y$, \textbf{I need help here. I thought I could explain this, but I'm having trouble.}
+
+			When $\sigma$ is $\bot$, there exists no $\lambda$ such that
+			$\mathbb{M} \models_\lambda \bot$, so the condition of our claim
+			never holds, which causes our claim to always hold.
 
 			When $\sigma$ is $\top$, we know that $\mathbb{M} \models_\lambda
 			\top$ and by the induction hypothesis, $\mathbb{M}'
@@ -253,17 +271,23 @@
 			and $\mathbb{M}' \models_{h\circ\lambda} \beta$, we know that
 			$\mathbb{M}' \models_{h\circ\lambda} \alpha \wedge \beta$.
 
-			When $\sigma$ is $\alpha \vee \beta$, 
+			When $\sigma$ is $\alpha \vee \beta$, we know that if $\mathbb{M}
+			\models_\lambda \alpha$, by the induction hypothesis $\mathbb{M}'
+			\models_{h\circ\lambda} \alpha$. We also know that if $\mathbb{M}
+			\models_\lambda \beta$, by the induction hypothesis $\mathbb{M}'
+			\models_{h\circ\lambda} \beta$. By the definition of disjunction,
+			because $\mathbb{M}' \models_{h\circ\lambda} \alpha$ or
+			$\mathbb{M}' \models_{h\circ\lambda} \beta$, we know that
+			$\mathbb{M}' \models_{h\circ\lambda} \alpha \vee \beta$.
 
-			When $\sigma$ is $\exists\ \vec x : \alpha$, we know
-			that $\mathbb{M} \models_\lambda \exists\ x : \alpha$, and want to
-			prove that $\mathbb{M}' \models_{h\circ\lambda} \exists\ x :
-			\alpha$. There is a $\delta \in |\mathbb{M}|$ such that $\mathbb{M}
-			\models_{\lambda[x\mapsto\delta]} \alpha$.
-
-			\textbf{we say something else and finally get to...}
-
-			$\mathbb{M}' \models_{(h\circ\lambda)[x\mapsto h(\delta)]} \alpha$
+			When $\sigma$ is $\exists\ \vec x : \alpha$, we know that
+			$\mathbb{M} \models_\lambda \exists\ x : \alpha$, and want to prove
+			that $\mathbb{M}' \models_{h\circ\lambda} \exists\ x : \alpha$.
+			There is a $d \in |\mathbb{M}|$ such that $\mathbb{M}
+			\models_{\lambda[x\mapsto d]} \alpha$.  By our induction
+			hypothesis, $\mathbb{M}' \models_{h\circ(\lambda[x\mapsto h(d)])}
+			\alpha$. This is equivalent to $\mathbb{M}'
+			\models_{(h\circ\lambda)[x\mapsto h(d)]} \alpha$.
 
 		\end{proof}
 
