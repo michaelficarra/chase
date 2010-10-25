@@ -1,11 +1,7 @@
 module Chase where
 import Parser
 import Helpers
-import qualified Debug.Trace
 import Data.List
-
--- trace x = id
-trace = Debug.Trace.trace
 
 verify :: Formula -> Formula
 -- verifies that a formula is in positive existential form and performs some
@@ -40,7 +36,7 @@ chase theory = nub $ chase' (order $ map verify theory) [([],[])]
 chase' :: [Formula] -> [Model] -> [Model]
 -- runs the chase algorithm on a given theory, manipulating the given list of
 -- models, and returning a list of models that satisfy the theory
-chase' _ [] = trace "  but it is impossible to make the model satisfy the theory by adding to it" []
+chase' _ [] = []
 chase' theory pending = concatMap (branch theory) pending
 
 branch :: [Formula] -> Model -> [Model]
@@ -50,14 +46,13 @@ branch :: [Formula] -> Model -> [Model]
 --   returns the given model
 branch theory model =
 	let reBranch = chase' theory in
-	trace ("running chase on " ++ show model) $
+	-- run chase on `model`
 	case findFirstFailure model theory of
 		Just newModels ->
-			trace ("  at least one formula does not hold for model " ++ showModel model) $
+			-- at least one formula does not hold for `model`
 			reBranch newModels
 		Nothing -> -- represents no failures
-			trace ("all formulae in theory hold for current model") $
-			trace ("returning model " ++ showModel model) $
+			-- all formulae in theory hold for current model, return it
 			[model]
 
 findFirstFailure :: Model -> [Formula] -> Maybe [Model]
@@ -67,7 +62,7 @@ findFirstFailure model [] = Nothing -- no failure found
 findFirstFailure model@(domain,relations) (f:ormulae) =
 	let self = findFirstFailure model in
 	let bindings = allBindings (freeVariables f) domain [] in
-	trace ("  checking formula: (v:" ++ show (length$variables f) ++ ") (fv:" ++ show (length$freeVariables f) ++ ") " ++ show f) $
+	-- check formula `f`
 	if holds model (UniversalQuantifier (freeVariables f) f) then self ormulae
 	else Just $ findFirstBindingFailure model f bindings
 
@@ -79,14 +74,14 @@ findFirstBindingFailure model formula@(Implication a b) (e:es) =
 	let self = findFirstBindingFailure model formula in
 	if holds' model e formula then self es
 	else
-		trace ("  attempting to satisfy (" ++ show b ++ ") with env " ++ show e) $
+		-- attempt to satisfy RHS `b` with binding `e`
 		satisfy model e b
 
 satisfy :: Model -> Environment -> Formula -> [Model]
 -- alter the given model to satisfy the given formula under the given environment
 satisfy model env formula =
 	let (domain,relations) = model in
-	let domainSize = length domain in
+	let domainSize = fromIntegral $ length domain in
 	let self = satisfy model in
 	case formula of
 		Tautology -> [model]
@@ -95,23 +90,29 @@ satisfy model env formula =
 		And a b -> concatMap (\m -> satisfy m env b) (self env a)
 		Equality v1 v2 -> case (lookup v1 env,lookup v2 env) of
 			(Just v1, Just v2) -> [quotient model v1 v2]
-			_ -> error("Could not look up one of \"" ++ show v2 ++ "\" or \"" ++ show v2 ++ "\" in environment")
+			_ -> error("environment lookup error")
 		Atomic predicate vars ->
-			let newRelationArgs = genNewRelationArgs env vars (fromIntegral (length domain)) in
+			let newRelationArgs = genNewRelationArgs env vars domainSize in
 			let newRelation = mkRelation predicate (length vars) [newRelationArgs] in
-			let newModel = mkModel (mkDomain domainSize) (mergeRelation newRelation relations) in
-			trace ("    adding new relation: " ++ show newRelation) $
+			let newDomain = mkDomain domainSize in
+			let newRelations = mergeRelation newRelation relations in
+			let newModel = mkModel newDomain newRelations in
+			-- add new relation `newRelation` to `model`
 			[newModel]
 		ExistentialQuantifier [] f -> self env f
 		ExistentialQuantifier (v:vs) f ->
 			let f' = ExistentialQuantifier vs f in
+			let modelHoldsIn = \d -> holds' model (hashSet env v d) f' in
 			let nextDomainMember = fromIntegral $ (length domain) + 1 in
-			if (domain /= []) && (any (\d -> holds' model (hashSet env v d) f') domain) then
-				trace ("    " ++ show formula ++ " already holds") $
+			let newModel = mkModel (mkDomain nextDomainMember) relations in
+			let newEnvironment = hashSet env v nextDomainMember in
+			if (domain /= []) && any modelHoldsIn domain then
+				-- `formula` already holds
 				[model]
 			else
-				trace ("    adding new domain element " ++ show nextDomainMember ++ " for variable " ++ (show v)) $
-				satisfy (mkDomain nextDomainMember,relations) (hashSet env v nextDomainMember) f'
+				-- add new domain member `nextDomainMember` for variable `v`
+				-- and expand domain of model to `nextDomainMember` in length
+				satisfy newModel newEnvironment f'
 		_ -> error ("formula not in positive existential form: " ++ show formula)
 
 genNewRelationArgs :: Environment -> [Variable] -> DomainMember -> [DomainMember]

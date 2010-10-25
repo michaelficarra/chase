@@ -81,59 +81,8 @@
 		\emph{pending} list and returned.
 
 		The {\tt satisfy} function performs a pattern match on the type of
-		formula given. {\tt satisfy} will behave as outlined in the following
-		algorithm.
-
-		~\\
-
-		\textbf{should probably move this to an appendix}
-
-		\begin{algorithm}[H]
-		\DontPrintSemicolon
-		\TitleOfAlgo{satisfy :: Model ($\mathbb{M}$) $\to$ Environment ($\lambda$) $\to$ Formula ($\varphi$) $\to$ [Model]}
-		return \Switch{$\varphi$}{
-			\lCase{$\top$}{return $\{ \mathbb{M} \}$} \;
-			\lCase{$\bot$}{return $\emptyset$} \;
-			\Case{$x=y$ \tcc*[f]{TODO: add comment here}}{
-				let $a=\lambda(x)$ and $b=\lambda(y)$ \;
-				let $\mathbb{N}$ be a model where $|\mathbb{N}| = |\mathbb{M}| - \{b\}$ \;
-				\lForEach{fact $R(\vec v) \in \mathbb{M}$}{
-					add $R(\vec{v_{[b \mapsto a]}})$ as a fact in $\mathbb{N}$ \;
-				}
-				return $\mathbb{N}$
-			}
-			\lCase{$\alpha \vee \beta$}{return $satisfy(\mathbb{M},\lambda,\alpha) \cup satisfy(\mathbb{M},\lambda,\beta)$} \;
-			\Case{$\alpha \wedge \beta$}{
-				let $r = \emptyset$ \;
-				\ForAll{models $m \in satisfy(\mathbb{M},\lambda,\alpha)$}{
-					redefine $r$ as $r \cup satisfy(\mathbb{M},\lambda,\beta)$ \;
-				}
-				return $r$ \;
-			}
-			\Case{$R(\vec x)$}{
-				define a model $\mathbb{N}$ where $|\mathbb{N}| = |\mathbb{M}| \cup \omega$ and $\omega \not\in |\mathbb{N}|$ to $|\mathbb{N}|$ \;
-				\lForEach{$P_\mathbb{M}$}{$P_\mathbb{N} = P_\mathbb{M}$ \;}
-				\ForAll{$v \in \vec x$}{
-					\lIf{$v \not\in \lambda$}{
-						redefine $\lambda$ as $\lambda_{v \mapsto \omega}$ \;
-					}
-				}
-				define $R_{\mathbb{N}}$ as $R_{\mathbb{M}}(\lambda(x_0) \ldots \lambda(x_n))$ \;
-				return $\{ \mathbb{N} \}$ \;
-			}
-			\Case{$\exists\ \vec x : \alpha$}{
-				\lIf{$\vec x = \emptyset$}{ return $satisfy(\mathbb{M},\lambda,\alpha)$ } \;
-				\eIf{$|\mathbb{M}| \ne \emptyset$ and $\exists\ v' \in |\mathbb{M}|$ such that $\lambda' = \lambda_{x_0 \mapsto v'}$ and $\mathbb{M} \models_{\lambda'} \alpha$}{
-					return $\{ \mathbb{M} \}$ \;
-				}{
-					define a model $\mathbb{N}$ where $|\mathbb{N}| = |\mathbb{M}| \cup \omega$ and $\omega \not\in |\mathbb{N}|$ to $|\mathbb{N}|$ \;
-					\lForEach{$R_\mathbb{M}$}{$R_\mathbb{N} = R_\mathbb{M}$ \;}
-					define $\kappa = \lambda_{x_0 \mapsto \omega}$ \;
-					return $satisfy(\mathbb{N},\kappa,\exists\ \{x_1 \ldots x_n\} : \alpha)$ \;
-				}
-			}
-		}
-		\end{algorithm}
+		formula given. {\tt satisfy} will behave as outlined in the algorithm
+		which can be found in Appendix \ref{sec:appendix_satisfy}.
 
 	\subsection{Input Format}
 
