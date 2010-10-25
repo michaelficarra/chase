@@ -201,15 +201,14 @@
 
 		\begin{definition}
 		Let $T$ be a geometric theory, and let
+			% $\rho = <s_1, s_2, \ldots>$
 			\[
 			\rho \quad = \quad \mathbb{F}_0 \xrightarrow{(\sigma_0,\lambda_0)}
 			\mathbb{F}_1 \xrightarrow{(\sigma_1,\lambda_1)} % \mathbb{F}_1
 			\cdots \mathbb{F}_{i} \xrightarrow{(\sigma_i,\lambda_i)}
-			\mathbb{F}_{i+1} \xrightarrow{(\sigma_{i+1},\lambda_{i+1)}} \cdots
+			\mathbb{F}_{i+1} \xrightarrow{(\sigma_{i+1},\lambda_{i+1})} \cdots
 			\]
-			%    $\rho = <s_1, s_2, \dots>$
-		be an infinite run of the chase starting with a model $\mathbb{F}_0$
-		having an empty set of facts.
+		be an infinite run of the chase starting with the empty model $\mathbb{F}_0$.
 
 		Let $C$ be the set of domain elements that occur anywhere in the chase;
 		that is,
@@ -218,12 +217,13 @@
 			\]
 
 		We say that $\rho$ is \emph{fair} if for every pair $(\sigma,\lambda)$
-		where $\sigma \in T$, $\lambda$ is an environment over $C$, and
-		$\mathbb{F}_i \not\models_{\lambda} \sigma$, then there exists $j$ such
-		that $i \leq j$ and $(\sigma,\lambda)$ is $(\sigma_j,\lambda_j)$.
+		such that $\sigma \in T$, $\lambda$ is an environment over $C$, and
+		$\mathbb{F}_i \not\models_{\lambda} \sigma$, there exists $j$ such that
+		$i \leq j$ and $(\sigma,\lambda)$ is $(\sigma_j,\lambda_j)$.
 		\end{definition}
 
 		\begin{lemma}
+			\label{lemma_chase_step_minimality_preservation}
 			Let $T$ be a geometric theory and $\mathbb{M}$ be a model of $T$.
 			Let $\mathbb{N}$ be a model and suppose there exists a homomorphism
 			$h : \mathbb{N} \to \mathbb{M}$. If $\mathbb{N}$ fails the test
@@ -233,46 +233,6 @@
 		\end{lemma}
 
 		\begin{proof}
-
-%		[yours]
-%
-%			When $\sigma$ is in the form $E \to \bigvee_i \bigwedge_j R_{ij}(\vec
-%			x)$, we know that $\mathbb{M} \models_\lambda \sigma$ because
-%			$\mathbb{M} \models T$. Therefore, $\mathbb{M} \models \bigwedge_j
-%			R_{ij}(\vec x)$ for some disjunct $i$. There exists a chase step
-%			$\mathbb{N} \xrightarrow{(\sigma,\lambda)} \mathbb{N}'$ that will
-%			choose this disjunct. This chase step proceeds normally and generates
-%			$\mathbb{N}'$. The homomorphism $h : \mathbb{N} \to \mathbb{M}$ is also
-%			a homomorphism from $\mathbb{N}'$ to $\mathbb{M}$ because, for every
-%			$R_{\mathbb{N}'}(a_0,\ldots,a_n)$, there exists
-%			$R_\mathbb{M}(h(a_0),\ldots,h(a_n))$.
-%
-%		[my first]
-%
-%			Suppose $\sigma$ is in the form $E(\vec{x}) \to \bigvee_i
-%			\bigwedge_j R_{ij}(\vec x)$. Since $\sigma$ is false in
-%			$\mathbb{N}$ under $\lambda$, we have $\mathbb{N} \models
-%			E(\vec{x})$ under $\lambda$ while $\mathbb{N} \not\models
-%			\bigvee_i \bigwedge_j R_{ij}(\vec x)$ under $\lambda$. Since $h$
-%			is a homomorphism, $\mathbb{M} \models E(\vec{x})$ under $h \circ
-%			\lambda$. Since $M \models \sigma$ under $h \circ \lambda$, we
-%			have $\mathbb{M} \models \bigvee_i \bigwedge_j R_{ij}(\vec x)$
-%			under $h \circ \lambda$. Therefore, $\mathbb{M} \models
-%			\bigwedge_j R_{ij}(\vec x)$ under $h \circ \lambda$ for some
-%			disjunct $i$. There exists a chase step $\mathbb{N}
-%			\xrightarrow{(\sigma,\lambda)} \mathbb{N}'$ that will choose this
-%			disjunct. This chase step proceeds normally and generates
-%			$\mathbb{N}'$, by adding the facts $R_{ij}(\lambda(\vec{x}))$ for
-%			each $j$. To see that $h : \mathbb{N} \to \mathbb{M}$ is also a
-%			homomorphism from $\mathbb{N}'$ to $\mathbb{M}$ it suffices to see
-%			that each of the new facts added to $\mathbb{N}'$ is preserved, by
-%			$h$, in $\mathbb{M}$. That is, we want to see that for each $j$,
-%			the fact $R_{ij}(h(\lambda(x_0)),\ldots,h(\lambda(x_n))$ holds in
-%			$\mathbb{M}$. But this follows from our earlier observation that
-%			$\mathbb{M} \models \bigwedge_j R_{ij}(\vec x)$ under $h \circ
-%			\lambda$.
-%
-%		[real thing]
 
 			Suppose $\sigma$ is in the form
 				\[
@@ -289,6 +249,10 @@
 			\xrightarrow{(\sigma,\lambda)} \mathbb{N}'$ that will choose this
 			disjunct.
 
+			In case $F_i$ contains equality, we can treat all equalities in
+			$F_i$ as if they were in the relational form mentioned in section
+			\ref{sec:technical_background.geometric_logic.examples}.
+
 			In case $F_i(\vec x)$ is of the form $\bigwedge_j R_{ij}(\vec x)$
 			the chase step generates $\mathbb{N}'$ by adding the facts
 			$R_{ij}(\lambda(\vec{x}))$ for each $j$. To see that $h :
@@ -298,14 +262,21 @@
 			$\mathbb{M}$. That is, we want to see that for each $j$, the fact
 			$R_{ij}(h(\lambda(x_0)),\ldots,h(\lambda(x_n))$ holds in
 			$\mathbb{M}$. But this follows from our earlier observation that
-			$\mathbb{M} \models_{h\circ\lambda} F_i(\vec{x})$.
+			$\mathbb{M} \models_{h\circ\lambda} F_i(\vec x)$.
 
-			In case $F_i$ is of the form $\exists \vec{y} : \bigwedge_j
-			R_{ij}(\vec x,\vec y)$ \ldots
+			In case $F_i$ is of the form $\exists y_0,\ldots,y_m : \bigwedge_j
+			R_{ij}(x_0,\ldots,x_n,y_0,\ldots,y_m)$, the chase step generates
+			$\mathbb{N}'$ by duplicating $\mathbb{N}$ and adding $a_0,\ldots,a_m$
+			to $|\mathbb{N}'|$. The chase step also adds the facts
+			$R_{ij}(\lambda(x_0),\ldots,\lambda(x_n),a_0,\ldots,a_m)$ to
+			$\mathbb{N}'$. There must exist some $\vec e \subseteq
+			|\mathbb{M}|$ such that
+			$R_{ij}(h(\lambda(x_0)),\ldots,h(\lambda(x_n)),\vec e) \in
+			\mathbb{M}$.  Define $h'(a_g) = e_g$ where $0 \le g \le m$ and
+			$h'(k) = h(k)$ for all $k \in |\mathbb{N}|$.  Notice that $h'$ is a
+			homomorphism $h' : \mathbb{N}' \to \mathbb{M}$ and $\mathbb{M}
+			\models_{h'\circ\lambda} F_i(\vec x)$.
 
-			In case $F_i$ contains equality, we can treat all equalities in
-			$F_i$ as if they were in the relational form mentioned in section
-			\ref{sec:technical_background.geometric_logic.useful_equivalences}.
 		\end{proof}
 
 		\begin{theorem}
@@ -313,14 +284,20 @@
 			$\mathbb{M} \models T$, there exists a run of the chase that
 			returns a model $\mathbb{N}$ such that $\mathbb{N} \models T$ and
 			$\mathbb{N} \preceq \mathbb{M}$.
-
-			% One can schedule the choices made in the chase algorithm in such a
-			% way that, in a case where the chase will never terminate,
-			% \textbf{... ?}
 		\end{theorem}
 
 		\begin{proof}
-			
+			Define $\mathbb{F}_0$ as the empty model. There is a homomorphism
+			$h : \mathbb{F}_0 \to \mathbb{M}$.  Starting with $\mathbb{F}_0$,
+			iterate Lemma \ref{lemma_chase_step_minimality_preservation} over
+			the models generated by successive chase steps with respect to
+			oracle $\mathbb{M}$ and theory $T$. If it stops after $n$ chase
+			steps, the model $\mathbb{F}_n$ will be generated such that
+			$\mathbb{F}_n \models T$ and $\mathbb{F}_n \preceq \mathbb{M}$. If
+			it does not stop and the chase steps are chosen fairly, the
+			generated infinite model $\mathbb{F}_\infty$ will be generated such
+			that $\mathbb{F}_\infty \models T$ and $\mathbb{F}_\infty \preceq
+			\mathbb{M}$.
 		\end{proof}
 
 	\subsection{History}

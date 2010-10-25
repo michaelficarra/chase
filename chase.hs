@@ -16,7 +16,7 @@ verify formula = case formula of
 	_ -> Implication Tautology (pef formula)
 
 order :: [Formula] -> [Formula]
--- 
+-- sorts a theory by number of disjuncts then by number of variables
 order formulae = sortBy (\a b ->
 	let extractRHS = (\f -> case f of; (Implication lhs rhs) -> rhs; _ -> f) in
 	let (rhsA,rhsB) = (extractRHS a, extractRHS b) in
@@ -34,7 +34,7 @@ order formulae = sortBy (\a b ->
 
 chase :: [Formula] -> [Model]
 -- a wrapper for the chase' function to hide the model identity and theory
--- manipulation
+-- manipulation / normalization
 chase theory = nub $ chase' (order $ map verify theory) [([],[])]
 
 chase' :: [Formula] -> [Model] -> [Model]
@@ -44,7 +44,10 @@ chase' _ [] = trace "  but it is impossible to make the model satisfy the theory
 chase' theory pending = concatMap (branch theory) pending
 
 branch :: [Formula] -> Model -> [Model]
--- 
+-- if there is a (formula,environment) pairing for which the given model does not hold,
+--   alters the model in attempt to make it hold
+-- otherwise,
+--   returns the given model
 branch theory model =
 	let reBranch = chase' theory in
 	trace ("running chase on " ++ show model) $
@@ -58,7 +61,8 @@ branch theory model =
 			[model]
 
 findFirstFailure :: Model -> [Formula] -> Maybe [Model]
--- 
+-- test if there exists a (Formula,Environment) pairing for which the given
+-- model does not hold
 findFirstFailure model [] = Nothing -- no failure found
 findFirstFailure model@(domain,relations) (f:ormulae) =
 	let self = findFirstFailure model in
@@ -68,7 +72,8 @@ findFirstFailure model@(domain,relations) (f:ormulae) =
 	else Just $ findFirstBindingFailure model f bindings
 
 findFirstBindingFailure :: Model -> Formula -> [Environment] -> [Model]
--- 
+-- tests if there is an environment for which the given model does not satisfy
+-- the given formula
 findFirstBindingFailure _ (Implication a Contradiction) _ = []
 findFirstBindingFailure model formula@(Implication a b) (e:es) =
 	let self = findFirstBindingFailure model formula in
@@ -78,7 +83,7 @@ findFirstBindingFailure model formula@(Implication a b) (e:es) =
 		satisfy model e b
 
 satisfy :: Model -> Environment -> Formula -> [Model]
--- 
+-- alter the given model to satisfy the given formula under the given environment
 satisfy model env formula =
 	let (domain,relations) = model in
 	let domainSize = length domain in
@@ -110,7 +115,7 @@ satisfy model env formula =
 		_ -> error ("formula not in positive existential form: " ++ show formula)
 
 genNewRelationArgs :: Environment -> [Variable] -> DomainMember -> [DomainMember]
--- for each Variable in the given list of Variables, retrieves the value
+-- for each variable in the given list of variables, retrieves the value
 -- assigned to it in the given environment, or the next domain element if it
 -- does not exist
 genNewRelationArgs env [] domainSize = []

@@ -327,6 +327,7 @@
 
 
 		\subsubsection{Examples}
+		\label{sec:technical_background.geometric_logic.examples}
 
 			\begin{tabular}{lll}
 			\emph{reflexivity}   & \qquad & $\top \to R(x,x)$                  \\
@@ -336,9 +337,6 @@
 			\emph{totality}      & \qquad & $\top \to R(x,y) \vee R(y,x)$      \\
 			\emph{transitivity}  & \qquad & $R(x,y) \wedge R(y,z) \to R(x,z)$
 			\end{tabular}
-
-		\subsection{Useful Equivalences}
-		\label{sec:technical_background.geometric_logic.useful_equivalences}
 
 			\begin{itemize}
 			\item
@@ -364,11 +362,17 @@
 			R$ would be used.
 
 			\item
-			Constant symbols can be encoded as relations with an arity of zero.
+			Relations with an arity of zero will behave like constant symbols.
 			For example, the constant $C$ can be represented by the relation
 			$C()$.
 
 			\item
-			A function $f(x,y)$ can be encoded as the geometric logic formula
-			$F(x,y,z1) \wedge F(x,y,z2) -> z1 = z2$.
+			A binary relation $F(x,y)$ will behave like a function $f(x,y)$ when expressed using the geometric logic formul{\ae}
+			\begin{eqnarray}
+			\label{function1}
+				{}                   & \to & \exists\ y : F(x,y)  \\
+			\label{function2}
+				F(x,y) \wedge F(x,z) & \to & y = z
+			\end{eqnarray}
+			Omit \eqref{function1} to make $F$ a partial function.
 			\end{itemize}
