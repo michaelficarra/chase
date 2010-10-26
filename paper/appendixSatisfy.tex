@@ -25,13 +25,13 @@
 		}
 		\Case{$R(\vec x)$}{
 			define a model $\mathbb{N}$ where $|\mathbb{N}| = |\mathbb{M}| \cup \omega$ and $\omega \not\in |\mathbb{N}|$ to $|\mathbb{N}|$ \;
-			\lForEach{$P_\mathbb{M}$}{$P_\mathbb{N} = P_\mathbb{M}$ \;}
+			\lForEach{$P^\mathbb{M}$}{$P^\mathbb{N} = P^\mathbb{M}$ \;}
 			\ForAll{$v \in \vec x$}{
 				\lIf{$v \not\in \lambda$}{
 					redefine $\lambda$ as $\lambda_{v \mapsto \omega}$ \;
 				}
 			}
-			define $R_{\mathbb{N}}$ as $R_{\mathbb{M}}(\lambda(x_0) \ldots \lambda(x_n))$ \;
+			define $R^\mathbb{N}$ as $R^\mathbb{M}(\lambda(x_0) \ldots \lambda(x_n))$ \;
 			return $\{ \mathbb{N} \}$ \;
 		}
 		\Case{$\exists\ \vec x : \alpha$}{
@@ -40,7 +40,7 @@
 				return $\{ \mathbb{M} \}$ \;
 			}{
 				define a model $\mathbb{N}$ where $|\mathbb{N}| = |\mathbb{M}| \cup \omega$ and $\omega \not\in |\mathbb{N}|$ to $|\mathbb{N}|$ \;
-				\lForEach{$R_\mathbb{M}$}{$R_\mathbb{N} = R_\mathbb{M}$ \;}
+				\lForEach{$R^\mathbb{M}$}{$R^\mathbb{N} = R^\mathbb{M}$ \;}
 				define $\kappa = \lambda_{x_0 \mapsto \omega}$ \;
 				return $satisfy(\mathbb{N},\kappa,\exists\ \{x_1 \ldots x_n\} : \alpha)$ \;
 			}
