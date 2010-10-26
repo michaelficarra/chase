@@ -1,12 +1,12 @@
 \section{An Extended Application: \\ Cryptographic Protocol Analysis}
 
-	The chase can be used for protocol analysis. A common technique for the analysis
-	of protocols involves identifying the \emph{essentially different} runs of
-	the protocol. These essentially different protocol runs are analogous to
-	universal models. When a protocol is described using geometric logic, the
-	chase can find such universal models. The protocol can then be analysed for
-	characteristics such as the existence of security violations or other
-	unexpected behaviour.
+	The chase can be used for protocol analysis. A common technique for the
+	analysis of protocols involves identifying the \emph{essentially different}
+	runs of the protocol. These essentially different protocol runs are
+	analogous to universal models. When a protocol is described using geometric
+	logic, the chase can find such universal models. The protocol can then be
+	analysed for characteristics such as the existence of security violations
+	or other unexpected behaviour.
 
 	\subsection{Strand Spaces}
 	\label{sec:application.strand_spaces}
@@ -46,17 +46,15 @@
 			unpairing operations to $t$ and is not a pair itself.
 
 			A \emph{nonce} is a uniquely-originating basic term. A term $t$
-			\emph{originates} on a node $n$ of a strand $s$ if $n$ is a
-			sending node, $t$ is an ingredient of the message of $n$, and
-			$t$ is not an ingredient of any previous node on $s$. A term is
-			\emph{uniquely originating} if it originates on only one
-			strand. A term is non-originating if it does not appear in any
-			strand.
+			\emph{originates} on a node $n$ of a strand $s$ if $n$ is a sending
+			node, $t$ is an ingredient of the message of $n$, and $t$ is not an
+			ingredient of any previous node on $s$. A term is \emph{uniquely
+			originating} if it originates on only one strand. A term is
+			non-originating if it does not appear in any strand.
 
-			If a regular participant generates a random fresh nonce, it
-			will be assumed uniquely-originating because of the extreme
-			unlikelihood of any other participant generating and
-			originating the same value.
+			If a regular participant generates a random fresh nonce, it will be
+			assumed uniquely-originating because of the extreme unlikelihood of
+			any other participant generating and originating the same value.
 
 			Similarly, non-origination is helpful in describing private
 			asymmetric keys that should never be sent as part of a message.
@@ -64,19 +62,19 @@
 		\subsubsection{The Adversary}
 		\label{sec:application.the_adversary}
 
-			An adversary is included in the strand space formalism to
-			represent a worst-case situation, where an attacker may control
-			every point of communication between regular participants. The
-			actions of the adversary are represented by \emph{adversary
-			strands}. Recall that adversary strands are not bound by the
-			rules defined by the protocol; they manipulate messages being
-			sent and received by non-adversarial strands.
+			An adversary is included in the strand space formalism to represent
+			a worst-case situation, where an attacker may control every point
+			of communication between regular participants. The actions of the
+			adversary are represented by \emph{adversary strands}. Recall that
+			adversary strands are not bound by the rules defined by the
+			protocol; they manipulate messages being sent and received by
+			non-adversarial strands.
 
 			The capabilities of the adversary strands are given by the
 			Dolev-Yao Threat Model \cite{DolevYao83}. The five possible
-			operations that an adversary may perform are derived from both
-			the Dolev-Yao Threat Model and the strand space formalism.
-			These operations are:
+			operations that an adversary may perform are derived from both the
+			Dolev-Yao Threat Model and the strand space formalism. These
+			operations are:
 
 			\begin{description}
 			\item [pairing] the pairing of two terms
@@ -113,9 +111,10 @@
 
 			A protocol is \emph{efficient} if an adversary always takes a
 			message from the earliest point at which it appears. To be precise,
-			a protocol is efficient if, for every sending node $m$ and receiving
-			adversary node $n$, if every component of $m$ is also a component of
-			$n$, then there is no regular node $m'$ such that $m < m' < n$.
+			a protocol is efficient if, for every sending node $m$ and
+			receiving adversary node $n$, if every component of $m$ is also a
+			component of $n$, then there is no regular node $m'$ such that $m <
+			m' < n$.
 
 			A protocol is \emph{normal} if, for any path through adversary
 			strands, the adversary always either performs a generation followed
@@ -141,14 +140,15 @@
 
 	\subsection{The Solution: Universal Models}
 
-		Given a theory $T$, the jointly universal models $\mathcal{M}$ that the
-		chase outputs are representative of all models because there always
-		exists a homomorphism from some model $\mathbb{M} \in \mathcal{M}$ to
-		any model that satisfies $T$. Every model $\mathbb{N}$ that satisfies
-		$T$ describes a possible run of the protocol. It also indirectly
-		represents a larger class of runs, specifically the set of all runs of
-		the protocol that are described by a model $\mathbb{P}$ such that
-		$\mathbb{P} \models T$ and $\mathbb{N} \preceq \mathbb{P}$.
+		Given a theory $\mathcal{T}$, the jointly universal models
+		$\mathcal{M}$ that the chase outputs are representative of all models
+		because there always exists a homomorphism from some model $\mathbb{M}
+		\in \mathcal{M}$ to any model that satisfies $\mathcal{T}$. Every model
+		$\mathbb{N}$ that satisfies $\mathcal{T}$ describes a possible run of
+		the protocol. It also indirectly represents a larger class of runs,
+		specifically the set of all runs of the protocol that are described by
+		a model $\mathbb{P}$ such that $\mathbb{P} \models \mathcal{T}$ and
+		$\mathbb{N} \preceq \mathbb{P}$.
 
 		Since the set of all models output of the chase is jointly universal,
 		they represents every possible run of the protocol. Finding every
@@ -156,8 +156,8 @@
 		infinitely many. Fortunately, the chase may halt with a finite result,
 		providing a model that is representative of a class of protocol runs.
 		Fortunately, the deterministic chase implementation may output a finite
-		number of models before halting. These models are jointly universal, and
-		therefore represent all runs of the protocol.
+		number of models before halting. These models are jointly universal,
+		and therefore represent all runs of the protocol.
 
 	\subsection{Designing An Analogous Theory}
 
@@ -197,12 +197,12 @@
 
 	\subsection{The Results}
 
-		The chase was run on the logic representation of the half-duplex protocol.
-		A single model was returned during the execution of the algorithm,
-		which was manually stopped before natural completion. This model,
-		visualized in Figure \ref{fig:half_duplex_completed}, like all models
-		returned by the chase, satisfies the input theory, and belongs to a set
-		of jointly universal models for the theory.
+		The chase was run on the logic representation of the half-duplex
+		protocol. A single model was returned during the execution of the
+		algorithm, which was manually stopped before natural completion. This
+		model, visualized in Figure \ref{fig:half_duplex_completed}, like all
+		models returned by the chase, satisfies the input theory, and belongs
+		to a set of jointly universal models for the theory.
 
 		\begin{figure}[h]
 			\centering

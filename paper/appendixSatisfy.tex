@@ -7,7 +7,7 @@
 	return \Switch{$\varphi$}{
 		\lCase{$\top$}{return $\{ \mathbb{M} \}$} \;
 		\lCase{$\bot$}{return $\emptyset$} \;
-		\Case{$x=y$ \tcc*[f]{TODO: add quotient comment here}}{
+		\Case{$x=y$ \tcc*[f]{identify $\lambda(x)$ and $\lambda(y)$ in $\mathbb{N}$}}{
 			let $a=\lambda(x)$ and $b=\lambda(y)$ \;
 			let $\mathbb{N}$ be a model where $|\mathbb{N}| = |\mathbb{M}| - \{b\}$ \;
 			\lForEach{fact $R(\vec v) \in \mathbb{M}$}{

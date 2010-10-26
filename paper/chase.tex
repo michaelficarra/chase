@@ -4,8 +4,8 @@
 	The \emph{chase} is a function that, when given a geometric theory, will
 	generate a model in the set of jointly universal models for that theory. More
 	specifically, if $\mathcal{U}$ is the set of all models obtained from an
-	execution of the chase over a geometric theory $T$, for any model
-	$\mathbb{M}$ such that $\mathbb{M} \models T$, there is a homomorphism from
+	execution of the chase over a geometric theory $\mathcal{T}$, for any model
+	$\mathbb{M}$ such that $\mathbb{M} \models \mathcal{T}$, there is a homomorphism from
 	some model $\mathbb{U} \in \mathcal{U}$ to $\mathbb{M}$. Note that given a
 	model $\mathbb{M}$ returned by the chase there may exist a model
 	$\mathbb{N}$ such that $\mathbb{N} \preceq \mathbb{M}$.
@@ -31,11 +31,11 @@
 	\label{sec:chase.algorithm}
 
 		To describe the chase algorithm succinctly, it is convenient to
-		introduce the following notation. Given $\mathbb{M}$ is a model, $T$ is
-		a geometric theory, $\sigma$ is a sentence in $T$, and $\lambda :
+		introduce the following notation. Given $\mathbb{M}$ is a model, $\mathcal{T}$ is
+		a geometric theory, $\sigma$ is a sentence in $\mathcal{T}$, and $\lambda :
 		free(\sigma) \to |\mathbb{M}|$ is an environment, the pair
 		$(\sigma,\lambda)$ is a \emph{test}, specifically a test of
-		$\mathbb{M}$ based on $T$. The model $\mathbb{M}$ \emph{passes} this
+		$\mathbb{M}$ based on $\mathcal{T}$. The model $\mathbb{M}$ \emph{passes} this
 		test if and only if $\mathbb{M} \models_\lambda \sigma$.
 
 		An existentially-quantified conjunction of atomics (ECA) $E$ is defined
@@ -79,9 +79,9 @@
 
 		\begin{algorithm}[H]
 		\DontPrintSemicolon
-		\TitleOfAlgo{chase :: [Sentence] ($T$) $\to$ Model}
+		\TitleOfAlgo{chase :: [Sentence] ($\mathcal{T}$) $\to$ Model}
 		let $\mathbb{M}$ be a model that has an empty domain and an empty set of facts \;
-		\While{$\mathbb{M} \not\models T$}{
+		\While{$\mathbb{M} \not\models \mathcal{T}$}{
 			choose a test $(\sigma,\lambda)$ for which $\mathbb{M}$ fails \;
 			update $\mathbb{M}$ to be the result of the chase step on $\mathbb{M}$ based on $(\sigma,\lambda)$ \;
 		}
@@ -182,25 +182,23 @@
 	\subsection{Foundations}
 
 		%\begin{theorem}
-		%	A geometric theory $T$ is satisfiable if and only if either there
-		%	exists an infinite fair chase run of $T$ or there exists a
-		%	successful fair chase run of $T$.
+		%	A geometric theory $\mathcal{T}$ is satisfiable if and only if
+		%	either there exists an infinite fair chase run of $\mathcal{T}$ or
+		%	there exists a successful fair chase run of $\mathcal{T}$.
 		%\end{theorem}
 
 		%\begin{proof}
 		%\end{proof}
 
 		\label{fairness_definition}
-		\begin{description}
-		\item [Fairness] Intuitively, a deterministic realization of the chase
-		algorithm (the pairing of the nondeterministic chase algorithm with an
-		evaluation strategy) is \emph{fair} if the scheduler would not allow
-		for a (rule, binding) \textbf{(syntax?)} pair to go unevaluated during
-		an infinite run. The formal definition is below.
-		\end{description}
+		Intuitively, a deterministic realization of the chase algorithm (the
+		pairing of the nondeterministic chase algorithm with an evaluation
+		strategy) is \emph{fair} if the scheduler would not allow for a (rule,
+		binding) pair to go unevaluated during an infinite run. The formal
+		definition is below.
 
 		\begin{definition}
-		Let $T$ be a geometric theory, and let
+		Let $\mathcal{T}$ be a geometric theory, and let
 			% $\rho = <s_1, s_2, \ldots>$
 			\[
 			\rho \quad = \quad \mathbb{F}_0 \xrightarrow{(\sigma_0,\lambda_0)}
@@ -217,14 +215,14 @@
 			\]
 
 		We say that $\rho$ is \emph{fair} if for every pair $(\sigma,\lambda)$
-		such that $\sigma \in T$, $\lambda$ is an environment over $C$, and
+		such that $\sigma \in \mathcal{T}$, $\lambda$ is an environment over $C$, and
 		$\mathbb{F}_i \not\models_{\lambda} \sigma$, there exists $j$ such that
 		$i \leq j$ and $(\sigma,\lambda)$ is $(\sigma_j,\lambda_j)$.
 		\end{definition}
 
 		\begin{lemma}
 			\label{lemma_chase_step_minimality_preservation}
-			Let $T$ be a geometric theory and $\mathbb{M}$ be a model of $T$.
+			Let $\mathcal{T}$ be a geometric theory and $\mathbb{M}$ be a model of $\mathcal{T}$.
 			Let $\mathbb{N}$ be a model and suppose there exists a homomorphism
 			$h : \mathbb{N} \to \mathbb{M}$. If $\mathbb{N}$ fails the test
 			$(\sigma,\lambda)$, there exists a chase step $\mathbb{N}
@@ -233,6 +231,12 @@
 		\end{lemma}
 
 		\begin{proof}
+
+			We give the proof in the setting without equality. See example
+			\ref{simulate_equality} in section
+			\ref{sec:technical_background.geometric_logic.examples} to see that
+			we can treat all equalities as if they were defined as a relational
+			equivalent.
 
 			Suppose $\sigma$ is in the form
 				\[
@@ -249,10 +253,6 @@
 			\xrightarrow{(\sigma,\lambda)} \mathbb{N}'$ that will choose this
 			disjunct.
 
-			In case $F_i$ contains equality, we can treat all equalities in
-			$F_i$ as if they were in the relational form mentioned in section
-			\ref{sec:technical_background.geometric_logic.examples}.
-
 			In case $F_i(\vec x)$ is of the form $\bigwedge_j R_{ij}(\vec x)$
 			the chase step generates $\mathbb{N}'$ by adding the facts
 			$R_{ij}(\lambda(\vec{x}))$ for each $j$. To see that $h :
@@ -266,47 +266,75 @@
 
 			In case $F_i$ is of the form $\exists y_0,\ldots,y_m : \bigwedge_j
 			R_{ij}(x_0,\ldots,x_n,y_0,\ldots,y_m)$, the chase step generates
-			$\mathbb{N}'$ by duplicating $\mathbb{N}$ and adding $a_0,\ldots,a_m$
-			to $|\mathbb{N}'|$. The chase step also adds the facts
-			$R_{ij}(\lambda(x_0),\ldots,\lambda(x_n),a_0,\ldots,a_m)$ to
-			$\mathbb{N}'$. There must exist some $\vec e \subseteq
-			|\mathbb{M}|$ such that
-			$R_{ij}(h(\lambda(x_0)),\ldots,h(\lambda(x_n)),\vec e) \in
-			\mathbb{M}$.  Define $h'(a_g) = e_g$ where $0 \le g \le m$ and
-			$h'(k) = h(k)$ for all $k \in |\mathbb{N}|$.  Notice that $h'$ is a
-			homomorphism $h' : \mathbb{N}' \to \mathbb{M}$ and $\mathbb{M}
+			$\mathbb{N}'$ by duplicating $\mathbb{N}$ and adding new elements
+			$a_0,\ldots,a_m$ to $|\mathbb{N}'|$. The chase step also adds the
+			facts $R_{ij}(\lambda(x_0),\ldots,\lambda(x_n),a_0,\ldots,a_m)$ to
+			$\mathbb{N}'$. There must exist some $e_0,\ldots,e_m \subseteq
+			|\mathbb{M}|$ such that the fact
+			$R_{ij}(h(\lambda(x_0)),\ldots,h(\lambda(x_n)),e_0,\ldots,e_m) \in
+			\mathbb{M}$. Define $h'(a_g) = e_g$ for each $0 \le g \le m$ and
+			$h'(k) = h(k)$ for all $k \in |\mathbb{N}|$. It follows that $h'$
+			is a homomorphism $h' : \mathbb{N}' \to \mathbb{M}$ and $\mathbb{M}
 			\models_{h'\circ\lambda} F_i(\vec x)$.
-
 		\end{proof}
 
+		The model that plays the role that $\mathbb{M}$ plays in Lemma
+		\ref{lemma_chase_step_minimality_preservation} is sometimes referred to
+		as the \emph{oracle}.
+
 		\begin{theorem}
-			Let $T$ be a geometric theory. For any model $\mathbb{M}$ such that
-			$\mathbb{M} \models T$, there exists a run of the chase that
-			returns a model $\mathbb{N}$ such that $\mathbb{N} \models T$ and
+			Let $\mathcal{T}$ be a geometric theory. For any model $\mathbb{M}$ such that
+			$\mathbb{M} \models \mathcal{T}$, there exists a run of the chase that
+			returns a model $\mathbb{N}$ such that $\mathbb{N} \models \mathcal{T}$ and
 			$\mathbb{N} \preceq \mathbb{M}$.
 		\end{theorem}
 
 		\begin{proof}
-			Define $\mathbb{F}_0$ as the empty model. There is a homomorphism
-			$h : \mathbb{F}_0 \to \mathbb{M}$.  Starting with $\mathbb{F}_0$,
-			iterate Lemma \ref{lemma_chase_step_minimality_preservation} over
-			the models generated by successive chase steps with respect to
-			oracle $\mathbb{M}$ and theory $T$. If it stops after $n$ chase
-			steps, the model $\mathbb{F}_n$ will be generated such that
-			$\mathbb{F}_n \models T$ and $\mathbb{F}_n \preceq \mathbb{M}$. If
-			it does not stop and the chase steps are chosen fairly, the
-			generated infinite model $\mathbb{F}_\infty$ will be generated such
-			that $\mathbb{F}_\infty \models T$ and $\mathbb{F}_\infty \preceq
-			\mathbb{M}$.
+			Define $\mathbb{F}_0$ as the empty model. The empty function is a
+			homomorphism $h : \mathbb{F}_0 \to \mathbb{M}$. Starting with
+			$\mathbb{F}_0$, iterate Lemma
+			\ref{lemma_chase_step_minimality_preservation} over the models
+			generated by successive chase steps with respect to oracle
+			$\mathbb{M}$ and theory $\mathcal{T}$.
+
+			If the chase stops after $n$ chase steps, the model $\mathbb{F}_n$
+			will satisfy $\mathbb{F}_n \models \mathcal{T}$ and $\mathbb{F}_n
+			\preceq \mathbb{M}$.
+
+			If the chase does not stop and the chase steps are chosen fairly,
+			the generated infinite model, which we may call
+			$\mathbb{F}_\infty$, will satisfy $\mathbb{F}_\infty \models
+			\mathcal{T}$ and $\mathbb{F}_\infty \preceq \mathbb{M}$.
+
+			To show that $\mathbb{F}_\infty \models \mathcal{T}$, let $\sigma$
+			be a sentence of $\mathcal{T}$ of the form $\forall\ \vec{x} :
+			\alpha(\vec x) \to \beta(\vec x)$. To see that $\mathbb{F}_\infty
+			\models \sigma$, let $\lambda$ be a binding from $\vec x$ to
+			$|\mathbb{F}_\infty|$. It suffices to show $\mathbb{F}_\infty
+			\models_\lambda \alpha(\vec x) \to \beta(\vec x)$. For convenience,
+			let $a_0,\ldots,a_n$ be $\lambda(x_0),\ldots,\lambda(x_n)$.
+
+			If $\mathbb{F}_\infty \not\models_\lambda \alpha(\vec x)$, then
+			$\mathbb{F}_\infty \models \sigma$ as desired.  Otherwise,
+			$\mathbb{F}_\infty \models_\lambda \alpha(\vec x)$.  Here, it
+			suffices to show that $\mathbb{F}_\infty \models_\lambda \beta(\vec
+			x)$. For some fixed $i$, $a_0,\ldots,a_n \in |\mathbb{F}_i|$. By
+			fairness, there exists some $j$ such that $i \le j$ and the chase
+			step from $\mathbb{F}_j$ uses $\sigma$ and $\lambda$: $\mathbb{F}_j
+			\xrightarrow{(\sigma,\lambda)} \mathbb{F}_{j+1}$. Because
+			$\beta(\vec x)$ is in positive-existential form, $F_{j+1}
+			\models_\lambda \beta(\vec x)$.  Because $\mathbb{F}_{j+1}$ is a
+			submodel of $\mathbb{F}_\infty$, $\mathbb{F}_{j+1} \preceq
+			\mathbb{F}_\infty$. Thus, $\mathbb{F}_\infty \models_\lambda
+			\beta(\vec x)$ as desired.
 		\end{proof}
 
 	\subsection{History}
 
 		In \cite{FKMP02} \emph{Data Exchange: Semantics and Query Answering},
 		Fagin et. al. first introduce a chase algorithm. The version they
-		defined disallows disjunctions and, because of that, is limited in its
-		utility. Input sentences without disjunctions are not as expressive
-		as geometric sentences and have fewer applications. It is, however, a
+		defined disallows disjunctions. Input sentences without disjunctions
+		are appropriate to the database setting of \cite{FKMP02} and allow a
 		completely deterministic algorithm.
 
 		The chase was originally used to solve the problem of data exchange. As
@@ -322,8 +350,3 @@
 		The definition of the chase algorithm used by Fagin et. al. is similar
 		to the one defined in section \ref{sec:chase.algorithm} in all ways
 		except that it does not have to choose a disjunct.
-
-%%% Local Variables: 
-%%% mode: latex
-%%% TeX-master: "paper"
-%%% End: 

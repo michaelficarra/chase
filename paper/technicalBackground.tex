@@ -3,12 +3,12 @@
 
 	\subsection{Vocabulary}
 
-		A \emph{vocabulary} consists of a set of pairings of a \emph{relation
-		symbol} with a non-negative integral arity.
-
-		A relation symbol, often called a \emph{predicate}, can be any unique
-		symbol. It is used in conjunction with an arity to refer to relations
-		in models.
+		A \emph{relation symbol}, often called a \emph{predicate}, can be any
+		unique symbol. An \emph{arity} function takes a relation symbol as
+		input and returns a non-negative integer. A \emph{vocabulary} is a
+		construct containing a set of relation symbols and an arity function.
+		The pairing of a relation symbol with the result of passing the symbol
+		to the vocabulary's arity function is a \emph{relation}.
 
 	\subsection{Models}
 
@@ -20,6 +20,15 @@
 		It is important to distinguish the predicate, which is just a symbol,
 		from the relation that it refers to when paired with its arity. The
 		relation itself is a set of tuples of members from the universe.
+
+		\begin{definition}
+			Let $\mathbb{A}$ and $\mathbb{B}$ be models. $\mathbb{A}$ is a
+			\emph{submodel} of $\mathbb{B}$ if
+			\begin{itemize}
+			\item $|\mathbb{A}| \subseteq |\mathbb{B}|$
+			\item for each relation $R^\mathbb{A} \in \mathbb{A}$, there exists $R^\mathbb{B} \in \mathbb{B}$
+			\end{itemize}
+		\end{definition}
 
 	\subsection{First-order Logic}
 
@@ -181,9 +190,9 @@
 	\label{sec:technical_background.universal_models}
 
 		\emph{Universal models}, also called \emph{universal} models, are models
-		for a theory $T$ with the special property that there exists a
+		for a theory $\mathcal{T}$ with the special property that there exists a
 		homomorphism from the universal model to any other model that satisfies
-		$T$. Intuitively, universal models have no unnecessary entities or
+		$\mathcal{T}$. Intuitively, universal models have no unnecessary entities or
 		relations and thus display the least amount of constraint necessary to
 		satisfy the theory for which they are universal. Any model to which there
 		exists a homomorphism from a universal model will have more constraints
@@ -196,8 +205,8 @@
 		superset of a jointly universal set of models is also jointly universal.
 
 		More than one universal model may exist for a given theory. Given a model
-		$\mathbb{M}$ that is universal for a theory $T$, any model $\mathbb{N}$
-		such that $\mathbb{N} \simeq \mathbb{M}$ is also universal for $T$.
+		$\mathbb{M}$ that is universal for a theory $\mathcal{T}$, any model $\mathbb{N}$
+		such that $\mathbb{N} \simeq \mathbb{M}$ is also universal for $\mathcal{T}$.
 
 		Not every theory must have a universal model. A simple example of this is
 		the theory containing a single formula $\sigma$ where $\sigma$ contains
@@ -257,14 +266,8 @@
 				\]
 			as desired.
 
-			When $\sigma$ is $x=y$, we know that $\lambda(x) = \lambda(y)$. If
-			we show that $(h\circ\lambda)(x) = (h\circ\lambda)(y)$, we will
-			know that $\mathbb{M}' \models_{h\circ\lambda} x=y$. Because $h$
-			is a function, it will only return a single value for each input
-			for which it is defined. We know that $\lambda(x) = \lambda(y)$, so
+			When $\sigma$ is $x=y$, we know that $\lambda(x) = \lambda(y)$, so
 			$h(\lambda(x))$ must be $h(\lambda(y))$.
-
-			\textbf{this previous paragraph can probably be worded better}
 
 			When $\sigma$ is $\bot$, there exists no $\lambda$ such that
 			$\mathbb{M} \models_\lambda \bot$, so the condition of our claim
@@ -296,12 +299,21 @@
 			$\mathbb{M} \models_\lambda \exists\ x : \alpha$, and want to prove
 			that $\mathbb{M}' \models_{h\circ\lambda} \exists\ x : \alpha$.
 			There is a $d \in |\mathbb{M}|$ such that $\mathbb{M}
-			\models_{\lambda[x\mapsto d]} \alpha$.  By our induction
-			hypothesis, $\mathbb{M}' \models_{h\circ(\lambda[x\mapsto h(d)])}
+			\models_{\lambda[x\mapsto d]} \alpha$. By our induction
+			hypothesis, $\mathbb{M}' \models_{h\circ(\lambda[x\mapsto d])}
 			\alpha$. This is equivalent to $\mathbb{M}'
 			\models_{(h\circ\lambda)[x\mapsto h(d)]} \alpha$.
-
 		\end{proof}
+
+		$\mathbb{M}$ is a \emph{submodel} of $\mathbb{N}$
+
+		\begin{corollary}
+			If $\mathbb{M}$ is a submodel of $\mathbb{N}$ the inclusion
+			function from $\mathbb{M}$ to $\mathbb{N}$ is a homomorphism. If
+			$\mathbb{M}$ is a submodel of $\mathbb{N}$, $\sigma$ is a
+			positive-existential formula, and $\mathbb{M} \models \sigma$, then
+			$\mathbb{N} \models \sigma$.
+		\end{corollary}
 
 	\subsection{Geometric Logic}
 	\label{sec:technical_background.geometric_logic}
@@ -329,17 +341,19 @@
 		\subsubsection{Examples}
 		\label{sec:technical_background.geometric_logic.examples}
 
-			\begin{tabular}{lll}
-			\emph{reflexivity}   & \qquad & $\top \to R(x,x)$                  \\
-			\emph{symmetry}      & \qquad & $R(x,y) \to R(y,x)$                \\
-			\emph{asymmetry}     & \qquad & $R(x,y) \wedge R(y,x) \to \bot$    \\
-			\emph{serial}        & \qquad & $\top \to \exists\ y : R(x,y)$     \\
-			\emph{totality}      & \qquad & $\top \to R(x,y) \vee R(y,x)$      \\
-			\emph{transitivity}  & \qquad & $R(x,y) \wedge R(y,z) \to R(x,z)$
-			\end{tabular}
-
-			\begin{itemize}
+			\begin{enumerate}
 			\item
+			We can express properties of an ordering relation $R$:
+			\begin{eqnarray*}
+			reflexivity   & \quad & \top \to R(x,x)                  \\
+			symmetry      & \quad & R(x,y) \to R(y,x)                \\
+			asymmetry     & \quad & R(x,y) \wedge R(y,x) \to \bot    \\
+			serial        & \quad & \top \to \exists\ y : R(x,y)     \\
+			totality      & \quad & \top \to R(x,y) \vee R(y,x)      \\
+			transitivity  & \quad & R(x,y) \wedge R(y,z) \to R(x,z)
+			\end{eqnarray*}
+
+			\item \label{simulate_equality}
 			Equality can be encoded as the two relations
 				\begin{eqnarray*}
 				EQ(x,y)                & \to & EQ(y,x)  \\
@@ -354,12 +368,19 @@
 				P(x,y) \wedge EQ(y,z) & \to & P(x,z)
 				\end{eqnarray*}
 
+			This is sometimes convenient because it allows one to define a
+			logic system that does not include equality without limiting
+			the expressiveness of the system.
+
 			\item
 			Negation of a relation $R$ with arity $k$ can be used in
 			positive-existential formul{\ae} by introducing another relation
-			$R'$ with arity $k$, adding two formul{\ae} of the form $R \wedge
-			R' \to \bot$ and $\top \to R \vee R'$, and using $R'$ where $\neg
-			R$ would be used.
+			$R'$ with arity $k$, adding two formul{\ae} of the form
+				\begin{eqnarray*}
+				R \wedge R' & \to & \bot       \\
+				\top        & \to & R \vee R'
+				\end{eqnarray*}
+			and using $R'$ where $\neg R$ would be used.
 
 			\item
 			Relations with an arity of zero will behave like constant symbols.
@@ -367,12 +388,14 @@
 			$C()$.
 
 			\item
-			A binary relation $F(x,y)$ will behave like a function $f(x,y)$ when expressed using the geometric logic formul{\ae}
+			A binary relation $F(x,y)$ will behave like a function when
+			expressed using the geometric logic formul{\ae}
 			\begin{eqnarray}
 			\label{function1}
 				{}                   & \to & \exists\ y : F(x,y)  \\
 			\label{function2}
 				F(x,y) \wedge F(x,z) & \to & y = z
 			\end{eqnarray}
-			Omit \eqref{function1} to make $F$ a partial function.
-			\end{itemize}
+			If \eqref{function1} is omitted, $F$ behaves like a partial
+			function instead.
+			\end{enumerate}
