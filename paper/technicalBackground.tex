@@ -14,7 +14,7 @@
 		construct that consists of:
 		\begin{itemize}
 		\item a set, denoted $|\mathbb{M}|$, called the \emph{universe} or \emph{domain} of $\mathbb{M}$
-		\item for each pairing of a predicate $R$ and an arity $k$ in $\mathcal{V}$, a relation $R^\mathbb{M}_k \subseteq |\mathbb{M}|$
+		\item for each pairing of a predicate $R$ of arity $k$ in $\mathcal{V}$, a relation $R^\mathbb{M}_k \subseteq |\mathbb{M}|$
 		\end{itemize}
 		The relation itself is a set of tuples of members from the universe.
 
@@ -305,15 +305,16 @@
 			\models_{(h\circ\lambda)[x\mapsto h(d)]} \alpha$.
 		\end{proof}
 
-		$\mathbb{M}$ is a \emph{submodel} of $\mathbb{N}$
-
 		\begin{corollary}
-			If $\mathbb{M}$ is a submodel of $\mathbb{N}$ the inclusion
-			function from $\mathbb{M}$ to $\mathbb{N}$ is a homomorphism. If
-			$\mathbb{M}$ is a submodel of $\mathbb{N}$, $\sigma$ is a
+			If $\mathbb{M}$ is a submodel of $\mathbb{N}$, $\sigma$ is a
 			positive-existential formula, and $\mathbb{M} \models \sigma$, then
 			$\mathbb{N} \models \sigma$.
 		\end{corollary}
+
+		\begin{proof}
+			If $\mathbb{M}$ is a submodel of $\mathbb{N}$ the inclusion
+			function from $\mathbb{M}$ to $\mathbb{N}$ is a homomorphism.
+		\end{proof}
 
 	\subsection{Geometric Logic}
 	\label{sec:technical_background.geometric_logic}
