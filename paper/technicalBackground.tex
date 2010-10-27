@@ -84,7 +84,7 @@
 
 		An \emph{environment} $\lambda$ for a model $\mathbb{M}$ is a function
 		from a set of variables $\vec v$ to $|\mathbb{M}|$. The syntax
-		$\lambda_{[v \mapsto a]}$ denotes the environment $\lambda'(x)$ that
+		$\lambda_{[v \mapsto a]}$ denotes the environment $\lambda'$ that
 		returns $a$ when $x=v$ and returns $\lambda(x)$ otherwise.
 
 	\subsection{Satisfiability}
@@ -365,8 +365,8 @@
 			EQ(x_0,z) \to P(z)$. For example, the relation $P$ with arity $2$
 			would require the following rules.
 				\begin{eqnarray*}
-				P(x,y) \wedge EQ(x,z) & \to & P(z,y)  \\
-				P(x,y) \wedge EQ(y,z) & \to & P(x,z)
+				P(x,y) \wedge EQ(x,x') & \to & P(x',y)  \\
+				P(x,y) \wedge EQ(y,y') & \to & P(x,y')
 				\end{eqnarray*}
 
 			This is sometimes convenient because it allows one to define a
@@ -383,10 +383,10 @@
 				\end{eqnarray*}
 			and using $R'$ where $\neg R$ would be used.
 
-			\item
-			Relations with an arity of zero will behave like constant symbols.
-			For example, the constant $C$ can be represented by the relation
-			$C()$.
+			%\item
+			%Relations with an arity of zero will behave like constant symbols.
+			%For example, the constant $C$ can be represented by the relation
+			%$C()$.
 
 			\item
 			A binary relation $F(x,y)$ will behave like a function when
