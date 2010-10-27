@@ -7,26 +7,26 @@
 		unique symbol. An \emph{arity} function takes a relation symbol as
 		input and returns a non-negative integer. A \emph{vocabulary} is a
 		construct containing a set of relation symbols and an arity function.
-		The pairing of a relation symbol with the result of passing the symbol
-		to the vocabulary's arity function is a \emph{relation}.
 
 	\subsection{Models}
 
-		A \emph{model} $\mathbb{M}$ for a vocabulary $\mathcal{V}$ is a construct that consists of:
+		A \emph{model} $\mathbb{M}$ for a vocabulary $\mathcal{V}$ is a
+		construct that consists of:
 		\begin{itemize}
 		\item a set, denoted $|\mathbb{M}|$, called the \emph{universe} or \emph{domain} of $\mathbb{M}$
 		\item for each pairing of a predicate $R$ and an arity $k$ in $\mathcal{V}$, a relation $R^\mathbb{M}_k \subseteq |\mathbb{M}|$
 		\end{itemize}
-		It is important to distinguish the predicate, which is just a symbol,
-		from the relation that it refers to when paired with its arity. The
-		relation itself is a set of tuples of members from the universe.
+		The relation itself is a set of tuples of members from the universe.
 
 		\begin{definition}
 			Let $\mathbb{A}$ and $\mathbb{B}$ be models. $\mathbb{A}$ is a
 			\emph{submodel} of $\mathbb{B}$ if
 			\begin{itemize}
 			\item $|\mathbb{A}| \subseteq |\mathbb{B}|$
-			\item for each relation $R^\mathbb{A} \in \mathbb{A}$, there exists $R^\mathbb{B} \in \mathbb{B}$
+			\item for each relation $R$, $R^\mathbb{A} \subseteq R^\mathbb{B}$
+
+			That is, for each tuple $\vec a$ from $|\mathbb{A}|$, $\vec a \in
+			R^\mathbb{A}$ implies  $\vec a \in R^\mathbb{B}$.
 			\end{itemize}
 		\end{definition}
 
@@ -216,7 +216,7 @@
 		that satisfies the theory with only $P$ or $Q$ in its set of facts.
 		However, the set containing a model $\mathbb{M}$ that contains $P$ in
 		its set of facts and a model $\mathbb{N}$ that contains $Q$ in its
-		set of fact would be jointly universal.
+		set of fact would be \emph{jointly} universal.
 
 	\subsection{Positive Existential Form}
 
@@ -234,7 +234,7 @@
 
 		\begin{proof}
 			This is a well-known classical result in model theory. See
-			\cite{ChangKeisler73}, section 5.2 for an example.
+			\cite{ChangKeisler73}, section 5.2 for example.
 
 			We will only use one direction of Theorem \ref{pef_theorem}: the
 			fact that if a sentence is in positive-existential form then it is
@@ -270,7 +270,7 @@
 			$h(\lambda(x))$ must be $h(\lambda(y))$.
 
 			When $\sigma$ is $\bot$, there exists no $\lambda$ such that
-			$\mathbb{M} \models_\lambda \bot$, so the condition of our claim
+			$\mathbb{M} \models_\lambda \bot$, so the hypothesis of our claim
 			never holds, which causes our claim to always hold.
 
 			When $\sigma$ is $\top$, we know that $\mathbb{M} \models_\lambda

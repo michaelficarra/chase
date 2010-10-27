@@ -50,19 +50,21 @@
 		not in positive existential form, an error is thrown.
 
 		The chase function then sorts the input formul{\ae} by the number of
-		disjunctions on the right side of the implication. It allows branches to
-		terminate without growing to an unnecessarily (and possibly infinitely)
-		large size. This step will cause each branch of the algorithm to finish in
-		less time, as they are likely to halt before branching yet again. The
-		formul{\ae} are not sorted purely by absolute number of disjunctions on the
-		right side, but by whether there are zero, one, or many disjunctions. This
-		is done to avoid unnecessary re-ordering for no gain because formul{\ae}
-		with no disjunctions or only a single disjunct on the right side are more
-		likely to cause a branch to stop growing than one with many disjunctions.
-		Likewise, formul{\ae} with zero disjunctions are more likely to cause a
-		branch to halt than those with one or more disjunctions. A secondary sort
-		also occurs within these classifications that orders formul{\ae} by the
-		number of variables to reduce the number of bindings generated.
+		disjunctions on the right side of the implication. It allows branches
+		to sometimes terminate where they could otherwise grow to an
+		unnecessarily (and possibly infinitely) large size. This step will
+		cause each branch of the algorithm to finish in less time, as they are
+		likely to halt before branching yet again. The formul{\ae} are not
+		sorted purely by absolute number of disjunctions on the right side, but
+		by whether there are zero, one, or many disjunctions. This is done to
+		avoid unnecessary re-ordering for no gain because formul{\ae} with no
+		disjunctions or only a single disjunct on the right side are more
+		likely to cause a branch to stop growing than one with many
+		disjunctions. Likewise, formul{\ae} with zero disjunctions are more
+		likely to cause a branch to halt than those with one or more
+		disjunctions. A secondary sort also occurs within these classifications
+		that orders formul{\ae} by the number of variables to reduce the number
+		of bindings generated.
 
 		Once the input formul{\ae} are sorted, the {\tt chase} function begins
 		processing a \emph{pending} list, which is initially populated with a
