@@ -53,7 +53,7 @@ end
 desc 'Test the generated parser against the sample program'
 task :test, [:theory] do |task,args|
 	args.with_defaults :theory => 'trichotomy'
-	sh "cat theories/#{args[:theory]} | ./chase +RTS -N4"
+	sh "cat theories/#{args[:theory]} | ./chase +RTS -N"
 end
 
 

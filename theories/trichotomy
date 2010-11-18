@@ -1,3 +1,4 @@
+-- trichotomies
 T[a,a] -> Contradiction
 T[a,b] & T[b,a] -> Contradiction
 -> Exists a,b,c,d,e: T[a,b] & T[b,c] & T[d,e]
