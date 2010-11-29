@@ -1,0 +1,17 @@
+-- Pt[x] means x is a point
+-- Ln[x] means x is a line
+-- I[p,l] means point p is incident on line l
+
+-- let's capture disequality
+-> NE[x,y] | x = y
+NE[x,x] -> Contradiction
+
+-- non-emptiness
+-> Exists p,q : Pt[p] & Pt[q]
+
+-- projective uniqueness axiom
+Pt[p] & Pt[q] & Ln[l] & Ln[m] & I[p, l] & I[q,l] & I[p, m] & I[q,m] -> p = q |  l = m
+
+-- projective axioms of incidence
+Pt[p] & Pt[q] & NE[p,q] -> Exists l: Ln[l] & In[p, l] & In[q,l]
+Ln[l] & Ln[m] -> Exists p: Pt[p] & In[p, l] & In[p,m]
