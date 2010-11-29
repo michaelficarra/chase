@@ -2,6 +2,7 @@ module Chase where
 import Parser
 import Helpers
 import Data.List
+import Debug.Trace
 
 verify :: Formula -> Formula
 -- verifies that a formula is in positive existential form and performs some
@@ -50,9 +51,11 @@ branch theory model =
 	case findFirstFailure model theory of
 		Just newModels ->
 			-- at least one formula does not hold for `model`
+			trace ("at least one formula does not hold for model " ++ showModel model) $
 			reBranch newModels
 		Nothing -> -- represents no failures
 			-- all formulae in theory hold for current model, return it
+			trace "all formulae in theory hold for current model" $
 			[model]
 
 findFirstFailure :: Model -> [Formula] -> Maybe [Model]
@@ -75,6 +78,8 @@ findFirstBindingFailure model formula@(Implication a b) (e:es) =
 	if holds' model e formula then self es
 	else
 		-- attempt to satisfy RHS `b` with binding `e`
+		trace ("  LHS (" ++ show a ++ ") is satisfied for environment " ++ showEnvironment e ++ ", but its RHS is not") $
+		trace ("  attempting to satisfy RHS (" ++ show b ++ "):") $
 		satisfy model e b
 
 satisfy :: Model -> Environment -> Formula -> [Model]
@@ -98,6 +103,7 @@ satisfy model env formula =
 			let newRelations = mergeRelation newRelation relations in
 			let newModel = mkModel newDomain newRelations in
 			-- add new relation `newRelation` to `model`
+			trace ("    adding new fact " ++ showRelation newRelation ++ " to model") $
 			[newModel]
 		ExistentialQuantifier [] f -> self env f
 		ExistentialQuantifier (v:vs) f ->
@@ -112,6 +118,7 @@ satisfy model env formula =
 			else
 				-- add new domain member `nextDomainMember` for variable `v`
 				-- and expand domain of model to `nextDomainMember` in length
+				trace ("    adding new domain member (" ++ show nextDomainMember ++ ") for variable (" ++ show v ++ ")") $
 				satisfy newModel newEnvironment f'
 		_ -> error ("formula not in positive existential form: " ++ show formula)
 

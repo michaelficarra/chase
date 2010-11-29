@@ -370,11 +370,19 @@ loadModel fileName = readFile ("./models/" ++ fileName)
 
 showModel :: Model -> String
 -- nicely outputs a Model
-showModel (domain,relations) = "( domain: 1.." ++ (show.length $ domain) ++ ", relations: [" ++ (intercalate ", " truths) ++ "] )"
+showModel (domain,relations) = "( domain: 1.." ++ (show.length $ domain) ++ ", relations: {" ++ (intercalate ", " truths) ++ "} )"
 	where
 		truths = concat $ map (\(predicate,arity,arrVars) ->
 				map (\vars -> predicate ++ "[" ++ intercalate "," (map show vars) ++ "]") arrVars
 			) relations
+
+showFact :: Relation -> String
+showFact fact@(predicate,arity,truthTable) =
+	predicate ++ (intercalate "," (map show truthTable))
+showRelation = showFact
+
+showBinding (var,domainMember) = show var ++ "=>" ++ show domainMember
+showEnvironment env = "( " ++ (intercalate ", " $ map showBinding env) ++ " )"
 
 instance Show Variable where
 	show (Variable v) = v
